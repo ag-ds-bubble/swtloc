@@ -2,7 +2,7 @@ import numpy as np
 from cv2 import cv2
 
 class BubbleBBOX:
-    
+
     def __init__(self, labelmask, comp_props, lookup_radii_multiplier=0.8,
                  sw_ratio = 2, cl_deviat = [13,13,13], ht_ratio = 2, ar_ratio = 3, ang_deviat = 30):
         
@@ -103,7 +103,6 @@ class BubbleBBOX:
         check4 = any(k <= self.ang_deviat for k in [diff1, diff2])
         # Check for the Aspect Ratio
         check5 = (1/self.ar_ratio) <= (comp_ar/label_ar) <= self.ar_ratio
-
         return check1 and check2 and check3 and check4 and check5
         
     def grouplabel(self, label, bucket):
@@ -127,8 +126,39 @@ class BubbleBBOX:
             curr_bucket = self.grouplabel(label=curr_label, bucket=[curr_label])
             self.grouped_labels.append(curr_bucket)
             self.ungrouped_labels = self.ungrouped_labels.difference(set(curr_bucket))
+
         
-        return self.grouped_labels
+        self.grouped_bubblebbox = [] 
+        
+        self.grouped_annot_bubble = np.zeros(self.labelmask.shape, dtype=np.uint8)
+        self.grouped_annot_bubble = cv2.cvtColor(self.grouped_annot_bubble, cv2.COLOR_GRAY2BGR)
+
+        self.grouped_annot = np.zeros(self.labelmask.shape, dtype=np.uint8)
+        self.grouped_annot = cv2.cvtColor(self.grouped_annot, cv2.COLOR_GRAY2BGR)
+
+        for each_group in self.grouped_labels:
+            mask = np.zeros(self.labelmask.shape, dtype=np.uint8)
+            for each_label in each_group:
+                label_ct, label_bx = self.get_attr(each_label, mode = 'proximity')
+                radii = max([np.linalg.norm(epnt[::-1]-label_ct) for epnt in label_bx])
+                mask += self.create_circular_mask(label_ct[::-1], radii)
+            
+            contours, hierarchy = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+            self.grouped_bubblebbox.append(contours)
+
+            mask = np.zeros(self.labelmask.shape, dtype=np.uint8)
+            for each_label in each_group:
+                mask += self.labelmask==each_label
+            mask*=255
+            self.grouped_annot_bubble += cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
+            self.grouped_annot += cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
+            cv2.drawContours(self.grouped_annot_bubble, contours, -1, (0,0,255), 2)
+
+            rotrect = cv2.minAreaRect(contours[0])
+            combbbox = cv2.boxPoints(rotrect)
+            self.grouped_annot += cv2.polylines(self.grouped_annot, np.int32([combbbox]), True, (0,0,255), 2)
+            
+        return self.grouped_labels, self.grouped_bubblebbox, self.grouped_annot_bubble,  self.grouped_annot,  self.maskviz, self.maskcomb
 
 
 

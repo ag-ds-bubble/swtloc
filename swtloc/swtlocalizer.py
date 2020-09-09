@@ -21,7 +21,7 @@ COMPONENT_PROPS = {'pixels': None,
                    'sw_countdict': None, 'sw_var': None, 'sw_median': None, 'sw_mean': None}
 
 class SWTLocalizer:
-
+    
     def __init__(self, show_report=True, multiprocessing=False):
         
         # Variable Initialisation
@@ -39,12 +39,15 @@ class SWTLocalizer:
     def obj_sanity_check(self):
         if not isinstance(self.show_report, bool):
             raise ValueError("Invalid 'show_report' type, should be of type 'bool'")
-        
+    
+
+
+
     def swttransform(self, imgpath,
                     gs_blurr = True, blurr_kernel = (5,5),
                     edge_func = 'ac', ac_sigma = 0.33,
                     minrsw=3, maxrsw=200, max_angledev=np.pi/3, check_anglediff=True,
-                    minCC_comppx = 50, maxCC_comppx = 100000,acceptCC_aspectratio=5):
+                    minCC_comppx = 50, maxCC_comppx = 10000,acceptCC_aspectratio=5):
         """
         Entry Point for the Stroke Width Transform
         """
@@ -106,6 +109,9 @@ class SWTLocalizer:
             img_generator = pbar.spbar(self.imgpaths, len(self.imgpaths))
 
         return img_generator
+
+
+
 
     def image_read(self, imgpath, gs_blurr = True, blurr_kernel = (5,5)):
         
@@ -265,7 +271,6 @@ class SWTLocalizer:
 
         return ext_bboxes, temp2
 
-
     def get_comp_outline(self, show = False, padding = 5):
         
         outlines = []
@@ -281,14 +286,16 @@ class SWTLocalizer:
 
         return outlines, temp
 
+
     def get_grouped(self, lookup_radii_multiplier=0.8, sw_ratio=2,
                     cl_deviat=[13,13,13], ht_ratio=2, ar_ratio=3, ang_deviat=30):
         
         bubbleBbox = BubbleBBOX(labelmask = self.swtlabelled_pruned1, comp_props = self.components_props, lookup_radii_multiplier=lookup_radii_multiplier, 
                                 sw_ratio=sw_ratio, cl_deviat=cl_deviat, ht_ratio=ht_ratio, ar_ratio=ar_ratio,
                                 ang_deviat=ang_deviat)
-        grouped_labels = bubbleBbox.run_grouping()
-        print(grouped_labels)
+        grouped_labels, grouped_bubblebbox, grouped_annot_bubble, grouped_annot, maskviz, maskcomb = bubbleBbox.run_grouping()
+
+        return grouped_labels, grouped_bubblebbox, grouped_annot_bubble, grouped_annot, maskviz, maskcomb
 
 
 
