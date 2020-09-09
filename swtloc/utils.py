@@ -11,9 +11,9 @@ class ProgBar:
             - dict
         """
     def __init__(self):
-        self.ind_prog_state = 'Reading'
+        pass
 
-    def spbar(self, _iterable, itrlen, mwidth = 40, individual_mode = False,
+    def prog_bar(self, _iterable, itrlen, mwidth = 40, individual_mode = False,
                 comp_symb = '#', incomp_symb ='.',
                 arch_hold = '', block_str = '', comp_msg = '', mp_lock = True):
         
@@ -28,19 +28,16 @@ class ProgBar:
         if check2:
             _iterable = _iterable.items()
         
-        # Dont know why it works but the spbar ANSI codes wont work in
+        # Dont know why it works but the prog_bar ANSI codes wont work in
         # Windows otherwise. Need to figure this out.
         subprocess.call('', shell=True)
 
         if check1+check2 == 1:
             for idx, element in enumerate(_iterable):
-                pct = (idx+1)/(itrlen)
+                pct = (idx)/(itrlen)
                 done = int(pct*mwidth)
                 remain = mwidth - done
-                if self.indvidual_mode:
-                    msg = 'Process at - '+self.ind_prog_state
-                else:
-                    msg = f'{idx}/{itrlen} Images Done'+"."*int((idx%5)+1)
+                msg = f'{idx}/{itrlen} Images Done'+"."*int((idx%5)+1)
 
                 prog = '%s%s%s%s' % (unitColor, '\033[7m' + ' '*done + ' \033[27m', endColor, ' '*remain)
                 prog_txt = "\r\t{0} @ {1} |{2}| -> STATUS: {3}% {4}".format(current_process().name, arch_hold, prog, np.round(pct*100, 1), msg)
@@ -50,12 +47,9 @@ class ProgBar:
                 time.sleep(0.01)
                 yield element
 
-            if self.indvidual_mode:
-                msg = 'Transformation Complete.'
-            else:
-                msg = f'{itrlen}/{itrlen} Images Done'+". Transformations Complete"
+            msg = f'{itrlen}/{itrlen} Images Done'+". Transformations Complete"
                 
-            prog = '%s%s%s%s' % (unitColor, '\033[7m' + ' '*int(mwidth/2 - 4) + 'COMPLETE' + ' '*int(mwidth/2 -4) + ' \033[27m', endColor, ' '*remain)
+            prog = '%s%s%s' % (unitColor, '\033[7m' + ' '*int(mwidth/2 - 4) + 'COMPLETE' + ' '*int(mwidth/2 -4) + ' \033[27m', endColor)
             prog_txt = "\r\t{0} @ {1} |{2}| -> STATUS: {3}% {4}".format(current_process().name, arch_hold, prog, np.round(pct*100, 1), msg)
             sys.stdout.write(prog_txt)
             sys.stdout.flush()
@@ -63,7 +57,7 @@ class ProgBar:
             
             
         else:
-            raise TypeError("'spbar' can only accept one of \
+            raise TypeError("'prog_bar' can only accept one of \
                             ['list', 'dict'] as the iterable")
 
 
@@ -118,7 +112,6 @@ def prepCC(labelmask):
     colored_masks = np.dstack((rmask, gmask, bmask))
     return colored_masks.astype(np.uint8)
     
-        
 def imgshow(img, title='',imsize=(10,10)):
     if isinstance(img, str):
         img = cv2.imread(img)
@@ -130,7 +123,24 @@ def imgshow(img, title='',imsize=(10,10)):
         plt.imshow(img, cmap='gray')
     plt.title(title)
     plt.show()
-        
+
+def imgsave(img, title, savepath, imsize=(10,10)):
+    if isinstance(img, str):
+        img = cv2.imread(img)
+    
+    fig,ax = plt.subplots(figsize=imsize)
+    if len(img.shape) == 3:
+        plt.imshow(imutils.convenience.opencv2matplotlib(img))
+    elif len(img.shape) == 2:
+        plt.imshow(img, cmap='gray')
+    plt.title(title)
+    plt.savefig(savepath, bbox_inches='tight')
+    plt.close()
+
+
+
+
+
 def imgshowN(images:list, titles:list=[], place_pix_val=False):
 
     if titles == []:

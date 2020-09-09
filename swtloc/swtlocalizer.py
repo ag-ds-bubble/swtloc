@@ -1,6 +1,6 @@
 # Author : Achintya Gupta
 
-from .utils import ProgBar, auto_canny, prepCC, print_valcnts, imgshow, imgshowN
+from .utils import ProgBar, auto_canny, prepCC, print_valcnts, imgshow, imgshowN, imgsave
 from .swt import SWT
 from .bubble_bbox import BubbleBBOX
 
@@ -30,60 +30,48 @@ class SWTLocalizer:
         # Sanity Check for the object so created
         self.obj_sanity_check()
 
-        self.progress_ind = True
         self.has_custom_edge_func = False
         self.components_props = {}
-
-        self.next_state_curr_function_map = {'Edge_Conversion':self.image_read}
 
     def obj_sanity_check(self):
         if not isinstance(self.show_report, bool):
             raise ValueError("Invalid 'show_report' type, should be of type 'bool'")
     
 
+    def swttransform(self, imgpaths, save_results = False, save_rootpath = '../SWTlocResults/', *args, **kwargs):
+        self.imgpaths = imgpaths
+        self.save_rootpath = os.path.abspath(save_rootpath)
+        self.sanity_check_transform()
 
+        # Progress bar to report the total done
+        probarObj = ProgBar()
+        self.probar = probarObj.prog_bar(self.imgpaths, len(self.imgpaths))
+        for each_imgpath in self.probar:
+            self.transform(imgpath=each_imgpath, **kwargs)
+            if save_results:
+                imgname = each_imgpath.split('/')[-1].split('.')[0]
+                savepath = self.save_rootpath+f'/{imgname}'
+                self.save(savepath=savepath)
 
-    def swttransform(self, imgpath,
-                    gs_blurr = True, blurr_kernel = (5,5),
-                    edge_func = 'ac', ac_sigma = 0.33,
-                    minrsw=3, maxrsw=200, max_angledev=np.pi/3, check_anglediff=True,
-                    minCC_comppx = 50, maxCC_comppx = 10000,acceptCC_aspectratio=5):
-        """
-        Entry Point for the Stroke Width Transform
-        """
+    def save(self, savepath):
+        
+        os.makedirs(savepath, exist_ok=True)
 
-        # Read the image..
-        orig_img, origgray_img = self.image_read(imgpath=imgpath, gs_blurr=gs_blurr, blurr_kernel=blurr_kernel)
-        # imgshowN([orig_img, origgray_img])
-
-        # Find the image edge
-        origgray_img, grayedge_img = self.image_edge(gray_image = origgray_img, edge_func = edge_func, ac_sigma = ac_sigma)
-        # imgshowN([origgray_img, grayedge_img])
-
-        # Find the image gradient
-        img_gradient = self.image_gradient(orignal_img = origgray_img, edged_img=grayedge_img)
-        hstep_mat  = np.round(np.cos(img_gradient), 5)
-        vstep_mat  = np.round(np.sin(img_gradient), 5)
-        # imgshowN([grayedge_img, img_gradient], 
-        #                         ['Image Edge', 'Image Gradient Angle'])
-
-        # Find the Stroke Widths in the Image
-        swtObj = SWT(edgegray_img = grayedge_img, hstepmat = hstep_mat, vstepmat = vstep_mat, imggradient = img_gradient,
-                     minrsw=minrsw, maxrsw=maxrsw, max_angledev=max_angledev, check_anglediff=check_anglediff)
-        self.swt_mat = swtObj.find_strokes()
-        # imgshowN([grayedge_img, self.swt_mat])
-
-        # Find the connected Components in the image
-        numlabels, swt_labelled = self.image_swtcc(swt_mat=self.swt_mat)
-        swt_labelled3C = prepCC(swt_labelled)
-        # imgshowN([swt_labelled, swt_labelled3C])
-
-        # Pruning - Level 1
-        self.swtlabelled_pruned1 = self.image_prune_getprops(orig_img = orig_img, swtlabelled=swt_labelled, minCC_comppx=minCC_comppx,
-                                                        maxCC_comppx=maxCC_comppx, acceptCC_aspectratio = acceptCC_aspectratio)
-        self.swtlabelled_pruned13C = prepCC(self.swtlabelled_pruned1)
-        # imgshowN([self.swtlabelled_pruned1, self.swtlabelled_pruned13C])
-
+        # Save Original Image
+        imgsave(self.orig_img, title='Orignal', savepath=savepath+'/orig_img.jpg')
+        
+        # Save Original Image
+        imgsave(self.grayedge_img, title='EdgeImage', savepath=savepath+'/edge_img.jpg')
+        
+        # Save Original Image
+        imgsave(self.img_gradient, title='Gradient', savepath=savepath+'/grad_img.jpg')
+        
+        # Save Original Image
+        imgsave(self.swt_labelled3C, title='SWT Transform', savepath=savepath+'/swt3C_img.jpg')
+        
+        # Save Original Image
+        imgsave(self.swtlabelled_pruned13C, title='SWT Pruned', savepath=savepath+'/swtpruned3C_img.jpg')
+        
     def sanity_check_transform(self):
         
         # Check for imgpaths
@@ -101,16 +89,46 @@ class SWTLocalizer:
         else:
             raise ValueError("'imgpaths' argument needs to be of type 'str' or 'list'")
 
-        # Create generator
-        pbar = ProgBar()
-        if self.progress_ind:
-            img_generator = pbar.spbar(self.imgpaths, len(self.imgpaths), individual_mode = True)
-        else:
-            img_generator = pbar.spbar(self.imgpaths, len(self.imgpaths))
-
-        return img_generator
+            
+        if not os.path.isdir(self.save_rootpath):
+            os.makedirs(self.save_rootpath, exist_ok=True)
 
 
+    def transform(self, imgpath, text_mode = 'wb_bf',
+                  gs_blurr = True, blurr_kernel = (5,5),
+                  edge_func = 'ac', ac_sigma = 0.33,
+                  minrsw=3, maxrsw=200, max_angledev=np.pi/6, check_anglediff=True,
+                  minCC_comppx = 50, maxCC_comppx = 100000, acceptCC_aspectratio=5):
+        """
+        Entry Point for the Stroke Width Transform - Single Image
+        """
+        # Read the image..
+        self.orig_img, origgray_img = self.image_read(imgpath=imgpath, gs_blurr=gs_blurr, blurr_kernel=blurr_kernel)
+
+        # Find the image edge
+        origgray_img, self.grayedge_img = self.image_edge(gray_image = origgray_img, edge_func = edge_func, ac_sigma = ac_sigma)
+
+        # Find the image gradient
+        self.img_gradient = self.image_gradient(orignal_img = origgray_img, edged_img=self.grayedge_img)
+        hstep_mat  = np.round(np.cos(self.img_gradient), 5)
+        vstep_mat  = np.round(np.sin(self.img_gradient), 5)
+        if text_mode == 'bb_wf':
+            hstep_mat *= -1
+            vstep_mat *= -1
+
+        # Find the Stroke Widths in the Image
+        self.swtObj = SWT(edgegray_img = self.grayedge_img, hstepmat = hstep_mat, vstepmat = vstep_mat, imggradient = self.img_gradient,
+                     minrsw=minrsw, maxrsw=maxrsw, max_angledev=max_angledev, check_anglediff=check_anglediff)
+        self.swt_mat = self.swtObj.find_strokes()
+
+        # Find the connected Components in the image
+        numlabels, self.swt_labelled = self.image_swtcc(swt_mat=self.swt_mat)
+        self.swt_labelled3C = prepCC(self.swt_labelled)
+
+        # Prune and Extract LabelComponet Properties
+        self.swtlabelled_pruned1 = self.image_prune_getprops(orig_img = self.orig_img, swtlabelled=self.swt_labelled, minCC_comppx=minCC_comppx,
+                                                        maxCC_comppx=maxCC_comppx, acceptCC_aspectratio = acceptCC_aspectratio)
+        self.swtlabelled_pruned13C = prepCC(self.swtlabelled_pruned1)
 
 
     def image_read(self, imgpath, gs_blurr = True, blurr_kernel = (5,5)):
@@ -206,8 +224,8 @@ class SWTLocalizer:
                 self.components_props[label]['bbm_ang'] = bbox_ang
 
                 _iy, _ix = lmask.nonzero()
-                mean_rgbcolor = orig_img[_iy, _ix].mean(axis=0)
-                median_rgbcolor = np.median(orig_img[_iy, _ix], axis=0)
+                mean_rgbcolor = self.orig_img[_iy, _ix].mean(axis=0)
+                median_rgbcolor = np.median(self.orig_img[_iy, _ix], axis=0)
                 self.components_props[label]['img_color_mean'] = str(list(np.floor(mean_rgbcolor)))
                 self.components_props[label]['img_color_median'] = str(list(np.floor(median_rgbcolor)))
 
@@ -220,6 +238,9 @@ class SWTLocalizer:
                 self.components_props[label]['sw_mean'] = np.mean(sw_xyvals)
 
         return swtlabelled_pruned
+
+
+
 
     def get_min_bbox(self, show = False, padding = 5):
         
@@ -285,7 +306,6 @@ class SWTLocalizer:
             imgshow(temp, 'Component Outlines')
 
         return outlines, temp
-
 
     def get_grouped(self, lookup_radii_multiplier=0.8, sw_ratio=2,
                     cl_deviat=[13,13,13], ht_ratio=2, ar_ratio=3, ang_deviat=30):
