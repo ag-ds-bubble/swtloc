@@ -1,10 +1,8 @@
 # SWTloc : Stroke Width Transform Text Localizer
-
 <img style="float: right;" src="swtloc/images/logo.png" height=139 width=418 align="right">
 
 
 ## Description
-****
 
 This repo contains a python implementation structured as a python package pertaining to the text localization method as in a natural image as outlayed in the Research Paper :- 
 
