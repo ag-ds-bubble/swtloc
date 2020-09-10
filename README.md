@@ -44,24 +44,28 @@ pip install swtloc
 - ### Individual & Grouped Bounding Boxes and Annotations
     These group of functions returns bounding boxes to individual components and grouped bounding boxes of words.
     - *Minimum CC Bounding Boxes*
+
         Generate Minimum Bounding box for each of the Connected Components after applying SWT, can be a rotated rectangle.
         ```py
         min_bboxes, min_bbox_annotated = swtl.get_min_bbox(show=True, padding=10)
         ```
         <img style="float: right;" src="swtloc/images/test_img3_res.jpg" align="centre">
     - *Extreme CC Bounding Boxes*
+
         Generate External Bounding box for each of the Connected Components after applying SWT.
         ```py
         min_bboxes, min_bbox_annotated = swtl.get_extreme_bbox(show=True, padding=10)
         ```
         <img style="float: right;" src="swtloc/images/test_img6_res.jpg" align="centre">
     - *CC Outline*
+
         Generate Outline of each of the Connected Components after applying SWT.
         ```py
         comp_outlines, comp_outline_annot = swtl.get_comp_outline(show=True, padding=10)
         ```
         <img style="float: right;" src="swtloc/images/test_img9_res.jpg" align="centre">
     - *CC Bubble Bounding Boxes*
+
         Generate Bubble Bounding box for the **grouped letters into a word**.
         ```py
         respacket = swtl.get_grouped(lookup_radii_multiplier=1, sw_ratio=2,
@@ -76,6 +80,8 @@ pip install swtloc
         maskcomb  = respacket[5]
         ```
         <img style="float: right;" src="swtloc/images/test_img7_res.jpg" align="centre">
+        
+        <img style="float: right;" src="swtloc/images/test_img2_res1.jpg" align="centre">
         ****
     *CC = Connected Component
 
