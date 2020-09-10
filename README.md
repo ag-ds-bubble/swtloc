@@ -1,11 +1,12 @@
 # SWTloc : Stroke Width Transform Text Localizer
-****
+
 <img style="float: right;" src="swtloc/images/logo.png" height=139 width=418 align="right">
 
 
 ## Description
+****
 
-This repo contains a python implementation structured as a python package pertaining to the text localization method as outlayed in the Research Paper :- 
+This repo contains a python implementation structured as a python package pertaining to the text localization method as in a natural image as outlayed in the Research Paper :- 
 
 [Detecting Text in Natural Scenes with Stroke Width Transform.
 Boris Epshtein, Eyal Ofek & Yonatan Wexler
@@ -36,6 +37,7 @@ pip install swtloc
                       acceptCC_aspectratio = 5)
 
     ```
+    ****
 - ### Individual & Grouped Bounding Boxes and Annotations
     These group of functions returns bounding boxes to individual components and grouped bounding boxes of words.
     - *Minimum CC Bounding Boxes*
@@ -54,7 +56,7 @@ pip install swtloc
         comp_outlines, comp_outline_annot = swtl.get_comp_outline(show=True, padding=10)
         ```
     - *CC Bubble Bounding Boxes*
-        Generate Bubble Bounding box for the `grouped letters into a word`, .
+        Generate Bubble Bounding box for the **grouped letters into a word**.
         ```py
         respacket = swtl.get_grouped(lookup_radii_multiplier=1, sw_ratio=2,
                                      cl_deviat=[13,13,13], ht_ratio=2, 
@@ -63,14 +65,11 @@ pip install swtloc
         imgshowN([maskviz, maskcomb])
         imgshowN([grogrouped_annot_bubble, grouped_annot])
         ```
+    ****
     *CC = Connected Components
-
 
 <img style="float: right;" src="swtloc/images/logo.gif" align="centre">
 
 ## Documentation
 ****
-
-
-
 
