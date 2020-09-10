@@ -4,61 +4,51 @@ import numpy as np
 import sys
 
 #######################PROGRESS BAR#######################
-class ProgBar:
-    """
-        Iterable can be one of :
-            - list
-            - dict
-        """
-    def __init__(self):
-        pass
+def prog_bar(_iterable, itrlen, mwidth = 40, individual_mode = False,
+            comp_symb = '#', incomp_symb ='.',
+            arch_hold = '', block_str = '', comp_msg = '', mp_lock = True):
+    
 
-    def prog_bar(self, _iterable, itrlen, mwidth = 40, individual_mode = False,
-                comp_symb = '#', incomp_symb ='.',
-                arch_hold = '', block_str = '', comp_msg = '', mp_lock = True):
-        
+    unitColor = '\033[5;49m\033[5;40m'
+    endColor = '\033[5;30m\033[0;0m'
 
-        unitColor = '\033[5;49m\033[5;40m'
-        endColor = '\033[5;30m\033[0;0m'
-        self.indvidual_mode = individual_mode
+    check1 = isinstance(_iterable, list)
+    check2 = isinstance(_iterable, dict)
 
-        check1 = isinstance(_iterable, list)
-        check2 = isinstance(_iterable, dict)
+    if check2:
+        _iterable = _iterable.items()
+    
+    # Dont know why it works but the prog_bar ANSI codes wont work in
+    # Windows otherwise. Need to figure this out.
+    subprocess.call('', shell=True)
 
-        if check2:
-            _iterable = _iterable.items()
-        
-        # Dont know why it works but the prog_bar ANSI codes wont work in
-        # Windows otherwise. Need to figure this out.
-        subprocess.call('', shell=True)
+    if check1+check2 == 1:
+        for idx, element in enumerate(_iterable):
+            pct = (idx)/(itrlen)
+            done = int(pct*mwidth)
+            remain = mwidth - done
+            msg = f'{idx}/{itrlen} Images Done'+"."*int((idx%5)+1)
 
-        if check1+check2 == 1:
-            for idx, element in enumerate(_iterable):
-                pct = (idx)/(itrlen)
-                done = int(pct*mwidth)
-                remain = mwidth - done
-                msg = f'{idx}/{itrlen} Images Done'+"."*int((idx%5)+1)
-
-                prog = '%s%s%s%s' % (unitColor, '\033[7m' + ' '*done + ' \033[27m', endColor, ' '*remain)
-                prog_txt = "\r{0} @ {1} |{2}| -> STATUS: {3}% {4}".format(current_process().name, arch_hold, prog, np.round(pct*100, 1), msg)
-                sys.stdout.write(prog_txt)
-                sys.stdout.flush()
-                import time
-                time.sleep(0.01)
-                yield element
-
-            msg = f'{itrlen}/{itrlen} Images Done'+". Transformations Complete"
-                
-            prog = '%s%s%s' % (unitColor, '\033[7m' + ' '*int(mwidth/2 - 4) + 'COMPLETE' + ' '*int(mwidth/2 -4) + ' \033[27m', endColor)
+            prog = '%s%s%s%s' % (unitColor, '\033[7m' + ' '*done + ' \033[27m', endColor, ' '*remain)
             prog_txt = "\r{0} @ {1} |{2}| -> STATUS: {3}% {4}".format(current_process().name, arch_hold, prog, np.round(pct*100, 1), msg)
             sys.stdout.write(prog_txt)
             sys.stdout.flush()
-            print('\n')
+            import time
+            time.sleep(0.01)
+            yield element
+
+        msg = f'{itrlen}/{itrlen} Images Done'+". Transformations Complete"
             
-            
-        else:
-            raise TypeError("'prog_bar' can only accept one of \
-                            ['list', 'dict'] as the iterable")
+        prog = '%s%s%s' % (unitColor, '\033[7m' + ' '*int(mwidth/2 - 4) + 'COMPLETE' + ' '*int(mwidth/2 -4) + ' \033[27m', endColor)
+        prog_txt = "\r{0} @ {1} |{2}| -> STATUS: {3}% {4}".format(current_process().name, arch_hold, prog, np.round(pct*100, 1), msg)
+        sys.stdout.write(prog_txt)
+        sys.stdout.flush()
+        print('\n')
+        
+        
+    else:
+        raise TypeError("'prog_bar' can only accept one of \
+                        ['list', 'dict'] as the iterable")
 
 
 import matplotlib.pyplot as plt
@@ -136,10 +126,6 @@ def imgsave(img, title, savepath, imsize=(10,10)):
     plt.title(title)
     plt.savefig(savepath, bbox_inches='tight')
     plt.close()
-
-
-
-
 
 def imgshowN(images:list, titles:list=[], place_pix_val=False):
 

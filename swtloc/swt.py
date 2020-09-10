@@ -66,10 +66,6 @@ class SWT:
                     return False, ray_length
             return False, -1
 
-    def new_edge(self):
-        for edge in self.edge_indexes:
-            yield edge
-
     def find_strokes(self):
 
         for _yi, _xi in  zip(self.edgey, self.edgex):

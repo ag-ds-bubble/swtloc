@@ -1,6 +1,6 @@
 # Author : Achintya Gupta
 
-from .utils import ProgBar, auto_canny, prepCC, print_valcnts, imgshow, imgshowN, imgsave
+from .utils import prog_bar, auto_canny, prepCC, print_valcnts, imgshow, imgshowN, imgsave
 from .swt import SWT
 from .bubble_bbox import BubbleBBOX
 
@@ -37,16 +37,15 @@ class SWTLocalizer:
         if not isinstance(self.show_report, bool):
             raise ValueError("Invalid 'show_report' type, should be of type 'bool'")
     
-    
+
 
     def swttransform(self, imgpaths, save_results = False, save_rootpath = '../SWTlocResults/', *args, **kwargs):
         self.imgpaths = imgpaths
         self.save_rootpath = os.path.abspath(save_rootpath)
-        self.sanity_check_transform()
+        self.sanity_check_transform(kwargs)
 
         # Progress bar to report the total done
-        probarObj = ProgBar()
-        self.probar = probarObj.prog_bar(self.imgpaths, len(self.imgpaths))
+        self.probar = prog_bar(self.imgpaths, len(self.imgpaths))
         for each_imgpath in self.probar:
             self.transform(imgpath=each_imgpath, **kwargs)
             if save_results:
@@ -73,7 +72,7 @@ class SWTLocalizer:
         # Save Original Image
         imgsave(self.swtlabelled_pruned13C, title='SWT Pruned', savepath=savepath+'/swtpruned3C_img.jpg')
         
-    def sanity_check_transform(self):
+    def sanity_check_transform(self, kwargs):
         
         # Check for imgpaths
         if isinstance(self.imgpaths, str) or isinstance(self.imgpaths, list):
@@ -90,17 +89,63 @@ class SWTLocalizer:
         else:
             raise ValueError("'imgpaths' argument needs to be of type 'str' or 'list'")
 
-            
+        # Save the savepath directory, if not there then make one
         if not os.path.isdir(self.save_rootpath):
             os.makedirs(self.save_rootpath, exist_ok=True)
 
+        # Check for the kwargs for the transform function
+        if 'text_mode' in kwargs:
+            if not (kwargs['text_mode'] in ['bb_wf', 'wb_bf']):
+                raise ValueError("'text_mode' should be one of ['bb_wf', 'wb_bf']")
+        if 'gs_blurr' in kwargs:
+            if not isinstance(kwargs['gs_blurr'], bool):
+                raise ValueError("'gs_blurr' should be of type bool")
+        if 'blurr_kernel' in kwargs:
+            if not (isinstance(kwargs['blurr_kernel'], tuple) and all(isinstance(k, int) and (k%2!=0) and (k>=3) for k in kwargs['blurr_kernel']) and (kwargs['blurr_kernel'][0] == kwargs['blurr_kernel'][1])):
+                raise ValueError("'blurr_kernel' should be of type tuple, and must contain integer odd values")
+        if 'edge_func' in kwargs:
+            if isinstance(kwargs['edge_func'], str) or callable(kwargs['edge_func']):
+                if isinstance(kwargs['edge_func'], str):
+                    if not (kwargs['edge_func'] in ['ac']):
+                        raise ValueError("'edge_func' should be one of ['ac']")
+                elif not callable(kwargs['edge_func']):
+                    raise ValueError("'edge_func' custom function which returns an edged image.")
+            else:
+                raise ValueError("'edge_func' should be either 'ac' or callable")
+        if 'ac_sigma' in kwargs:
+            if not (isinstance(kwargs['ac_sigma'], float) and (0.0<=kwargs['ac_sigma']<=1.0)):
+                raise ValueError("'ac_sigma' should be of type float and value between 0 and 1")
+        if 'minrsw' in kwargs:
+            if not (isinstance(kwargs['minrsw'], int) and kwargs['minrsw']>=3):
+                raise ValueError("'minrsw' should be of type int and be more than 3")
+        if 'maxrsw' in kwargs:
+            if not( isinstance(kwargs['maxrsw'], int) and kwargs['maxrsw']>=3):
+                raise ValueError("'maxrsw' should be of type int and be more than 3")
+        if ('minrsw' in kwargs) and ('maxrsw' in kwargs):
+            if kwargs['maxrsw'] <= kwargs['minrsw']:
+                raise ValueError("'minrsw' should be smaller than 'maxrsw'")
+        if 'max_angledev' in kwargs:
+            if not (isinstance(kwargs['max_angledev'], float) and (-np.pi/2<=kwargs['max_angledev']<=np.pi/2)):
+                raise ValueError("'max_angledev' should be a float and inbetween -90° <-> 90° (in radians)")
+        if 'check_anglediff' in kwargs:
+            if not (isinstance(kwargs['check_anglediff'], bool)):
+                raise ValueError("'isinstance' should be type bool")
+        if 'minCC_comppx' in kwargs:
+            if not (isinstance(kwargs['minCC_comppx'], int) and kwargs['minCC_comppx']>0):
+                raise ValueError("'minCC_comppx' should be type int")
+        if 'maxCC_comppx' in kwargs:
+            if not (isinstance(kwargs['maxCC_comppx'], int) and kwargs['maxCC_comppx']>0):
+                raise ValueError("'maxCC_comppx' should be of type int")
+        if 'acceptCC_aspectratio' in kwargs:
+            if not (isinstance(kwargs['acceptCC_aspectratio'], int) and kwargs['acceptCC_aspectratio']>0):
+                raise ValueError("'acceptCC_aspectratio' should be of type int and positive")
 
 
     def transform(self, imgpath, text_mode = 'wb_bf',
                   gs_blurr = True, blurr_kernel = (5,5),
                   edge_func = 'ac', ac_sigma = 0.33,
                   minrsw=3, maxrsw=200, max_angledev=np.pi/6, check_anglediff=True,
-                  minCC_comppx = 50, maxCC_comppx = 100000, acceptCC_aspectratio=5):
+                  minCC_comppx = 50, maxCC_comppx = 10000, acceptCC_aspectratio=5):
         """
         Entry Point for the Stroke Width Transform - Single Image
         """
@@ -243,7 +288,7 @@ class SWTLocalizer:
         return swtlabelled_pruned
 
 
-
+    # Get the Grouping and Bounding BBoxes
     def get_min_bbox(self, show = False, padding = 5):
         
         min_bboxes = []
@@ -277,17 +322,19 @@ class SWTLocalizer:
         ext_bboxes = []
         temp1 = self.swtlabelled_pruned1.copy()
         temp2 = self.swtlabelled_pruned13C.copy()
+
         for label, labelprops in self.components_props.items():
             lmask = (temp1 == label).astype(np.uint16)
-            _iy, _ix = lmask.nonzero()
-            _tr = [max(_ix)+padding, min(_iy)-padding]
-            _br = [max(_ix)+padding, max(_iy)+padding]
-            _bl = [min(_ix)-padding, max(_iy)+padding]
-            _tl = [min(_ix)-padding, min(_iy)-padding]
-            bbe_bbox = np.c_[_tr,_br,_bl,_tl].T.astype(int)
-            ext_bboxes.append(bbe_bbox)
-    
-            temp2 = cv2.polylines(temp2, [bbe_bbox], True, (0,0,255), 1)
+            if np.sum(lmask)>0:
+                _iy, _ix = lmask.nonzero()
+                _tr = [max(_ix)+padding, min(_iy)-padding]
+                _br = [max(_ix)+padding, max(_iy)+padding]
+                _bl = [min(_ix)-padding, max(_iy)+padding]
+                _tl = [min(_ix)-padding, min(_iy)-padding]
+                bbe_bbox = np.c_[_tr,_br,_bl,_tl].T.astype(int)
+                ext_bboxes.append(bbe_bbox)
+        
+                temp2 = cv2.polylines(temp2, [bbe_bbox], True, (0,0,255), 1)
         
         if show:
             imgshow(temp2, 'Extreme Bounding Box')
