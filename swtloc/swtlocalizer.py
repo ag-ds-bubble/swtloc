@@ -10,10 +10,10 @@ from cv2 import cv2
 import numpy as np
 import warnings
 import math
+import time
+
 warnings.filterwarnings('ignore')
 
-AVAILABLE_EDGE_METHODS = ['ac']
-AVAILABLE_GRADIENT_METHODS = ['sobel']
 COMPONENT_PROPS = {'pixels': None,
                    'bbm_h': None, 'bbm_w': None, 'bbm_cx': None, 'bbm_cy': None, 'bbm_ar': None,
                    'bbm_bbox': None, 'bbm_outline': None, 'bbm_ang': None,
@@ -95,8 +95,8 @@ class SWTLocalizer:
 
         # Check for the kwargs for the transform function
         if 'text_mode' in kwargs:
-            if not (kwargs['text_mode'] in ['bb_wf', 'wb_bf']):
-                raise ValueError("'text_mode' should be one of ['bb_wf', 'wb_bf']")
+            if not (kwargs['text_mode'] in ['db_lf', 'lb_df']):
+                raise ValueError("'text_mode' should be one of ['db_lf', 'lb_df']")
         if 'gs_blurr' in kwargs:
             if not isinstance(kwargs['gs_blurr'], bool):
                 raise ValueError("'gs_blurr' should be of type bool")
@@ -149,6 +149,7 @@ class SWTLocalizer:
         """
         Entry Point for the Stroke Width Transform - Single Image
         """
+        ts = time.perf_counter_ns()
         # Read the image..
         self.orig_img, origgray_img = self.image_read(imgpath=imgpath, gs_blurr=gs_blurr, blurr_kernel=blurr_kernel)
 
@@ -159,7 +160,7 @@ class SWTLocalizer:
         self.img_gradient = self.image_gradient(orignal_img = origgray_img, edged_img=self.grayedge_img)
         hstep_mat  = np.round(np.cos(self.img_gradient), 5)
         vstep_mat  = np.round(np.sin(self.img_gradient), 5)
-        if text_mode == 'bb_wf':
+        if text_mode == 'db_lf':
             hstep_mat *= -1
             vstep_mat *= -1
 
@@ -177,6 +178,8 @@ class SWTLocalizer:
                                                         maxCC_comppx=maxCC_comppx, acceptCC_aspectratio = acceptCC_aspectratio)
         self.swtlabelled_pruned13C = prepCC(self.swtlabelled_pruned1)
 
+        self.transform_time = str(np.round((time.perf_counter_ns() - ts)/1e9, 3))+' sec'
+
 
 
     def image_read(self, imgpath, gs_blurr = True, blurr_kernel = (5,5)):
@@ -191,7 +194,7 @@ class SWTLocalizer:
     def image_edge(self, gray_image, edge_func, ac_sigma):
 
         if edge_func == 'ac':
-            image_edge = auto_canny(image=gray_image)
+            image_edge = auto_canny(image=gray_image, sigma=ac_sigma)
         elif callable(edge_func):
             image_edge = edge_func(gray_image)
 

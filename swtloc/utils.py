@@ -3,6 +3,13 @@ from multiprocessing import current_process
 import numpy as np
 import sys
 
+import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1 import ImageGrid
+import seaborn as sns
+import imutils
+from cv2 import cv2
+
+
 #######################PROGRESS BAR#######################
 def prog_bar(_iterable, itrlen, mwidth = 40, individual_mode = False,
             comp_symb = '#', incomp_symb ='.',
@@ -51,12 +58,6 @@ def prog_bar(_iterable, itrlen, mwidth = 40, individual_mode = False,
                         ['list', 'dict'] as the iterable")
 
 
-import matplotlib.pyplot as plt
-from mpl_toolkits.axes_grid1 import ImageGrid
-import seaborn as sns
-import imutils
-from cv2 import cv2
-
 
 def auto_canny(image, sigma=0.33):
     # compute the median of the single channel pixel intensities
@@ -93,7 +94,7 @@ def prepCC(labelmask):
     countdict = print_valcnts(labelmask, _print=False)
     
     for color, label in zip(allcolors, np.unique(rmask)):
-        if label == list(countdict.keys())[0]:
+        if label == 0:
             color = (0,0,0)
         rmask[rmask==label] = int(color[0]*255)
         gmask[gmask==label] = int(color[1]*255)
@@ -127,7 +128,8 @@ def imgsave(img, title, savepath, imsize=(10,10)):
     plt.savefig(savepath, bbox_inches='tight')
     plt.close()
 
-def imgshowN(images:list, titles:list=[], place_pix_val=False):
+def imgshowN(images:list, titles:list=[], place_pix_val=False,
+             sup_title='Grouped Images', savepath=None, figsize = (10,10)):
 
     if titles == []:
         titles = ['Image '+str(k+1) for k in range(len(images))]
@@ -137,7 +139,8 @@ def imgshowN(images:list, titles:list=[], place_pix_val=False):
     _rows = int(np.ceil(len(images)/3))
     _cols = len(images) if len(images)<=3 else 3
     
-    fig = plt.figure(figsize=(10., 10.), dpi = 100)
+    fig = plt.figure(figsize=figsize, dpi = 100)
+    fig.suptitle(sup_title, fontsize=10)
     plt.rcParams['figure.dpi']=120
 
     grid = ImageGrid(fig, 111, nrows_ncols=(_rows, _cols), axes_pad=0.1)
@@ -157,7 +160,10 @@ def imgshowN(images:list, titles:list=[], place_pix_val=False):
         
     for _delax in grid[len(images):]:
         fig.delaxes(_delax)
-        
+    
+    if savepath:
+        plt.savefig(savepath, bbox_inches='tight')
+
     plt.show()
     
 

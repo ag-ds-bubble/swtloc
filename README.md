@@ -12,6 +12,7 @@ This repo contains a python implementation structured as a python package pertai
 Boris Epshtein, Eyal Ofek & Yonatan Wexler
 (June, 2010)](https://www.microsoft.com/en-us/research/publication/detecting-text-in-natural-scenes-with-stroke-width-transform/)
 
+<img style="float: right;" src="swtloc/images/logo.gif" align="centre">
 
 ## Installation
 ****
@@ -37,6 +38,8 @@ pip install swtloc
                       acceptCC_aspectratio = 5)
 
     ```
+    <img style="float: right;" src="swtloc/images/test_img2_res.jpg" align="centre">
+
     ****
 - ### Individual & Grouped Bounding Boxes and Annotations
     These group of functions returns bounding boxes to individual components and grouped bounding boxes of words.
@@ -45,30 +48,39 @@ pip install swtloc
         ```py
         min_bboxes, min_bbox_annotated = swtl.get_min_bbox(show=True, padding=10)
         ```
+        <img style="float: right;" src="swtloc/images/test_img3_res.jpg" align="centre">
     - *Extreme CC Bounding Boxes*
         Generate External Bounding box for each of the Connected Components after applying SWT.
         ```py
         min_bboxes, min_bbox_annotated = swtl.get_extreme_bbox(show=True, padding=10)
         ```
+        <img style="float: right;" src="swtloc/images/test_img6_res.jpg" align="centre">
     - *CC Outline*
         Generate Outline of each of the Connected Components after applying SWT.
         ```py
         comp_outlines, comp_outline_annot = swtl.get_comp_outline(show=True, padding=10)
         ```
+        <img style="float: right;" src="swtloc/images/test_img9_res.jpg" align="centre">
     - *CC Bubble Bounding Boxes*
         Generate Bubble Bounding box for the **grouped letters into a word**.
         ```py
         respacket = swtl.get_grouped(lookup_radii_multiplier=1, sw_ratio=2,
-                                     cl_deviat=[13,13,13], ht_ratio=2, 
-                                     ar_ratio=2, ang_deviat=30)
-        grouped_labels, grouped_bubblebbox, grogrouped_annot_bubble, grouped_annot, maskviz, maskcomb  = respacket
-        imgshowN([maskviz, maskcomb])
-        imgshowN([grogrouped_annot_bubble, grouped_annot])
+                             cl_deviat=[13,13,13], ht_ratio=2, 
+                             ar_ratio=3, ang_deviat=30)
+        
+        grouped_labels = respacket[0]
+        grouped_bubblebbox = respacket[1]
+        grogrouped_annot_bubble = respacket[2]
+        grouped_annot = respacket[3]
+        maskviz = respacket[4]
+        maskcomb  = respacket[5]
         ```
-    ****
-    *CC = Connected Components
+        <img style="float: right;" src="swtloc/images/test_img7_res.jpg" align="centre">
+        ****
+    *CC = Connected Component
 
-<img style="float: right;" src="swtloc/images/logo.gif" align="centre">
+
+
 
 ## Documentation
 ****
