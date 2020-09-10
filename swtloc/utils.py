@@ -140,7 +140,9 @@ def imgshowN(images:list, titles:list=[], place_pix_val=False,
     _cols = len(images) if len(images)<=3 else 3
     
     fig = plt.figure(figsize=figsize, dpi = 100)
-    fig.suptitle(sup_title, fontsize=10)
+    plt.xlabel(sup_title, fontsize=10)
+    plt.tick_params(top=False, bottom=False, left=False, right=False,
+                    labelleft=False, labelbottom=False)
     plt.rcParams['figure.dpi']=120
 
     grid = ImageGrid(fig, 111, nrows_ncols=(_rows, _cols), axes_pad=0.1)
@@ -157,6 +159,7 @@ def imgshowN(images:list, titles:list=[], place_pix_val=False,
                         _ax.annotate(_img[_y,_x], (_x-0.3,_y), color='r', fontsize=6)
                         
         _ax.set_title(_title)
+        
         
     for _delax in grid[len(images):]:
         fig.delaxes(_delax)
