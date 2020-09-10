@@ -44,7 +44,7 @@ class BubbleBBOX:
             radii = max([np.linalg.norm(epnt[::-1]-label_ct) for epnt in label_bx])*self.lookup_radii_multiplier
             
             cv2.putText(self.maskviz, str(label), tuple(label_an),
-                        cv2.FONT_HERSHEY_PLAIN,  5, 
+                        cv2.FONT_HERSHEY_PLAIN,  5,
                         2, 1, cv2.LINE_AA)
             cv2.polylines(self.maskviz, np.int32([label_bx]), True, 1, 1)
             mask = self.create_circular_mask(label_ct[::-1], radii)
@@ -150,10 +150,11 @@ class BubbleBBOX:
             for each_label in each_group:
                 mask += self.labelmask==each_label
             mask*=255
-            self.grouped_annot_bubble += cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
-            self.grouped_annot += cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
-            cv2.drawContours(self.grouped_annot_bubble, contours, -1, (0,0,255), 2)
 
+            self.grouped_annot_bubble += cv2.cvtColor(mask.copy(), cv2.COLOR_GRAY2BGR)
+            self.grouped_annot += cv2.cvtColor(mask.copy(), cv2.COLOR_GRAY2BGR)
+            cv2.drawContours(self.grouped_annot_bubble, contours, -1, (0,0,255), 2)
+            
             rotrect = cv2.minAreaRect(contours[0])
             combbbox = cv2.boxPoints(rotrect)
             self.grouped_annot += cv2.polylines(self.grouped_annot, np.int32([combbbox]), True, (0,0,255), 2)

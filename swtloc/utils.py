@@ -40,7 +40,7 @@ class ProgBar:
                 msg = f'{idx}/{itrlen} Images Done'+"."*int((idx%5)+1)
 
                 prog = '%s%s%s%s' % (unitColor, '\033[7m' + ' '*done + ' \033[27m', endColor, ' '*remain)
-                prog_txt = "\r\t{0} @ {1} |{2}| -> STATUS: {3}% {4}".format(current_process().name, arch_hold, prog, np.round(pct*100, 1), msg)
+                prog_txt = "\r{0} @ {1} |{2}| -> STATUS: {3}% {4}".format(current_process().name, arch_hold, prog, np.round(pct*100, 1), msg)
                 sys.stdout.write(prog_txt)
                 sys.stdout.flush()
                 import time
@@ -50,7 +50,7 @@ class ProgBar:
             msg = f'{itrlen}/{itrlen} Images Done'+". Transformations Complete"
                 
             prog = '%s%s%s' % (unitColor, '\033[7m' + ' '*int(mwidth/2 - 4) + 'COMPLETE' + ' '*int(mwidth/2 -4) + ' \033[27m', endColor)
-            prog_txt = "\r\t{0} @ {1} |{2}| -> STATUS: {3}% {4}".format(current_process().name, arch_hold, prog, np.round(pct*100, 1), msg)
+            prog_txt = "\r{0} @ {1} |{2}| -> STATUS: {3}% {4}".format(current_process().name, arch_hold, prog, np.round(pct*100, 1), msg)
             sys.stdout.write(prog_txt)
             sys.stdout.flush()
             print('\n')

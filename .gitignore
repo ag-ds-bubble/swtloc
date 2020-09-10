@@ -20,3 +20,6 @@ swtloc_venv
 testrun.py
 
 testimages/
+gifimages/
+example.gif
+images2gif.py

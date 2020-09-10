@@ -37,6 +37,7 @@ class SWTLocalizer:
         if not isinstance(self.show_report, bool):
             raise ValueError("Invalid 'show_report' type, should be of type 'bool'")
     
+    
 
     def swttransform(self, imgpaths, save_results = False, save_rootpath = '../SWTlocResults/', *args, **kwargs):
         self.imgpaths = imgpaths
@@ -94,6 +95,7 @@ class SWTLocalizer:
             os.makedirs(self.save_rootpath, exist_ok=True)
 
 
+
     def transform(self, imgpath, text_mode = 'wb_bf',
                   gs_blurr = True, blurr_kernel = (5,5),
                   edge_func = 'ac', ac_sigma = 0.33,
@@ -129,6 +131,7 @@ class SWTLocalizer:
         self.swtlabelled_pruned1 = self.image_prune_getprops(orig_img = self.orig_img, swtlabelled=self.swt_labelled, minCC_comppx=minCC_comppx,
                                                         maxCC_comppx=maxCC_comppx, acceptCC_aspectratio = acceptCC_aspectratio)
         self.swtlabelled_pruned13C = prepCC(self.swtlabelled_pruned1)
+
 
 
     def image_read(self, imgpath, gs_blurr = True, blurr_kernel = (5,5)):
@@ -241,7 +244,6 @@ class SWTLocalizer:
 
 
 
-
     def get_min_bbox(self, show = False, padding = 5):
         
         min_bboxes = []
@@ -317,46 +319,3 @@ class SWTLocalizer:
 
         return grouped_labels, grouped_bubblebbox, grouped_annot_bubble, grouped_annot, maskviz, maskcomb
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# def transform(self, imgpaths,
-#               gs_blurr = True, blurr_kernel = (5,5),
-#               edge_func = 'ac'):
-#     """
-#     Entry Point for the Stroke Width Transform
-#     """
-
-#     # Transform Initialisations
-#     self.imgpaths = imgpaths
-    
-#     self.gs_blurr = gs_blurr
-#     self.blurr_kernel = blurr_kernel
-
-#     self.edge_func = edge_func
-
-#     # Sanity Checks and get an image generator
-#     img_generator = self.sanity_check_transform()
-
-#     for imgpath in img_generator:
-        
-#         # Read the image..
-#         orig_img, origgray_img, next_state = self.image_read(imgpath=imgpath, gs_blurr=gs_blurr,
-#                                                    blurr_kernel=blurr_kernel)
-#         imgshowN([orig_img, origgray_img])
-
-#         # Find the image edge
