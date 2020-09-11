@@ -21,7 +21,6 @@ class SWT:
         self.max_rsw = maxrsw  # Max ray stroke width. Needs to be smaller than the diagonal
         self.min_rsw = minrsw  # Min ray stroke width. Needs to be bigger than the 1
         self.max_angle_dev = max_angledev
-
         self.check_angle_diff = check_anglediff
 
     def get_raylength(self, ray):

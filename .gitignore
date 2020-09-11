@@ -16,11 +16,13 @@ __pycache__/
 # Virtual Environment
 swtloc_venv
 
-
+# Testing files
 testrun.py
-
 testimages/
 gifimages/
 example.gif
 images2gif.py
 swtres/
+dist/*
+swtloc.egg-info/*
+
