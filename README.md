@@ -80,6 +80,8 @@ pip install swtloc
         <img style="float: right;" src="swtloc/images/test_img7_res.jpg" align="centre">
         
         <img style="float: right;" src="swtloc/images/test_img2_res1.jpg" align="centre">
+
+        <img style="float: right;" src="swtloc/images/test_img1_res.jpg" align="centre">
         
     *CC = Connected Component
 
