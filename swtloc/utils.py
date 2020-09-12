@@ -140,9 +140,9 @@ def imgshowN(images:list, titles:list=[], place_pix_val=False,
     _cols = len(images) if len(images)<=3 else 3
     
     fig = plt.figure(figsize=figsize, dpi = 100)
-    plt.xlabel(sup_title, fontsize=10)
-    plt.tick_params(top=False, bottom=False, left=False, right=False,
-                    labelleft=False, labelbottom=False)
+    # plt.xlabel(sup_title, fontsize=10) # TODO : Borders too wide
+    # plt.tick_params(top=False, bottom=False, left=False, right=False,
+    #                 labelleft=False, labelbottom=False)
     plt.rcParams['figure.dpi']=120
 
     grid = ImageGrid(fig, 111, nrows_ncols=(_rows, _cols), axes_pad=0.1)

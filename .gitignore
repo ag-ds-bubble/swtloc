@@ -10,8 +10,10 @@ __pycache__/
 .DS_Store
 .vscode
 .ipynb_checkpoints/
-*.ipynb
-**.ipynb
+Chasis Number Extraction (SWT)-Refined.ipynb
+Chasis Number Extraction (SWT).ipynb
+# *.ipynb
+# **.ipynb
 
 # Virtual Environment
 swtloc_venv
@@ -24,5 +26,6 @@ example.gif
 images2gif.py
 swtres/
 dist/*
+build/*
 swtloc.egg-info/*
 

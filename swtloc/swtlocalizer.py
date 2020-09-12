@@ -141,7 +141,7 @@ class SWTLocalizer:
                 raise ValueError("'acceptCC_aspectratio' should be of type int and positive")
 
 
-    def transform(self, imgpath, text_mode = 'wb_bf',
+    def transform(self, imgpath, text_mode = 'lb_df',
                   gs_blurr = True, blurr_kernel = (5,5),
                   edge_func = 'ac', ac_sigma = 0.33,
                   minrsw=3, maxrsw=200, max_angledev=np.pi/6, check_anglediff=True,

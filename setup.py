@@ -20,13 +20,16 @@ def _next_dev_version(pkg_name):
         next_release = ".".join(next_release)
         return next_release
     except:
-        return '0.0.0.1'
+        return '0.0.0.10'
 
 def parse_requirements(filename):
     """ load requirements from a pip requirements file """
-    lineiter = (line.strip() for line in open(filename))
-    temp = [line.replace('==','>=') for line in lineiter if line and not line.startswith("#")]
-    return [k for k in temp if 'scikit-learn' not in k]
+    try:
+        lineiter = (line.strip() for line in open(filename))
+        temp = [line.replace('==','>=') for line in lineiter if line and not line.startswith("#")]
+        return [k for k in temp if 'scikit-learn' not in k]
+    except:
+        return []
 
 # Constants
 REQS = parse_requirements('requirements.txt')
@@ -53,15 +56,6 @@ setuptools.setup(name="swtloc",
                             "License :: OSI Approved :: BSD License",
                             "Operating System :: OS Independent",],
                 python_requires='>=3.7')
-
-
-
-
-
-
-
-
-
 
 
 
