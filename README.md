@@ -72,7 +72,7 @@ pip install swtloc
         
         grouped_labels = respacket[0]
         grouped_bubblebbox = respacket[1]
-        grogrouped_annot_bubble = respacket[2]
+        grouped_annot_bubble = respacket[2]
         grouped_annot = respacket[3]
         maskviz = respacket[4]
         maskcomb  = respacket[5]

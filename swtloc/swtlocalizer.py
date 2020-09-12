@@ -344,7 +344,7 @@ class SWTLocalizer:
 
         return ext_bboxes, temp2
 
-    def get_comp_outline(self, show = False, padding = 5):
+    def get_comp_outline(self, show = False):
         
         outlines = []
         temp = self.swtlabelled_pruned13C.copy()
