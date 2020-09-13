@@ -14,7 +14,10 @@ from cv2 import cv2
 def prog_bar(_iterable, itrlen, mwidth = 40, individual_mode = False,
             comp_symb = '#', incomp_symb ='.',
             arch_hold = '', block_str = '', comp_msg = '', mp_lock = True):
-    
+    """
+    Function for the Progress Bar. Wrapper Generator around and interable (list or dict)
+    which yields each component indicating the increment in the progress bar
+    """
 
     unitColor = '\033[5;49m\033[5;40m'
     endColor = '\033[5;30m\033[0;0m'
@@ -28,6 +31,7 @@ def prog_bar(_iterable, itrlen, mwidth = 40, individual_mode = False,
     # Dont know why it works but the prog_bar ANSI codes wont work in
     # Windows otherwise. Need to figure this out.
     subprocess.call('', shell=True)
+
 
     if check1+check2 == 1:
         for idx, element in enumerate(_iterable):
@@ -60,6 +64,18 @@ def prog_bar(_iterable, itrlen, mwidth = 40, individual_mode = False,
 
 
 def auto_canny(image, sigma=0.33):
+    """
+    Autocanny Function
+    Taken from : https://www.pyimagesearch.com/2015/04/06/zero-parameter-automatic-canny-edge-detection-with-python-and-opencv/
+
+    Function to find Edge image from a grayscale image
+    based on the thresholding parameter sigma.
+
+    parameters
+    --------------------------------------
+    sigma : float, optional, default : 0.33
+
+    """
     # compute the median of the single channel pixel intensities
     v = np.median(image)
 
@@ -71,6 +87,9 @@ def auto_canny(image, sigma=0.33):
     return edged    
 
 def print_valcnts(image,_print=True, remove_0=True):
+    """
+    Calculate the value counts in a image
+    """
     val, counts = np.unique(image, return_counts=True)
     vcdict = {k: v for k, v in sorted(dict(zip(val,counts)).items(), key=lambda item: item[1], reverse=True)}
     if remove_0:
@@ -82,7 +101,6 @@ def print_valcnts(image,_print=True, remove_0=True):
 def prepCC(labelmask):
     """
     Prepare the Connected Components with 3 RGB channels
-
     """
     rmask = labelmask.copy()
     gmask = labelmask.copy()
@@ -104,6 +122,9 @@ def prepCC(labelmask):
     return colored_masks.astype(np.uint8)
     
 def imgshow(img, title='',imsize=(10,10)):
+    """
+    Show an image
+    """
     if isinstance(img, str):
         img = cv2.imread(img)
     
@@ -116,6 +137,9 @@ def imgshow(img, title='',imsize=(10,10)):
     plt.show()
 
 def imgsave(img, title, savepath, imsize=(10,10)):
+    """
+    Save an image
+    """
     if isinstance(img, str):
         img = cv2.imread(img)
     
@@ -130,7 +154,9 @@ def imgsave(img, title, savepath, imsize=(10,10)):
 
 def imgshowN(images:list, titles:list=[], place_pix_val=False,
              sup_title='Grouped Images', savepath=None, figsize = (10,10)):
-
+    """
+    Show N images
+    """
     if titles == []:
         titles = ['Image '+str(k+1) for k in range(len(images))]
     if place_pix_val:

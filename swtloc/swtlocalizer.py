@@ -20,41 +20,155 @@ COMPONENT_PROPS = {'pixels': None,
                    'img_color_mean': None, 'img_color_median': None,
                    'sw_countdict': None, 'sw_var': None, 'sw_median': None, 'sw_mean': None}
 
+
 class SWTLocalizer:
     
-    def __init__(self, show_report=True, multiprocessing=False):
+    def __init__(self, multiprocessing=False):
         
         # Variable Initialisation
-        self.show_report = show_report
-
+        self.multiprocessing = multiprocessing
         # Sanity Check for the object so created
-        self.obj_sanity_check()
+        self._obj_sanity_check()
 
-        self.has_custom_edge_func = False
-        self.components_props = {}
-
-    def obj_sanity_check(self):
-        if not isinstance(self.show_report, bool):
-            raise ValueError("Invalid 'show_report' type, should be of type 'bool'")
-    
-
+    def _obj_sanity_check(self):
+        if not isinstance(self.multiprocessing, bool):
+            raise ValueError("Invalid 'multiprocessing' type, should be of type 'bool'")
+        else:
+            if self.multiprocessing:
+                raise ValueError("Currently 'multiprocessing' mode is not available")
 
     def swttransform(self, imgpaths, save_results = False, save_rootpath = '../SWTlocResults/', *args, **kwargs):
+        
+        """
+        Function to apply SWT transform on the images present in the imgpaths
+
+        parameters
+        --------------------------------------
+        imgpaths : str or list, required
+            Path of all the images to be transformed.
+        
+        save_results : bool, optional, default : False
+            Wether to save the results.
+
+        save_rootpath : str, optional, default : '../SWTlocResults/'
+            Base path to the save path
+
+        text_mode : str, optional, default : 'lb_df'
+            Contrast of the text present in the image, which needs to be
+            transformed. Two possible values :
+
+                a.) db_lf :> Dark Background Light Foreground i.e Light color text on Dark color background
+                2.) lb_df :> Light Background Dark Foreground i.e Dark color text on Light color background
+
+            This parameters affect how the gradient vectors (the direction) 
+            are calulated, since gradient vectors of db_lf are in  −𝑣𝑒  direction 
+            to that of lb_df gradient vectors.
+
+        gs_blurr : bool, optional, default : True
+            Right after an image is read from the path provided, the image 
+            will be converted into grayscale (default). To contol this 
+            operation following parameter can be used :-
+
+                gs_blurr = True :> Wether to blurr an image or not.
+                blurr_kernel = (5,5) [If gs_blurr = True] :> The kernel size for the operation
+
+        edge_func : str or callable, optional, default : 'ac'
+            Finding the Edge of the image is a tricky part, this is pertaining 
+            to the fact that in most of the cases the images we deal with are not 
+            of standard that applying just a opencv Canny operator would 
+            result in the desired Edge Image.
+
+            Sometimes (In most cases) there is some custom processing required
+            before edging, for that reason alone this function accepts one of 
+            the following two values :-
+
+                1.) 'ac' :> Auto-Canny function, an in-built function which will
+                            generate the Canny Image from the original image, internally
+                            calculating the threshold parameters, although, to tune it
+                            even further 'ac_sigma : float, default(0.33)' parameter is provided which
+                            can take any value between 0.0 <--> 1.0.
+
+                2.) A custom function : This function should have its signature as mentioned below :
+
+                        def custom_edge_func(gray_image):
+                            Your Function Logic...
+                            edge_image = ...
+                            return edge_image
+
+        minrsw : float, optional, default : 3
+            Minimum Stroke Width
+
+        maxrsw : float, optional, default : 200
+            Maximum Stroke Width
+
+        check_anglediff : bool, optional, default : True
+            Wether to check the Wether to check the angle deviation of originating
+            edge pixel to the final resting pixel
+
+        max_angledev : float, optional, default : π/6
+             Permissible value of the angle deviation
+
+        minCC_comppx : int, optional, default : 50
+            Pruning Paramter : Minimum number of pixels to reside within each CC.
+        
+        minCC_comppx : int, optional, default : 10000
+            Pruning Paramter : Maximum number of pixels to reside within each CC.
+        
+        acceptCC_aspectratio : float, default : 5
+            Pruning Paramter : Acceptable Inverse of the Aspect Ratio of each CC.
+
+
+        Attributes
+        ---------------------------------------
+            - orig_img : Original image, np.ndarray
+            - grayedge_img : Gray Scale Edged Image, np.ndarray
+            - img_gradient : Gradient Theta of the Edged Image, np.ndarray
+            - swt_mat : Result of Stroke Width Transform on the image
+            - swt_labelled : Connected Components labelled mask for the swt_mat, Monochromatic.
+            - swt_labelled3C : Connected Components labelled mask for the swt_mat, RGB channel
+            - swtlabelled_pruned1 : Pruned Connected Components labelled mask for the swt_mat, Monochromatic.
+            - swtlabelled_pruned13C : Pruned Connected Components labelled mask for the swt_mat, RGB channel
+            - transform_time : Time taken during this transformation.
+
+        """
+
+
         self.imgpaths = imgpaths
         self.save_rootpath = os.path.abspath(save_rootpath)
-        self.sanity_check_transform(kwargs)
+        self._sanity_check_transform(kwargs)
 
         # Progress bar to report the total done
-        self.probar = prog_bar(self.imgpaths, len(self.imgpaths))
-        for each_imgpath in self.probar:
-            self.transform(imgpath=each_imgpath, **kwargs)
+        self._probar = prog_bar(self.imgpaths, len(self.imgpaths))
+        for each_imgpath in self._probar:
+            self.components_props = {}
+            self._transform(imgpath=each_imgpath, **kwargs)
             if save_results:
                 imgname = each_imgpath.split('/')[-1].split('.')[0]
                 savepath = self.save_rootpath+f'/{imgname}'
-                self.save(savepath=savepath)
+                self._save(savepath=savepath)
 
-    def save(self, savepath):
+    def _save(self, savepath):
+        """
+        Function to save swtransform results to the savepath. Folder 
+        path will be determined by the name of the image, so make sure
+        the image names are unique.
         
+        parameters
+        --------------------------------------
+        orignal_img : np.ndarray, required
+            Orignal Grayscale Image
+
+        Saves:
+            Orignal @ savepath+'/orig_img.jpg' : Original Image
+            EdgeImage @ savepath+'/edge_img.jpg' : Edged Image
+            Gradient @ savepath+'/grad_img.jpg' : Gradient Theta
+                                                  Image
+            SWT Transform @ savepath+'/swt3C_img.jpg' : Connected 
+                                                        Componentsafter 
+                                                        SWT Transform
+            SWT Pruned @ savepath+'/swtpruned3C_img.jpg' : Connected 
+                                                           Componentsafter 
+        """
         os.makedirs(savepath, exist_ok=True)
 
         # Save Original Image
@@ -72,8 +186,10 @@ class SWTLocalizer:
         # Save Original Image
         imgsave(self.swtlabelled_pruned13C, title='SWT Pruned', savepath=savepath+'/swtpruned3C_img.jpg')
         
-    def sanity_check_transform(self, kwargs):
-        
+    def _sanity_check_transform(self, kwargs):
+        """
+        Sanity Check for swtransform parameters
+        """
         # Check for imgpaths
         if isinstance(self.imgpaths, str) or isinstance(self.imgpaths, list):
             if isinstance(self.imgpaths, list):
@@ -137,11 +253,10 @@ class SWTLocalizer:
             if not (isinstance(kwargs['maxCC_comppx'], int) and kwargs['maxCC_comppx']>0):
                 raise ValueError("'maxCC_comppx' should be of type int")
         if 'acceptCC_aspectratio' in kwargs:
-            if not (isinstance(kwargs['acceptCC_aspectratio'], int) and kwargs['acceptCC_aspectratio']>0):
-                raise ValueError("'acceptCC_aspectratio' should be of type int and positive")
+            if not (isinstance(kwargs['acceptCC_aspectratio'], float) and kwargs['acceptCC_aspectratio']>0.0):
+                raise ValueError("'acceptCC_aspectratio' should be of type float and positive")
 
-
-    def transform(self, imgpath, text_mode = 'lb_df',
+    def _transform(self, imgpath, text_mode = 'lb_df',
                   gs_blurr = True, blurr_kernel = (5,5),
                   edge_func = 'ac', ac_sigma = 0.33,
                   minrsw=3, maxrsw=200, max_angledev=np.pi/6, check_anglediff=True,
@@ -149,15 +264,17 @@ class SWTLocalizer:
         """
         Entry Point for the Stroke Width Transform - Single Image
         """
+
         ts = time.perf_counter_ns()
+        
         # Read the image..
-        self.orig_img, origgray_img = self.image_read(imgpath=imgpath, gs_blurr=gs_blurr, blurr_kernel=blurr_kernel)
+        self.orig_img, origgray_img = self._image_read(imgpath=imgpath, gs_blurr=gs_blurr, blurr_kernel=blurr_kernel)
 
         # Find the image edge
-        origgray_img, self.grayedge_img = self.image_edge(gray_image = origgray_img, edge_func = edge_func, ac_sigma = ac_sigma)
+        origgray_img, self.grayedge_img = self._image_edge(gray_image = origgray_img, edge_func = edge_func, ac_sigma = ac_sigma)
 
         # Find the image gradient
-        self.img_gradient = self.image_gradient(orignal_img = origgray_img, edged_img=self.grayedge_img)
+        self.img_gradient = self._image_gradient(orignal_img = origgray_img, edged_img=self.grayedge_img)
         hstep_mat  = np.round(np.cos(self.img_gradient), 5)
         vstep_mat  = np.round(np.sin(self.img_gradient), 5)
         if text_mode == 'db_lf':
@@ -165,16 +282,16 @@ class SWTLocalizer:
             vstep_mat *= -1
 
         # Find the Stroke Widths in the Image
-        self.swtObj = SWT(edgegray_img = self.grayedge_img, hstepmat = hstep_mat, vstepmat = vstep_mat, imggradient = self.img_gradient,
+        self._swtObj = SWT(edgegray_img = self.grayedge_img, hstepmat = hstep_mat, vstepmat = vstep_mat, imggradient = self.img_gradient,
                      minrsw=minrsw, maxrsw=maxrsw, max_angledev=max_angledev, check_anglediff=check_anglediff)
-        self.swt_mat = self.swtObj.find_strokes()
-
+        self.swt_mat = self._swtObj.find_strokes()
+        
         # Find the connected Components in the image
-        numlabels, self.swt_labelled = self.image_swtcc(swt_mat=self.swt_mat)
+        numlabels, self.swt_labelled = self._image_swtcc(swt_mat=self.swt_mat)
         self.swt_labelled3C = prepCC(self.swt_labelled)
 
         # Prune and Extract LabelComponet Properties
-        self.swtlabelled_pruned1 = self.image_prune_getprops(orig_img = self.orig_img, swtlabelled=self.swt_labelled, minCC_comppx=minCC_comppx,
+        self.swtlabelled_pruned1 = self._image_prune_getprops(orig_img = self.orig_img, swtlabelled=self.swt_labelled, minCC_comppx=minCC_comppx,
                                                         maxCC_comppx=maxCC_comppx, acceptCC_aspectratio = acceptCC_aspectratio)
         self.swtlabelled_pruned13C = prepCC(self.swtlabelled_pruned1)
 
@@ -182,8 +299,29 @@ class SWTLocalizer:
 
 
 
-    def image_read(self, imgpath, gs_blurr = True, blurr_kernel = (5,5)):
+    def _image_read(self, imgpath, gs_blurr = True, blurr_kernel = (5,5)):
+        """
+        Function to read image from imgpath, covert to grayscale 
+        apply Gaussian Blurr based on the arguments .
+
+        parameters
+        --------------------------------------
+        imgpath : str, required
+            Path to the image, single Image.
         
+        gs_blurr : bool, optional, default : True
+            Wether to apply Gaussain Blurr after the image has been read
+        
+        blurr_kernel : tuple, default : (5,5)
+            If gs_blurr = True, then size of the kernel with which it needs
+            convolve with.
+
+        returns
+        --------------------------------------
+        tuple - (orig_img, origgray_img)
+
+        Returns Original Image and Grayscale Image
+        """
         orig_img = cv2.imread(imgpath) # Read Image
         origgray_img = cv2.cvtColor(orig_img, cv2.COLOR_BGR2GRAY) # Convert to Grayscale
         if gs_blurr:
@@ -191,8 +329,39 @@ class SWTLocalizer:
 
         return orig_img, origgray_img
 
-    def image_edge(self, gray_image, edge_func, ac_sigma):
+    def _image_edge(self, gray_image, edge_func, ac_sigma=0.33):
+        """
+        Function to find edge of the image. 
 
+        parameters
+        --------------------------------------
+        gray_image : np.ndarray, required
+            Gray Scale Image
+        
+        edge_func : str or callable, optional, default : 'ac'
+            Edge function, function to be used to find the
+            edge of an image. It can take one of these two as
+            inputs :-
+                1.) 'ac' - str, Auto Canny function
+                2.) custom_func - Callable, A Custom Function 
+                    which has a following signature
+
+                    def custom_edge_func(gray_image):
+
+                        # Your Function Logic...
+                        edge_image = ...
+
+                        return edge_image
+        
+        ac_sigma : float, default : 0.33
+            Thresholding parameter when edge_func = 'ac', .
+
+        returns
+        --------------------------------------
+        tuple - (gray_image, image_edge)
+
+        Returns Grayscale Image and Edged Image
+        """
         if edge_func == 'ac':
             image_edge = auto_canny(image=gray_image, sigma=ac_sigma)
         elif callable(edge_func):
@@ -200,8 +369,27 @@ class SWTLocalizer:
 
         return gray_image, image_edge
 
-    def image_gradient(self, orignal_img, edged_img):
+    def _image_gradient(self, orignal_img, edged_img):
+        """
+        Function to find gradient vectors (θ) of the image. 
+        Using sobel operators to find the  gradient in dx 
+        and dy direction using 5x5 kernel θ matrix is formed
+        and only those indexex are retained where the edged_img!=0. 
+
+        parameters
+        --------------------------------------
+        orignal_img : np.ndarray, required
+            Orignal Grayscale Image
         
+        edged_img : np.ndarray, required
+            Edge image of  Grayscale Image
+        
+        returns
+        --------------------------------------
+        tuple - (gray_image, image_edge)
+
+        Returns Grayscale Image and Edged Image
+        """
         rows,columns = orignal_img.shape[:2]
         dx = cv2.Sobel(orignal_img, cv2.CV_32F, 1, 0, ksize = 5, scale = -1, delta = 1, borderType = cv2.BORDER_DEFAULT)
         dy = cv2.Sobel(orignal_img, cv2.CV_32F, 0, 1, ksize = 5, scale = -1, delta = 1, borderType = cv2.BORDER_DEFAULT)
@@ -212,8 +400,24 @@ class SWTLocalizer:
         
         return theta_mat
 
-    def image_swtcc(self, swt_mat):
+    def _image_swtcc(self, swt_mat):
+        """
+        Function to find connected components of the SWT image,
+        each connected component region is filled with a unique label
+        value. 
+
+        parameters
+        --------------------------------------
+        swt_mat : np.ndarray, required
+            SWT Transform of the image
         
+        returns
+        --------------------------------------
+        tuple - (num_labels, labelmask)
+
+        Returns Number of lables found and nd.array for the
+        of the connected components.
+        """
         threshmask = swt_mat.copy().astype(np.int16)
         threshmask[threshmask==np.max(threshmask)] = 0 # Set the maximum value(Diagonal of the Image :: Maximum Stroke Width) to 0
         threshmask[threshmask>0]=1
@@ -223,8 +427,68 @@ class SWTLocalizer:
 
         return num_labels, labelmask
 
-    def image_prune_getprops(self, orig_img, swtlabelled, minCC_comppx, maxCC_comppx, acceptCC_aspectratio):
+    def _image_prune_getprops(self, orig_img, swtlabelled, minCC_comppx, maxCC_comppx, acceptCC_aspectratio):
+        """
+        Function to find Prune the Connected Component Labelled image. Based on
+        the parameters values the Connected Component mask will be pruned and 
+        and certain properties will be calculated against each Component,
+        as mentioned below :
 
+        # Note
+        *CC :Connected Component
+        *bbm : Bounding Box Mininum. This is a result to cv2.minAreaRect function,
+               which would return the minimum area rectangle bounding box for a 
+               CC
+        *sw : Stroke Width within that component
+
+            pixels : Number of pixels whithin a particular CC
+            bbm_h : Minimum Bounding Box Height
+            bbm_w : Minimum Bounding Box Width
+            bbm_cx : Minimum Bounding Box Centre x
+            bbm_cy : Minimum Bounding Box Cntre y
+            bbm_ar : Minimum Bounding Box Aspect Ratio (bbm_w/bbm_h)
+            bbm_bbox : Cooridinates of the bbm vertices
+            bbm_anchor : Vertice corresponding to least x coord
+            bbm_outline : BBM outline, i.e outer contour
+            bbm_ang : Angle of orientation for that BBM. Both bbm_ang and 180-bbm_ang
+                      can be valid
+            img_color_mean : Mean (R,G,B) tuple values of the original image
+                             masked by that component
+            img_color_median : Median (R,G,B) tuple values of the original image
+                               masked by that component
+            sw_countdict : Value Counts for the different stroke widths within that
+                           CC
+            sw_var : Stroke Width variance within each CC
+            sw_median : Median stroke Width within each CC
+            sw_mean : Mean stroke Width within each CC
+
+        PRUNE PARAMETERS : minCC_comppx, maxCC_comppx, acceptCC_aspectratio
+        OTHER PARAMETERS : orig_img, swtlabelled
+
+
+        parameters
+        --------------------------------------
+        orig_img : nd.ndarray, required
+            Original Image ndarray.
+
+        swtlabelled : nd.ndarray, required
+            Connected Components labelled mask after SWT.
+
+        minCC_comppx : int, optional, default : 50
+            Pruning Paramter : Minimum number of pixels to reside within each CC.
+        
+        minCC_comppx : int, optional, default : 10000
+            Pruning Paramter : Maximum number of pixels to reside within each CC.
+        
+        acceptCC_aspectratio : float, default : 5
+            Pruning Paramter : Acceptable Inverse of the Aspect Ratio of each CC.
+
+        returns
+        --------------------------------------
+        nd.ndarray - swtlabelled_pruned
+
+        Returns Pruned SWT Labelled Image
+        """
         swtlabelled_pruned = swtlabelled.copy()
         lc_count=print_valcnts(swtlabelled_pruned, _print=False)
         # Pruning based on min and max number of pixels in a connected component
@@ -293,9 +557,31 @@ class SWTLocalizer:
 
     # Get the Grouping and Bounding BBoxes
     def get_min_bbox(self, show = False, padding = 5):
+        """
+        Function to retrieve the vetrices of BBox which occupy minimum
+        area rectangle for a Connected Component.
+
+        parameters
+        --------------------------------------
+        show : bool, optional, default : True
+            Wether to show the annotated image with min_bboxes
         
+        padding : int, optional, default : 5
+            Expansion coefficient (in the diagonal direction) for each
+            bbox
+        
+        returns
+        --------------------------------------
+        tuple - (min_bboxes, annotated_img)
+
+        Returns Minimum Area BBoxes vertices and Annotated Image
+        """
+        if not hasattr(self, 'swt_mat'):
+            raise Exception("Call 'swttransform' on the image before calling this function")
+
         min_bboxes = []
-        temp = self.swtlabelled_pruned13C.copy()
+        annotated_img = self.swtlabelled_pruned13C.copy()
+
         for label, labelprops in self.components_props.items():
             bbm_bbox = np.int32(labelprops['bbm_bbox'])
             
@@ -313,18 +599,38 @@ class SWTLocalizer:
             bbm_bbox = np.c_[_tr,_br,_bl,_tl].T.astype(int)
             
             min_bboxes.append(bbm_bbox)
-            temp = cv2.polylines(temp, [bbm_bbox], True, (0,0,255), 1)
+            annotated_img = cv2.polylines(annotated_img, [bbm_bbox], True, (0,0,255), 1)
         
         if show:
-            imgshow(temp, 'Minimum Bounding Box')
+            imgshow(annotated_img, 'Minimum Bounding Box')
 
-        return min_bboxes, temp
+        return min_bboxes, annotated_img
 
     def get_extreme_bbox(self, show = False, padding = 5):
+        """
+        Function to retrieve the vetrices of BBox Connected Component.
+
+        parameters
+        --------------------------------------
+        show : bool, optional, default : True
+            Wether to show the annotated image with extreme_bboxes
         
+        padding : int, optional, default : 5
+            Expansion coefficient for each bbox
+        
+        returns
+        --------------------------------------
+        tuple - (ext_bboxes, annotated_img)
+
+        Returns BBoxes vertices and Annotated Image
+        """
+
+        if not hasattr(self, 'swt_mat'):
+            raise Exception("Call 'swttransform' on the image before calling this function")
+
         ext_bboxes = []
         temp1 = self.swtlabelled_pruned1.copy()
-        temp2 = self.swtlabelled_pruned13C.copy()
+        annotated_img = self.swtlabelled_pruned13C.copy()
 
         for label, labelprops in self.components_props.items():
             lmask = (temp1 == label).astype(np.uint16)
@@ -337,15 +643,32 @@ class SWTLocalizer:
                 bbe_bbox = np.c_[_tr,_br,_bl,_tl].T.astype(int)
                 ext_bboxes.append(bbe_bbox)
         
-                temp2 = cv2.polylines(temp2, [bbe_bbox], True, (0,0,255), 1)
+                annotated_img = cv2.polylines(annotated_img, [bbe_bbox], True, (0,0,255), 1)
         
         if show:
-            imgshow(temp2, 'Extreme Bounding Box')
+            imgshow(annotated_img, 'Extreme Bounding Box')
 
-        return ext_bboxes, temp2
+        return ext_bboxes, annotated_img
 
     def get_comp_outline(self, show = False):
+        """
+        Function to retrieve the outer contour of Connected Component.
+
+        parameters
+        --------------------------------------
+        show : bool, optional, default : True
+            Wether to show the annotated image with outline
         
+        returns
+        --------------------------------------
+        tuple - (outlines, annotated_img)
+
+        Returns outline and Annotated Image
+        """
+
+        if not hasattr(self, 'swt_mat'):
+            raise Exception("Call 'swttransform' on the image before calling this function")
+
         outlines = []
         temp = self.swtlabelled_pruned13C.copy()
         for label, labelprops in self.components_props.items():
@@ -359,9 +682,51 @@ class SWTLocalizer:
 
         return outlines, temp
 
-    def get_grouped(self, lookup_radii_multiplier=0.8, sw_ratio=2,
-                    cl_deviat=[13,13,13], ht_ratio=2, ar_ratio=3, ang_deviat=30):
+    def get_grouped(self, lookup_radii_multiplier=0.8, sw_ratio=2.0,
+                    cl_deviat=[13,13,13], ht_ratio=2.0, ar_ratio=3.0, ang_deviat=30.0):
+        """
+        Function to Group Connected Component into possible 'words' based 
+        on argument value.
+
+        parameters
+        --------------------------------------
+        lookup_radii_multiplier : float, optional, default : 0.8
+            lookup_radius = Connected Component Length * lookup_radii_multiplier
+
+            Radius 'radius' to be looked up for grouping, for each Connected Component
+
+        sw_ratio : float, optional, default : 2.0
+            Acceptable ratio of the Stroke Width between components, for
+            Grouping.
+
+        cl_deviat : list, optional, default : [13,13,13]
+            Acceptable difference [R,G,B] between median connected component
+            colour, for Grouping.
+
+        ht_ratio : float, optional, default : 2.0
+            Acceptable ratio of the Height between components, for Grouping.
+
+        ar_ratio : float, optional, default : 0.8
+            Acceptable inverse of ascpect ratio between components, for Grouping.
         
+        ang_deviat : float, optional, default : 0.8
+            Acceptable deviation in orientation angle between components, for Grouping.
+        
+        returns
+        --------------------------------------
+        tuple - (grouped_labels, grouped_bubblebbox, grouped_annot_bubble, grouped_annot, maskviz, maskcomb)
+
+            grouped_labels : List of grouped labels
+            grouped_bubblebbox : List of Bubble BBox Contours
+            grouped_annot_bubble : Annotated Bubble BBox
+            grouped_annot : Annotated BBox
+            maskviz : BBox and Label Visualisation
+            maskcomb : Circular mask to each BBox with lookup_radii
+        """
+        
+        if not hasattr(self, 'swt_mat'):
+            raise Exception("Call 'swttransform' on the image before calling this function")
+
         bubbleBbox = BubbleBBOX(labelmask = self.swtlabelled_pruned1, comp_props = self.components_props, lookup_radii_multiplier=lookup_radii_multiplier, 
                                 sw_ratio=sw_ratio, cl_deviat=cl_deviat, ht_ratio=ht_ratio, ar_ratio=ar_ratio,
                                 ang_deviat=ang_deviat)

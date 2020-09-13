@@ -23,12 +23,18 @@ class SWT:
         self.max_angle_dev = max_angledev
         self.check_angle_diff = check_anglediff
 
-    def get_raylength(self, ray):
+    def distance_travelled(self, ray):
+        """
+        Calculate the distance travelled by the ray so far
+        """
         p1 = ray[0]
         p2 = ray[-1]
         return int(np.sqrt((p2[0]-p1[0])**2 + (p2[1]-p1[1])**2))
 
     def next_point_gen(self, _oyi, _oxi, _delx, _dely):
+        """
+        Generator for the next coordinate with 𝛿x and 𝛿y increment.
+        """
         for i in range(self.max_sw):
             yield int(np.floor(_oyi+i*_dely)), int(np.floor(_oxi+i*_delx))
         
@@ -41,7 +47,7 @@ class SWT:
             4.) if the angle difference is between 180°-30° and 180°+30°
         """
 
-        ray_length = self.get_raylength([(_oyi, _oxi), (_nyi, _nxi)])
+        ray_length = self.distance_travelled([(_oyi, _oxi), (_nyi, _nxi)])
         
         check1 =  ray_length <= self.max_rsw
         check2 = (0 <= _nyi < self.max_h) and (0 <= _nxi < self.max_w)
@@ -66,7 +72,9 @@ class SWT:
             return False, -1
 
     def find_strokes(self):
-
+        """
+        Find the strokes for each edge point in the edged image.
+        """
         for _yi, _xi in  zip(self.edgey, self.edgex):
             rayidx = []
             _delx = self.hstep_mat[_yi, _xi]
