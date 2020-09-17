@@ -11,6 +11,18 @@ versioning : x[Major Fixes].x[Minor Fixes].x[Patch Number].x[Development Version
 # Command to upload to testpypi : cls & rmdir /s /q build dist swtloc.egg-info & python setup_dev.py sdist & python setup_dev.py bdist_wheel & twine upload -r testpypi dist/*
 # Command to upload to pypi : cls & rmdir /s /q build dist swtloc.egg-info & python setup.py sdist & python setup.py bdist_wheel & twine upload dist/*
 
+def _next_dev_version(pkg_name):
+    try:
+        url = f'https://test.pypi.org/pypi/{pkg_name}/json'
+        releases = json.loads(request.urlopen(url).read())['releases']
+        release = sorted(releases, key=parse_version)[-1]
+        next_release = release.split('.')
+        next_release[-1] = str(int(next_release[-1])+1)
+        next_release = ".".join(next_release)
+        return next_release
+    except:
+        return '0.0.0.10'
+
 def parse_requirements(filename):
     """ load requirements from a pip requirements file """
     try:
@@ -22,7 +34,7 @@ def parse_requirements(filename):
 
 # Constants
 REQS = parse_requirements('requirements.txt')
-_next_version = '1.0.0.0'
+_next_version = _next_dev_version('swtloc')
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
@@ -41,7 +53,7 @@ setuptools.setup(name="swtloc",
                 include_package_data = True,
                 install_requires=REQS,
                 classifiers=["Programming Language :: Python :: 3",
-                            "Development Status :: 4 - Beta",
+                            "Development Status :: 2 - Pre-Alpha",
                             "Intended Audience :: Developers",
                             "License :: OSI Approved :: BSD License",
                             "Operating System :: OS Independent",],
