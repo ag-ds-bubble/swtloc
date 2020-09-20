@@ -4,7 +4,8 @@ from cv2 import cv2
 class BubbleBBOX:
 
     def __init__(self, labelmask, comp_props, lookup_radii_multiplier=0.8,
-                 sw_ratio = 2, cl_deviat = [13,13,13], ht_ratio = 2, ar_ratio = 3, ang_deviat = 30):
+                 sw_ratio = 2, cl_deviat = [13,13,13], ht_ratio = 2, ar_ratio = 3, ang_deviat = 30,
+                 bubble_width = 1.0):
         
         self.labelmask = labelmask.copy()
         self.lookup_radii_multiplier = lookup_radii_multiplier
@@ -21,6 +22,9 @@ class BubbleBBOX:
         self.ang_deviat = ang_deviat
         self.grouped_labels = []
         self.ungrouped_labels = set(list(self.comp_props.keys()))
+
+        # Asthetics
+        self.bubble_width = bubble_width
 
 
     def create_circular_mask(self, center, radius):
@@ -153,7 +157,7 @@ class BubbleBBOX:
 
             self.grouped_annot_bubble += cv2.cvtColor(mask.copy(), cv2.COLOR_GRAY2BGR)
             self.grouped_annot += cv2.cvtColor(mask.copy(), cv2.COLOR_GRAY2BGR)
-            cv2.drawContours(self.grouped_annot_bubble, contours, -1, (0,0,255), 2)
+            cv2.drawContours(self.grouped_annot_bubble, contours, -1, (0,0,255), self.bubble_width)
             
             rotrect = cv2.minAreaRect(contours[0])
             combbbox = cv2.boxPoints(rotrect)

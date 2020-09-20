@@ -683,7 +683,8 @@ class SWTLocalizer:
         return outlines, temp
 
     def get_grouped(self, lookup_radii_multiplier=0.8, sw_ratio=2.0,
-                    cl_deviat=[13,13,13], ht_ratio=2.0, ar_ratio=3.0, ang_deviat=30.0):
+                    cl_deviat=[13,13,13], ht_ratio=2.0, ar_ratio=3.0, ang_deviat=30.0,
+                    bubble_width=1.0):
         """
         Function to Group Connected Component into possible 'words' based 
         on argument value.
@@ -729,7 +730,7 @@ class SWTLocalizer:
 
         bubbleBbox = BubbleBBOX(labelmask = self.swtlabelled_pruned1, comp_props = self.components_props, lookup_radii_multiplier=lookup_radii_multiplier, 
                                 sw_ratio=sw_ratio, cl_deviat=cl_deviat, ht_ratio=ht_ratio, ar_ratio=ar_ratio,
-                                ang_deviat=ang_deviat)
+                                ang_deviat=ang_deviat, bubble_width = bubble_width)
         grouped_labels, grouped_bubblebbox, grouped_annot_bubble, grouped_annot, maskviz, maskcomb = bubbleBbox.run_grouping()
 
         return grouped_labels, grouped_bubblebbox, grouped_annot_bubble, grouped_annot, maskviz, maskcomb
