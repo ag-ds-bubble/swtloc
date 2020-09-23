@@ -28,7 +28,6 @@ class BubbleBBOX:
 
         self.sanity_checks()
 
-
     def sanity_checks(self):
         # Check for the Bubble Widths
         if not isinstance(self.bubble_width, int):
