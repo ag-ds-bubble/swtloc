@@ -93,12 +93,14 @@ pip install swtloc
 ## Versions
 ****
 <u>v1.0.0 : Original Package</u>
+
 - Add SWTlocaliser to the package
 - Add the logic for Bubble Bounding Boxes
 - Add Examples
 
 
 <u>v1.0.1 : Few bug fixes and addendums</u>
+
 - Add parameter to govern the width of BubbleBBox 
 - Add Examples - StackOverflow Q/A
 
