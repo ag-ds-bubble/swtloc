@@ -684,7 +684,7 @@ class SWTLocalizer:
 
     def get_grouped(self, lookup_radii_multiplier=0.8, sw_ratio=2.0,
                     cl_deviat=[13,13,13], ht_ratio=2.0, ar_ratio=3.0, ang_deviat=30.0,
-                    bubble_width=1.0):
+                    bubble_width=1):
         """
         Function to Group Connected Component into possible 'words' based 
         on argument value.

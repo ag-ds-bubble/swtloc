@@ -22,7 +22,7 @@ def parse_requirements(filename):
 
 # Constants
 REQS = parse_requirements('requirements.txt')
-_next_version = '1.0.0.0'
+_next_version = '1.0.0.1'
 
 with open("README.md", "r") as fh:
     long_description = fh.read()

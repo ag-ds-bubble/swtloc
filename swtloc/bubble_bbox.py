@@ -5,7 +5,7 @@ class BubbleBBOX:
 
     def __init__(self, labelmask, comp_props, lookup_radii_multiplier=0.8,
                  sw_ratio = 2, cl_deviat = [13,13,13], ht_ratio = 2, ar_ratio = 3, ang_deviat = 30,
-                 bubble_width = 1.0):
+                 bubble_width = 1):
         
         self.labelmask = labelmask.copy()
         self.lookup_radii_multiplier = lookup_radii_multiplier
@@ -25,6 +25,15 @@ class BubbleBBOX:
 
         # Asthetics
         self.bubble_width = bubble_width
+
+        self.sanity_checks()
+
+
+    def sanity_checks(self):
+        # Check for the Bubble Widths
+        if not isinstance(self.bubble_width, int):
+            raise ValueError("'bubble_width' parameter should be of type in 'int'")
+        
 
 
     def create_circular_mask(self, center, radius):
