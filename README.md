@@ -98,8 +98,7 @@ pip install swtloc
 - Add Examples
 
 
-
-<u>v1.0.1 : Original Package</u>
+<u>v1.0.1 : Few bug fixes and addendums</u>
 - Add parameter to govern the width of BubbleBBox 
 - Add Examples - StackOverflow Q/A
 
