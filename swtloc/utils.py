@@ -195,4 +195,54 @@ def imgshowN(images:list, titles:list=[], place_pix_val=False,
 
     plt.show()
     
+def resize_maintinaAR(image, width=1.0, height=1.0, inter=cv2.INTER_AREA, mode='proportion'):
+    """
+    A function to resize the image based on the params.
+    
+    Arguments
+    ------------------------------
+        image : Original Image, np.ndarray
+            Image to resize
+        
+        width(Optional) : int or float.
+            How much to resize based on the width.
+        
+        height(Optional) : int or float
+            How much to resize based on the height.
+        
+        inter(Optional) : opencv interpolation mode
+        
+        mode(Optional) : One of 'proportion' or 'actual'
+            Which mode to resize the image in.
+    Returns
+    ------------------------------
+    Resized image
+    """
+    #Adapted from : https://stackoverflow.com/a/55306956/6297658
+    dim = None
+    (h, w) = image.shape[:2]
+
+    if mode == 'proportion':
+        width *= w
+        width = int(width)
+        height *= h
+        height = int(height)
+
+    # Return original image if no need to resize
+    if width is None and height is None:
+        return image
+
+    # We are resizing height if width is none
+    if width is None:
+        # Calculate the ratio of the height and construct the dimensions
+        r = height / float(h)
+        dim = (int(w * r), height)
+    # We are resizing width if height is none
+    else:
+        # Calculate the ratio of the width and construct the dimensions
+        r = width / float(w)
+        dim = (width, int(h * r))
+
+    # Return the resized image
+    return cv2.resize(image, dim, interpolation=inter)
 

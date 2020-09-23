@@ -30,7 +30,7 @@ pip install swtloc
     swtl = SWTLocalizer()
     imgpaths = ... # Image paths, can be one image or more than one
     swtl.swttransform(imgpaths=imgpath, save_results=True, save_rootpath='swtres/',
-                      edge_func = 'ac', ac_sigma = 1.0, text_mode = 'wb_bf',
+                      edge_func = 'ac', ac_sigma = 1.0, text_mode = 'lb_df',
                       gs_blurr=True, blurr_kernel = (5,5), minrsw = 3, 
                       maxCC_comppx = 10000, maxrsw = 200, max_angledev = np.pi/6, 
                       acceptCC_aspectratio = 5)
@@ -93,16 +93,15 @@ pip install swtloc
 ## Versions
 ****
 <u>v1.0.0 : Original Package</u>
-
 - Add SWTlocaliser to the package
 - Add the logic for Bubble Bounding Boxes
 - Add Examples
 
 
 <u>v1.0.1 : Few bug fixes and addendums</u>
-
 - Add parameter to govern the width of BubbleBBox 
 - Add Examples - StackOverflow Q/A
+- Add image resizing utility function to the utils.py
 
 
 
