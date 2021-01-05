@@ -8,7 +8,6 @@ from mpl_toolkits.axes_grid1 import ImageGrid
 import imutils
 from cv2 import cv2
 
-
 #######################PROGRESS BAR#######################
 def prog_bar(_iterable, itrlen, mwidth = 40, individual_mode = False,
             comp_symb = '#', incomp_symb ='.',

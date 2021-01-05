@@ -6,11 +6,11 @@ from pkg_resources import parse_version
 from swtloc import __version__ as current_version
 
 """"
-versioning : x[Major Fixes].x[Minor Fixes].x[Patch Number].x[Development Version]
+versioning : x[Major Update].x[Minor Update].x[Fixes]
 """
 
-# Command to upload to testpypi : cls & rmdir /s /q build dist swtloc.egg-info & python setup_dev.py sdist & python setup_dev.py bdist_wheel & twine upload -r testpypi dist/*
 # Command to upload to pypi : cls & rmdir /s /q build dist swtloc.egg-info & python setup.py sdist & python setup.py bdist_wheel & twine upload dist/*
+# Installation :- pip install swtloc
 
 def parse_requirements(filename):
     """ load requirements from a pip requirements file """
