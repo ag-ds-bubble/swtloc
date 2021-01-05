@@ -22,7 +22,7 @@ def _next_dev_version(pkg_name):
         next_release = ".".join(next_release)
         return next_release
     except:
-        return '0.0.0.10'
+        return '1.1.100'
 
 def parse_requirements(filename):
     """ load requirements from a pip requirements file """
@@ -35,8 +35,7 @@ def parse_requirements(filename):
 
 # Constants
 REQS = parse_requirements('requirements.txt')
-# _next_version = _next_dev_version('swtloc')
-_next_version = '1.1.1'
+_next_version = _next_dev_version('swtloc')
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
