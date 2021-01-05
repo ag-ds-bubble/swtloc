@@ -325,7 +325,7 @@ class SWTLocalizer:
         orig_img = cv2.imread(imgpath) # Read Image
         origgray_img = cv2.cvtColor(orig_img, cv2.COLOR_BGR2GRAY) # Convert to Grayscale
         if gs_blurr:
-            origgray_img = cv2.GaussianBlur(origgray_img, (5,5), 0)
+            origgray_img = cv2.GaussianBlur(origgray_img, blurr_kernel, 0)
 
         return orig_img, origgray_img
 

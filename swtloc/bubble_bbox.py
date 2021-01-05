@@ -34,7 +34,6 @@ class BubbleBBOX:
             raise ValueError("'bubble_width' parameter should be of type in 'int'")
         
 
-
     def create_circular_mask(self, center, radius):
 
         if center is None: # use the middle of the image
@@ -64,7 +63,6 @@ class BubbleBBOX:
             self.maskcomb += mask
 
         self.comp_dstack = np.dstack(tuple(self.comp_dstack))
-
 
 
     def get_attr(self, label, mode='component'):
@@ -172,14 +170,6 @@ class BubbleBBOX:
             self.grouped_annot += cv2.polylines(self.grouped_annot, np.int32([combbbox]), True, (0,0,255), 2)
             
         return self.grouped_labels, self.grouped_bubblebbox, self.grouped_annot_bubble,  self.grouped_annot,  self.maskviz, self.maskcomb
-
-
-
-
-
-
-
-
 
 
 

@@ -33,7 +33,7 @@ pip install swtloc
                       edge_func = 'ac', ac_sigma = 1.0, text_mode = 'lb_df',
                       gs_blurr=True, blurr_kernel = (5,5), minrsw = 3, 
                       maxCC_comppx = 10000, maxrsw = 200, max_angledev = np.pi/6, 
-                      acceptCC_aspectratio = 5)
+                      acceptCC_aspectratio = 5.0)
 
     ```
     <img style="float: right;" src="swtloc/images/test_img2_res.jpg" align="centre">

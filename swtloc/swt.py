@@ -1,6 +1,7 @@
 import numpy as np
 
 class SWT:
+    
     def __init__(self, edgegray_img, hstepmat, vstepmat, imggradient, minrsw = 3, maxrsw = 200,
                  max_angledev = np.pi/6, check_anglediff = True):
 
