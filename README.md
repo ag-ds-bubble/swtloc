@@ -91,7 +91,7 @@ pip install swtloc
 ## History Logs
 ****
 <u>v1.0.0.3 : Add Individual Image Processsing</u>
-- Add Individual Image Processing
+- Functionality to transform pre-loaded image
 - Minor Bug Fixes
 - Add support for Python 3.6
 - Reduce Dependency
