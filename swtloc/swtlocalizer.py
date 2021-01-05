@@ -174,16 +174,16 @@ class SWTLocalizer:
         # Save Original Image
         imgsave(self.orig_img, title='Orignal', savepath=savepath+'/orig_img.jpg')
         
-        # Save Original Image
+        # Save Gray Edge Image
         imgsave(self.grayedge_img, title='EdgeImage', savepath=savepath+'/edge_img.jpg')
         
-        # Save Original Image
+        # Save Gradient Image
         imgsave(self.img_gradient, title='Gradient', savepath=savepath+'/grad_img.jpg')
         
-        # Save Original Image
+        # Save Labelled 3 Channel Image
         imgsave(self.swt_labelled3C, title='SWT Transform', savepath=savepath+'/swt3C_img.jpg')
         
-        # Save Original Image
+        # Save Pruned Labelled 3 Channel Image
         imgsave(self.swtlabelled_pruned13C, title='SWT Pruned', savepath=savepath+'/swtpruned3C_img.jpg')
         
     def _sanity_check_transform(self, kwargs):

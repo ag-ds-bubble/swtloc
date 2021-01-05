@@ -26,6 +26,7 @@ pip install swtloc
     This function applies Stroke Width Transform on a list of images or a single image, and once done with the transformation the results are stored in the directory mentioned `save_rootpath` under the name of the image being processed (Process images with different names)
     ```py
     from swtloc import SWTLocalizer
+    import numpy as np
     
     swtl = SWTLocalizer()
     imgpaths = ... # Image paths, can be one image or more than one
