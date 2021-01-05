@@ -1,3 +1,5 @@
+# Author : Achintya Gupta
+
 import numpy as np
 
 class SWT:
