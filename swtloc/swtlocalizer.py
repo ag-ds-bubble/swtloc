@@ -37,7 +37,7 @@ class SWTLocalizer:
             if self.multiprocessing:
                 raise ValueError("Currently 'multiprocessing' mode is not available")
 
-    def swttransform(self, image = None, image_name='Trasnformed_Result',imgpaths = None,
+    def swttransform(self, image = None, image_name='Trasnformed_Result', imgpaths = None,
                      save_results = False, save_rootpath = '../SWTlocResults/', *args, **kwargs):
         
         """
@@ -229,14 +229,14 @@ class SWTLocalizer:
             # Check if its an ndarray
             if not isinstance(self.image,np.ndarray):
                 raise ValueError("When provinding a singular image through 'image' argument, the value should be np.ndarray with 3 Channels(RGB) or 1 Channel(GrayScale), i.e the output of cv2.imread()")
-            # Check if its wether 3d or 1d array
+            # Check if its wether 3d or 1d image
             if not (len(self.image.shape) in [3,2]):
                 raise ValueError("When provinding a singular image through 'image' argument, the value should be np.ndarray with 3 Channels(RGB) or 1 Channel(GrayScale), i.e the output of cv2.imread()")
-            # Check for the number of channels
-            if not (self.image.shape[-1] in [3,1]):
-                raise ValueError("When provinding a singular image through 'image' argument, the value should be np.ndarray with 3 Channels(RGB) or 1 Channel(GrayScale), i.e the output of cv2.imread()")
-            else:
-                if self.image.shape[-1]==3:
+            # Check for the number of channels for a 3 channel image
+            if len(self.image.shape)==3:
+                if self.image.shape[-1]!=3:
+                    raise ValueError("When provinding a singular image through 'image' argument, the value should be np.ndarray with 3 Channels(RGB) or 1 Channel(GrayScale), i.e the output of cv2.imread()")
+                elif self.image.shape[-1]==3:
                     self._individual_image_3c = True # Update Falgs
             self._individual_image_input = True # Update Falgs
         else:
@@ -590,8 +590,13 @@ class SWTLocalizer:
                 _iy, _ix = lmask.nonzero()
                 mean_rgbcolor = self.orig_img[_iy, _ix].mean(axis=0)
                 median_rgbcolor = np.median(self.orig_img[_iy, _ix], axis=0)
-                self.components_props[label]['img_color_mean'] = str(list(np.floor(mean_rgbcolor)))
-                self.components_props[label]['img_color_median'] = str(list(np.floor(median_rgbcolor)))
+
+                if median_rgbcolor.shape==() and mean_rgbcolor.shape==():
+                    self.components_props[label]['img_color_mean'] = str([np.floor(mean_rgbcolor)])
+                    self.components_props[label]['img_color_median'] = str([np.floor(median_rgbcolor)])
+                else:
+                    self.components_props[label]['img_color_mean'] = str(np.floor(mean_rgbcolor).tolist())
+                    self.components_props[label]['img_color_median'] = str(np.floor(median_rgbcolor).tolist())
 
                 sw_xyvals = self.swt_mat[_iy, _ix].copy()
                 sw_countdict=print_valcnts(sw_xyvals, _print=False, remove_0=False)

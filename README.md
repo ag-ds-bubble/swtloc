@@ -90,6 +90,11 @@ pip install swtloc
 
 ## History Logs
 ****
+<u>v1.1.1 : Refine Versioning System</u>
+- New versioning system defined : x[Major Update].x[Minor Update].x[Fixes]
+- Tag 1.1.x Represents all bug fixed versions of 1.1. 
+- Bug Fixes
+
 <u>v1.0.0.3 : Add Individual Image Processsing</u>
 - Functionality to transform pre-loaded image
 - Minor Bug Fixes

@@ -5,11 +5,10 @@ from urllib import request
 from pkg_resources import parse_version
 
 """"
-versioning : x[Major Fixes].x[Minor Fixes].x[Patch Number].x[Development Version]
+versioning : x[Major Update].x[Minor Update].x[Fixes]
 """
 
 # Command to upload to testpypi : cls & rmdir /s /q build dist swtloc.egg-info & python setup_dev.py sdist & python setup_dev.py bdist_wheel & twine upload -r testpypi dist/*
-# Command to upload to pypi : cls & rmdir /s /q build dist swtloc.egg-info & python setup.py sdist & python setup.py bdist_wheel & twine upload dist/*
 # Installation :- pip install --extra-index-url https://test.pypi.org/simple/ swtloc
 
 
@@ -36,7 +35,8 @@ def parse_requirements(filename):
 
 # Constants
 REQS = parse_requirements('requirements.txt')
-_next_version = _next_dev_version('swtloc')
+# _next_version = _next_dev_version('swtloc')
+_next_version = '1.1.1'
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
