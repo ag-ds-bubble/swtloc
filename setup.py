@@ -3,6 +3,7 @@ import json
 import sys
 from urllib import request    
 from pkg_resources import parse_version
+from swtloc import __version__ as current_version
 
 """"
 versioning : x[Major Fixes].x[Minor Fixes].x[Patch Number].x[Development Version]
@@ -22,15 +23,23 @@ def parse_requirements(filename):
 
 # Constants
 REQS = parse_requirements('requirements.txt')
-_next_version = '1.0.0.2'
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
 
+CLASSIFIERS = ["Programming Language :: Python :: 3",
+                "Development Status :: 2 - Pre-Alpha",
+                "Intended Audience :: Developers",
+                "Intended Audience :: Education",
+                "Intended Audience :: Science/Research",
+                "License :: OSI Approved :: BSD License",
+                "Operating System :: OS Independent",
+                "Topic :: Software Development :: Libraries"]
+
 # Package Setup
 setuptools.setup(name="swtloc",
-                version=_next_version,
+                version=current_version,
                 author="Achintya Gupta",
                 author_email="ag.ds.bubble@gmail.com",
                 description="Python Library for Stroke Width Transform",
@@ -40,10 +49,6 @@ setuptools.setup(name="swtloc",
                 packages=setuptools.find_packages(),
                 include_package_data = True,
                 install_requires=REQS,
-                classifiers=["Programming Language :: Python :: 3",
-                            "Development Status :: 4 - Beta",
-                            "Intended Audience :: Developers",
-                            "License :: OSI Approved :: BSD License",
-                            "Operating System :: OS Independent",],
-                python_requires='>=3.7')
+                classifiers=CLASSIFIERS,
+                python_requires='>=3.6')
 

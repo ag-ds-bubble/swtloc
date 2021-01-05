@@ -37,13 +37,17 @@ class SWTLocalizer:
             if self.multiprocessing:
                 raise ValueError("Currently 'multiprocessing' mode is not available")
 
-    def swttransform(self, imgpaths, save_results = False, save_rootpath = '../SWTlocResults/', *args, **kwargs):
+    def swttransform(self, image = None, image_name='Trasnformed_Result',imgpaths = None,
+                     save_results = False, save_rootpath = '../SWTlocResults/', *args, **kwargs):
         
         """
         Function to apply SWT transform on the images present in the imgpaths
 
         parameters
         --------------------------------------
+        image : numpy.ndarray,
+            Either a 3 channel(RGB) or 1 Channel(GrayScale) image as an input.
+
         imgpaths : str or list, required
             Path of all the images to be transformed.
         
@@ -111,7 +115,7 @@ class SWTLocalizer:
         minCC_comppx : int, optional, default : 50
             Pruning Paramter : Minimum number of pixels to reside within each CC.
         
-        minCC_comppx : int, optional, default : 10000
+        maxCC_comppx : int, optional, default : 10000
             Pruning Paramter : Maximum number of pixels to reside within each CC.
         
         acceptCC_aspectratio : float, default : 5
@@ -131,21 +135,35 @@ class SWTLocalizer:
             - transform_time : Time taken during this transformation.
 
         """
-
-
+        # Initialisation
+        self.image = image
+        self.image_name = image_name
         self.imgpaths = imgpaths
+        # Image Type Flags
+        self._individual_image_input = False
+        self._individual_image_3c = False
+        # Prepare the save root path
         self.save_rootpath = os.path.abspath(save_rootpath)
         self._sanity_check_transform(kwargs)
 
-        # Progress bar to report the total done
-        self._probar = prog_bar(self.imgpaths, len(self.imgpaths))
-        for each_imgpath in self._probar:
+        if self.imgpaths is not  None:
+            # Progress bar to report the total done
+            self._probar = prog_bar(self.imgpaths, len(self.imgpaths))
+            for each_imgpath in self._probar:
+                self.components_props = {}
+                self._transform(imgpath=each_imgpath, **kwargs)
+                if save_results:
+                    imgname = each_imgpath.split('/')[-1].split('.')[0]
+                    savepath = self.save_rootpath+f'/{imgname}'
+                    self._save(savepath=savepath)
+        else:
+            print('Transforming...')
             self.components_props = {}
-            self._transform(imgpath=each_imgpath, **kwargs)
+            self._transform(image=self.image, **kwargs)
             if save_results:
-                imgname = each_imgpath.split('/')[-1].split('.')[0]
-                savepath = self.save_rootpath+f'/{imgname}'
+                savepath = self.save_rootpath+f'/{self.image_name}'
                 self._save(savepath=savepath)
+            print('Operation Completed!')
 
     def _save(self, savepath):
         """
@@ -159,51 +177,73 @@ class SWTLocalizer:
             Orignal Grayscale Image
 
         Saves:
-            Orignal @ savepath+'/orig_img.jpg' : Original Image
-            EdgeImage @ savepath+'/edge_img.jpg' : Edged Image
-            Gradient @ savepath+'/grad_img.jpg' : Gradient Theta
+            Orignal @ savepath+'/orig_img.png' : Original Image
+            EdgeImage @ savepath+'/edge_img.png' : Edged Image
+            Gradient @ savepath+'/grad_img.png' : Gradient Theta
                                                   Image
-            SWT Transform @ savepath+'/swt3C_img.jpg' : Connected 
-                                                        Componentsafter 
+            SWT Transform @ savepath+'/swt3C_img.png' : Connected 
+                                                        Components after 
                                                         SWT Transform
-            SWT Pruned @ savepath+'/swtpruned3C_img.jpg' : Connected 
-                                                           Componentsafter 
+            SWT Pruned @ savepath+'/swtpruned3C_img.png' : Connected 
+                                                           Components after 
+                                                           SWT Transform and Pruning.
         """
         os.makedirs(savepath, exist_ok=True)
 
         # Save Original Image
-        imgsave(self.orig_img, title='Orignal', savepath=savepath+'/orig_img.jpg')
+        imgsave(self.orig_img, title='Orignal', savepath=savepath+'/orig_img.png')
         
         # Save Gray Edge Image
-        imgsave(self.grayedge_img, title='EdgeImage', savepath=savepath+'/edge_img.jpg')
+        imgsave(self.grayedge_img, title='EdgeImage', savepath=savepath+'/edge_img.png')
         
         # Save Gradient Image
-        imgsave(self.img_gradient, title='Gradient', savepath=savepath+'/grad_img.jpg')
+        imgsave(self.img_gradient, title='Gradient', savepath=savepath+'/grad_img.png')
         
         # Save Labelled 3 Channel Image
-        imgsave(self.swt_labelled3C, title='SWT Transform', savepath=savepath+'/swt3C_img.jpg')
+        imgsave(self.swt_labelled3C, title='SWT Transform', savepath=savepath+'/swt3C_img.png')
         
         # Save Pruned Labelled 3 Channel Image
-        imgsave(self.swtlabelled_pruned13C, title='SWT Pruned', savepath=savepath+'/swtpruned3C_img.jpg')
+        imgsave(self.swtlabelled_pruned13C, title='SWT Pruned', savepath=savepath+'/swtpruned3C_img.png')
         
     def _sanity_check_transform(self, kwargs):
         """
         Sanity Check for swtransform parameters
         """
-        # Check for imgpaths
-        if isinstance(self.imgpaths, str) or isinstance(self.imgpaths, list):
-            if isinstance(self.imgpaths, list):
-                self.progress_ind = False
-                for eachPath in self.imgpaths:
-                    if not os.path.isfile(eachPath):
-                        raise FileNotFoundError(f"No image present at {eachPath}")
-                        
-            if isinstance(self.imgpaths, str):
-                if not os.path.isfile(self.imgpaths):
-                    raise FileNotFoundError(f"No image present at {self.imgpaths}")
-                self.imgpaths = [self.imgpaths] # Convert a single image path to a list
+        # Either one of imgpaths & image should be given as input to the function
+        if self.imgpaths is not None:
+            # Check for imgpaths
+            if isinstance(self.imgpaths, str) or isinstance(self.imgpaths, list):
+                if isinstance(self.imgpaths, list):
+                    self.progress_ind = False
+                    for eachPath in self.imgpaths:
+                        if not os.path.isfile(eachPath):
+                            raise FileNotFoundError(f"No image present at {eachPath}")
+                            
+                if isinstance(self.imgpaths, str):
+                    if not os.path.isfile(self.imgpaths):
+                        raise FileNotFoundError(f"No image present at {self.imgpaths}")
+                    self.imgpaths = [self.imgpaths] # Convert a single image path to a list
+            else:
+                raise ValueError("'imgpaths' argument needs to be of type 'str' or 'list'")
+        elif self.image is not None:
+            # Check if its an ndarray
+            if not isinstance(self.image,np.ndarray):
+                raise ValueError("When provinding a singular image through 'image' argument, the value should be np.ndarray with 3 Channels(RGB) or 1 Channel(GrayScale), i.e the output of cv2.imread()")
+            # Check if its wether 3d or 1d array
+            if not (len(self.image.shape) in [3,2]):
+                raise ValueError("When provinding a singular image through 'image' argument, the value should be np.ndarray with 3 Channels(RGB) or 1 Channel(GrayScale), i.e the output of cv2.imread()")
+            # Check for the number of channels
+            if not (self.image.shape[-1] in [3,1]):
+                raise ValueError("When provinding a singular image through 'image' argument, the value should be np.ndarray with 3 Channels(RGB) or 1 Channel(GrayScale), i.e the output of cv2.imread()")
+            else:
+                if self.image.shape[-1]==3:
+                    self._individual_image_3c = True # Update Falgs
+            self._individual_image_input = True # Update Falgs
         else:
-            raise ValueError("'imgpaths' argument needs to be of type 'str' or 'list'")
+            raise ValueError("Either one of 'imgpaths' or 'image' argument needs to be provided")
+        
+        if not isinstance(self.image_name, str):
+            raise ValueError("'image_name' should be of type `str`")
 
         # Save the savepath directory, if not there then make one
         if not os.path.isdir(self.save_rootpath):
@@ -256,7 +296,7 @@ class SWTLocalizer:
             if not (isinstance(kwargs['acceptCC_aspectratio'], float) and kwargs['acceptCC_aspectratio']>0.0):
                 raise ValueError("'acceptCC_aspectratio' should be of type float and positive")
 
-    def _transform(self, imgpath, text_mode = 'lb_df',
+    def _transform(self, image=None, imgpath=None, text_mode = 'lb_df',
                   gs_blurr = True, blurr_kernel = (5,5),
                   edge_func = 'ac', ac_sigma = 0.33,
                   minrsw=3, maxrsw=200, max_angledev=np.pi/6, check_anglediff=True,
@@ -265,10 +305,13 @@ class SWTLocalizer:
         Entry Point for the Stroke Width Transform - Single Image
         """
 
-        ts = time.perf_counter_ns()
+        ts = time.perf_counter()
         
         # Read the image..
-        self.orig_img, origgray_img = self._image_read(imgpath=imgpath, gs_blurr=gs_blurr, blurr_kernel=blurr_kernel)
+        if image is None:
+            self.orig_img, origgray_img = self._image_read(imgpath=imgpath, gs_blurr=gs_blurr, blurr_kernel=blurr_kernel)
+        elif imgpath is None:
+            self.orig_img, origgray_img = self._image_read(image=image, gs_blurr=gs_blurr, blurr_kernel=blurr_kernel)
 
         # Find the image edge
         origgray_img, self.grayedge_img = self._image_edge(gray_image = origgray_img, edge_func = edge_func, ac_sigma = ac_sigma)
@@ -295,11 +338,10 @@ class SWTLocalizer:
                                                         maxCC_comppx=maxCC_comppx, acceptCC_aspectratio = acceptCC_aspectratio)
         self.swtlabelled_pruned13C = prepCC(self.swtlabelled_pruned1)
 
-        self.transform_time = str(np.round((time.perf_counter_ns() - ts)/1e9, 3))+' sec'
+        self.transform_time = str(np.round(time.perf_counter() - ts, 3))+' sec'
 
 
-
-    def _image_read(self, imgpath, gs_blurr = True, blurr_kernel = (5,5)):
+    def _image_read(self,image=None, imgpath=None, gs_blurr = True, blurr_kernel = (5,5)):
         """
         Function to read image from imgpath, covert to grayscale 
         apply Gaussian Blurr based on the arguments .
@@ -322,8 +364,15 @@ class SWTLocalizer:
 
         Returns Original Image and Grayscale Image
         """
-        orig_img = cv2.imread(imgpath) # Read Image
-        origgray_img = cv2.cvtColor(orig_img, cv2.COLOR_BGR2GRAY) # Convert to Grayscale
+        if image is None:
+            orig_img = cv2.imread(imgpath) # Read Image
+            origgray_img = cv2.cvtColor(orig_img, cv2.COLOR_BGR2GRAY) # Convert to Grayscale
+        else:
+            orig_img = image
+            if self._individual_image_3c==True:
+                origgray_img = cv2.cvtColor(orig_img, cv2.COLOR_BGR2GRAY) # Convert to Grayscale
+            else:
+                origgray_img = orig_img
         if gs_blurr:
             origgray_img = cv2.GaussianBlur(origgray_img, blurr_kernel, 0)
 

@@ -8,7 +8,8 @@ __pycache__/
 
 # Editor and Notebook
 .DS_Store
-.vscode
+.vscode/
+.idea/
 .ipynb_checkpoints/
 Chasis Number Extraction (SWT)-Refined.ipynb
 Chasis Number Extraction (SWT).ipynb
@@ -16,7 +17,8 @@ Chasis Number Extraction (SWT).ipynb
 # **.ipynb
 
 # Virtual Environment
-swtloc_venv
+swtVenv/
+swtVenvDev/
 
 # Testing files
 testrun.py

@@ -19,7 +19,6 @@ Installation
 pip install swtloc
 ```
 
-
 ## Usage
 ****
 - ### Stroke Width Transform
@@ -29,7 +28,7 @@ pip install swtloc
     import numpy as np
     
     swtl = SWTLocalizer()
-    imgpaths = ... # Image paths, can be one image or more than one
+    imgpaths = ... # Image paths, can be one image(path as str) or more than one(paths as list of str)
     swtl.swttransform(imgpaths=imgpath, save_results=True, save_rootpath='swtres/',
                       edge_func = 'ac', ac_sigma = 1.0, text_mode = 'lb_df',
                       gs_blurr=True, blurr_kernel = (5,5), minrsw = 3, 
@@ -37,7 +36,7 @@ pip install swtloc
                       acceptCC_aspectratio = 5.0)
 
     ```
-    <img style="float: right;" src="swtloc/images/test_img2_res.jpg" align="centre">
+    <img style="float: right;" src="swtloc/images/test_img2_res.png" align="centre">
 
     ****
 - ### Individual & Grouped Bounding Boxes and Annotations
@@ -48,21 +47,21 @@ pip install swtloc
         ```py
         min_bboxes, min_bbox_annotated = swtl.get_min_bbox(show=True, padding=10)
         ```
-        <img style="float: right;" src="swtloc/images/test_img3_res.jpg" align="centre">
+        <img style="float: right;" src="swtloc/images/test_img3_res.png" align="centre">
     - *Extreme CC Bounding Boxes*
 
         Generate External Bounding box for each of the Connected Components after applying SWT.
         ```py
         min_bboxes, min_bbox_annotated = swtl.get_extreme_bbox(show=True, padding=10)
         ```
-        <img style="float: right;" src="swtloc/images/test_img6_res.jpg" align="centre">
+        <img style="float: right;" src="swtloc/images/test_img6_res.png" align="centre">
     - *CC Outline*
 
         Generate Outline of each of the Connected Components after applying SWT.
         ```py
         comp_outlines, comp_outline_annot = swtl.get_comp_outline(show=True, padding=10)
         ```
-        <img style="float: right;" src="swtloc/images/test_img9_res.jpg" align="centre">
+        <img style="float: right;" src="swtloc/images/test_img9_res.png" align="centre">
     - *CC Bubble Bounding Boxes*
 
         Generate Bubble Bounding box for the **grouped letters into a word**.
@@ -78,31 +77,32 @@ pip install swtloc
         maskviz = respacket[4]
         maskcomb  = respacket[5]
         ```
-        <img style="float: right;" src="swtloc/images/test_img7_res.jpg" align="centre">
+        <img style="float: right;" src="swtloc/images/test_img7_res.png" align="centre">
         
-        <img style="float: right;" src="swtloc/images/test_img2_res1.jpg" align="centre">
+        <img style="float: right;" src="swtloc/images/test_img2_res1.png" align="centre">
 
-        <img style="float: right;" src="swtloc/images/test_img1_res.jpg" align="centre">
+        <img style="float: right;" src="swtloc/images/test_img1_res.png" align="centre">
 
-        <img style="float: right;" src="swtloc/images/test_img6_res1.jpg" align="centre">
+        <img style="float: right;" src="swtloc/images/test_img6_res1.png" align="centre">
         
     *CC = Connected Component
 
 
-
-
-## Versions
+## History Logs
 ****
-<u>v1.0.0 : Original Package</u>
-- Add SWTlocaliser to the package
-- Add the logic for Bubble Bounding Boxes
-- Add Examples
+<u>v1.0.0.3 : Add Individual Image Processsing</u>
+- Add Individual Image Processing
+- Minor Bug Fixes
+- Add support for Python 3.6
+- Reduce Dependency
 
-
-<u>v1.0.1 : Few bug fixes and addendums</u>
+<u>v1.0.0.2 : Few bug fixes and addendums</u>
 - Add parameter to govern the width of BubbleBBox 
 - Add Examples - StackOverflow Q/A
 - Add image resizing utility function to the utils.py
 
-
+<u>v1.0.0.1 : Original Package</u>
+- Add SWTlocaliser to the package
+- Add the logic for Bubble Bounding Boxes
+- Add Examples
 

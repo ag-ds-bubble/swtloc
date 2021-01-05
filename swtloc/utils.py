@@ -5,7 +5,6 @@ import sys
 
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import ImageGrid
-import seaborn as sns
 import imutils
 from cv2 import cv2
 
@@ -102,13 +101,15 @@ def prepCC(labelmask):
     """
     Prepare the Connected Components with 3 RGB channels
     """
+
     rmask = labelmask.copy()
     gmask = labelmask.copy()
     bmask = labelmask.copy()
 
     NUM_COLORS = len(np.unique(rmask))
-    allcolors = sns.color_palette('Paired', n_colors=NUM_COLORS)  # a list of RGB tuples
-    
+    cm = plt.get_cmap('gist_rainbow')
+    allcolors = [cm(1.*i/NUM_COLORS) for i in range(NUM_COLORS)]
+
     countdict = print_valcnts(labelmask, _print=False)
     
     for color, label in zip(allcolors, np.unique(rmask)):
@@ -120,7 +121,7 @@ def prepCC(labelmask):
 
     colored_masks = np.dstack((rmask, gmask, bmask))
     return colored_masks.astype(np.uint8)
-    
+
 def imgshow(img, title='',imsize=(10,10)):
     """
     Show an image
@@ -218,7 +219,7 @@ def resize_maintinaAR(image, width=1.0, height=1.0, inter=cv2.INTER_AREA, mode='
     ------------------------------
     Resized image
     """
-    #Adapted from : https://stackoverflow.com/a/55306956/6297658
+    #Adopted from : https://stackoverflow.com/a/55306956/6297658
     dim = None
     (h, w) = image.shape[:2]
 

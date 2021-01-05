@@ -10,6 +10,8 @@ versioning : x[Major Fixes].x[Minor Fixes].x[Patch Number].x[Development Version
 
 # Command to upload to testpypi : cls & rmdir /s /q build dist swtloc.egg-info & python setup_dev.py sdist & python setup_dev.py bdist_wheel & twine upload -r testpypi dist/*
 # Command to upload to pypi : cls & rmdir /s /q build dist swtloc.egg-info & python setup.py sdist & python setup.py bdist_wheel & twine upload dist/*
+# Installation :- pip install --extra-index-url https://test.pypi.org/simple/ swtloc
+
 
 def _next_dev_version(pkg_name):
     try:
@@ -39,6 +41,14 @@ _next_version = _next_dev_version('swtloc')
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
+CLASSIFIERS = ["Programming Language :: Python :: 3",
+                "Development Status :: 2 - Pre-Alpha",
+                "Intended Audience :: Developers",
+                "Intended Audience :: Education",
+                "Intended Audience :: Science/Research",
+                "License :: OSI Approved :: BSD License",
+                "Operating System :: OS Independent",
+                "Topic :: Software Development :: Libraries"]
 
 # Package Setup
 setuptools.setup(name="swtloc",
@@ -52,12 +62,8 @@ setuptools.setup(name="swtloc",
                 packages=setuptools.find_packages(),
                 include_package_data = True,
                 install_requires=REQS,
-                classifiers=["Programming Language :: Python :: 3",
-                            "Development Status :: 2 - Pre-Alpha",
-                            "Intended Audience :: Developers",
-                            "License :: OSI Approved :: BSD License",
-                            "Operating System :: OS Independent",],
-                python_requires='>=3.7')
+                classifiers=CLASSIFIERS,
+                python_requires='>=3.6')
 
 
 
