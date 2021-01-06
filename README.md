@@ -1,6 +1,9 @@
 # SWTloc : Stroke Width Transform Text Localizer
 <img style="float: right;" src="swtloc/images/logo.png" height=139 width=418 align="right">
 
+[![PyPI Latest Release](https://img.shields.io/pypi/v/swtloc)](https://pypi.org/project/swtloc/)
+[![PyPI Downloads](https://img.shields.io/pypi/dm/swtloc)](https://pypi.org/project/swtloc/)
+[![Python Versions](https://img.shields.io/pypi/pyversions/swtloc)](https://pypi.org/project/swtloc/)
 
 ## Description
 
@@ -22,7 +25,10 @@ pip install swtloc
 ## Usage
 ****
 - ### Stroke Width Transform
-    This function applies Stroke Width Transform on a list of images or a single image, and once done with the transformation the results are stored in the directory mentioned `save_rootpath` under the name of the image being processed (Process images with different names)
+    This function applies Stroke Width Transform on a list of images(loaded from list of imagepaths, internally) or a single image(loaded from imagepath or a pre-loaded image), and once done with the transformation the results are stored in the directory mentioned in `save_rootpath` parameter, under the name of the image being processed
+    
+    *NOTE : If you are processing multiple images with same name, the stored results will be overridden, Process images with different names.
+
     ```py
     from swtloc import SWTLocalizer
     import numpy as np
@@ -34,7 +40,13 @@ pip install swtloc
                       gs_blurr=True, blurr_kernel = (5,5), minrsw = 3, 
                       maxCC_comppx = 10000, maxrsw = 200, max_angledev = np.pi/6, 
                       acceptCC_aspectratio = 5.0)
-
+    # If you have a pre-loaded image then
+    loaded_image = cv2.imread(imgpath)
+    swtl.swttransform(image=loaded_image, save_results=True, save_rootpath='swtres/',
+                      edge_func = 'ac', ac_sigma = 1.0, text_mode = 'lb_df',
+                      gs_blurr=True, blurr_kernel = (5,5), minrsw = 3, 
+                      maxCC_comppx = 10000, maxrsw = 200, max_angledev = np.pi/6, 
+                      acceptCC_aspectratio = 5.0)
     ```
     <img style="float: right;" src="swtloc/images/test_img2_res.png" align="centre">
 
