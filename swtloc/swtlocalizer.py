@@ -4,7 +4,6 @@ from .utils import prog_bar, auto_canny, prepCC, print_valcnts, imgshow, imgshow
 from .swt import SWT
 from .bubble_bbox import BubbleBBOX
 
-
 import os
 from cv2 import cv2
 import numpy as np
@@ -19,7 +18,6 @@ COMPONENT_PROPS = {'pixels': None,
                    'bbm_bbox': None, 'bbm_outline': None, 'bbm_ang': None,
                    'img_color_mean': None, 'img_color_median': None,
                    'sw_countdict': None, 'sw_var': None, 'sw_median': None, 'sw_mean': None}
-
 
 class SWTLocalizer:
     
