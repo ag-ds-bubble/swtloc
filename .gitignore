@@ -22,6 +22,7 @@ swtVenvDev/
 
 # Testing files
 testrun.py
+SWTlocResults/
 testimages/
 gifimages/
 example.gif
