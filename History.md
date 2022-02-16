@@ -42,6 +42,7 @@
   - (+) New [configs.py](swtloc/configs.py) file
     - Houses configurations for the Stroke Width Transform
   - (+) Add [Improvements in v2.0.0.ipynb](examples/Improvements-in-v2.0.0.ipynb) notebook
+  - (+) Add [README Code Blocks.ipynb](examples/README-Code-Blocks.ipynb) notebook
   - (+) Add [StackOverflow QnA [DEPRECATED] (Will be removed in v2.1.0).ipynb](examples/StackOverflow-QnA-[DEPRECATED]-(Will-be-removed-in-v2.1.0).ipynb) notebook
   - (+) Add [SWTloc Usage [v2.0.0 onwards].ipynb](examples/SWTloc-Usage-[v2.0.0-onwards].ipynb) notebook
 

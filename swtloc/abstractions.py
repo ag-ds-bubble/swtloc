@@ -1902,6 +1902,8 @@ class SWTImage(TextTransformBase):
             dpi (Optional[int]) : DPI of the figure to be saved
         Raise:
             SWTValueError, SWTTypeError
+        Returns:
+            (str) : Returns the location where the image was saved if save_dir=True and save_path is given.
         Example:
         ::
             >>> from swtloc import SWTLocalizer
@@ -1973,5 +1975,7 @@ class SWTImage(TextTransformBase):
 
         if prep_image:
             _identifier = "_".join([bytes(k).decode("utf-8") for k in image_codes])
-            plt.savefig(save_dir + f'{self.image_name}_{_identifier}.jpg', dpi=dpi)
+            spath = save_dir + f'{self.image_name}_{_identifier}.jpg'
+            plt.savefig(spath, dpi=dpi)
             plt.close()
+            return spath
