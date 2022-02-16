@@ -1,4 +1,9 @@
-numpy==1.18.5
-matplotlib==3.2.2
-imutils==0.5.3
-opencv-python==4.5.1.48
+imutils
+matplotlib
+numba
+numpy
+opencv_python
+seaborn
+pandas
+jupyter
+autopep8

@@ -1,250 +1,277 @@
 # Author : Achintya Gupta
+# Purpose : Houses utility functions
 
-import subprocess
-from multiprocessing import current_process
+import functools
 import numpy as np
-import sys
-
+from cv2 import cv2
+from typing import Dict
+from typing import List
+from typing import Tuple
+from typing import Optional
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import ImageGrid
-import imutils
-from cv2 import cv2
 
-#######################PROGRESS BAR#######################
-def prog_bar(_iterable, itrlen, mwidth = 40, individual_mode = False,
-            comp_symb = '#', incomp_symb ='.',
-            arch_hold = '', block_str = '', comp_msg = '', mp_lock = True):
+CEND = '\33[0m'
+CBOLD = '\33[1m'
+CREDBG = '\033[41m'
+
+
+def print_in_red(text: str) -> None:
     """
-    Function for the Progress Bar. Wrapper Generator around and interable (list or dict)
-    which yields each component indicating the increment in the progress bar
+    Print a red color text.
+    Args:
+        text (str) : Text to print
+    Example:
+    ::
+        >>> # Printing a red text
+        >>> print_in_red('This is a red text')
+        This is a red text
+    """
+    print(CREDBG + text + CEND)
+
+
+def perform_type_sanity_checks(cfg: Dict, cfg_of: str) -> None:
+    """
+    Perform type sanity checks for the values provided in `cfg` for a particular
+    `cfg_of` configuration type.
+    Args:
+        cfg (dict) : Configuration dictionary
+        cfg_of (str) : Configuration of which Type Sanity Checks need to be performed
+    Raises:
+        SWTTypeError, SWTValueError
+    """
+    truncated_cfg = {k: v for k, v in cfg.items() if cfg_of in k}
+    all_keys = list(set([k.split('.')[-1] for k, v in truncated_cfg.items()]))
+    all_keys = [k for k in all_keys if k not in ['options', 'type']]
+
+    for each_cfg_key in all_keys:
+        cfg_val = truncated_cfg.get(f'{cfg_of}.{each_cfg_key}')
+        cfg_types = truncated_cfg.get(f'{cfg_of}.{each_cfg_key}.type')
+        cfg_options = truncated_cfg.get(f'{cfg_of}.{each_cfg_key}.options')
+        param_name = each_cfg_key.split('.')[-1]
+
+        cfg_val_type_check = [isinstance(cfg_val, k) for k in cfg_types]
+        if not (cfg_val_type_check.count(True) == 1):
+            raise SWTTypeError(f"`{param_name}` value should be one of these types : {cfg_types}. Not mixed either.")
+
+        if cfg_options:
+            if cfg_val not in cfg_options:
+                raise SWTValueError(f"`{param_name}` can assume only one of {cfg_options}. `{cfg_val}` was given.")
+
+
+def deprecated_wrapper(reason: str, in_favour_of: str, removed_in: str, relocated: Optional[bool] = False):
+    """
+    A decorator to mark the deprecated functions and give the reason
+    of deprecation. Alongside the reason, also inform in which version
+    will the function be removed. If the function is being relocated then also
+    inform in favour of which function will this function will be relocated
+    Args:
+        reason (str) : Reason for relocation/deprecation
+        in_favour_of (str) : If relocated, in favour of which function is this
+         function being relocated
+        removed_in (str) : In which version will the function be removed
+        relocated (Optional[bool]) : Is the deprecation for being relocated
     """
 
-    unitColor = '\033[5;49m\033[5;40m'
-    endColor = '\033[5;30m\033[0;0m'
-
-    check1 = isinstance(_iterable, list)
-    check2 = isinstance(_iterable, dict)
-
-    if check2:
-        _iterable = _iterable.items()
-    
-    # Dont know why it works but the prog_bar ANSI codes wont work in
-    # Windows otherwise. Need to figure this out.
-    subprocess.call('', shell=True)
-
-
-    if check1+check2 == 1:
-        for idx, element in enumerate(_iterable):
-            pct = (idx)/(itrlen)
-            done = int(pct*mwidth)
-            remain = mwidth - done
-            msg = f'{idx}/{itrlen} Images Done'+"."*int((idx%5)+1)
-
-            prog = '%s%s%s%s' % (unitColor, '\033[7m' + ' '*done + ' \033[27m', endColor, ' '*remain)
-            prog_txt = "\r{0} @ {1} |{2}| -> STATUS: {3}% {4}".format(current_process().name, arch_hold, prog, np.round(pct*100, 1), msg)
-            sys.stdout.write(prog_txt)
-            sys.stdout.flush()
-            import time
-            time.sleep(0.01)
-            yield element
-
-        msg = f'{itrlen}/{itrlen} Images Done'+". Transformations Complete"
-            
-        prog = '%s%s%s' % (unitColor, '\033[7m' + ' '*int(mwidth/2 - 4) + 'COMPLETE' + ' '*int(mwidth/2 -4) + ' \033[27m', endColor)
-        prog_txt = "\r{0} @ {1} |{2}| -> STATUS: {3}% {4}".format(current_process().name, arch_hold, prog, np.round(pct*100, 1), msg)
-        sys.stdout.write(prog_txt)
-        sys.stdout.flush()
-        print('\n')
-        
-        
+    if not relocated:
+        warn_message = "DEPRECATED : `{fname}` function deprecated in favour of {in_favour_of}. "
+        warn_message += "Reason - {reason}; To be Removed in - {removed_in}"
     else:
-        raise TypeError("'prog_bar' can only accept one of \
-                        ['list', 'dict'] as the iterable")
+        warn_message = "RELOCATED : `{fname}` function relocated to {in_favour_of}. "
+        warn_message += "Reason - {reason}; To be Removed in - {removed_in}"
+
+    def deprecated_function(func):
+        @functools.wraps(func)
+        def new_func(*args, **kwargs):
+            print_in_red(text=warn_message.format(fname=func.__name__, in_favour_of=in_favour_of,
+                                                  reason=reason, removed_in=removed_in))
+            return func(*args, **kwargs)
+
+        return new_func
+
+    return deprecated_function
 
 
-
-def auto_canny(image, sigma=0.33):
+def generate_random_swtimage_names(n: int) -> List[str]:
     """
-    Autocanny Function
-    Taken from : https://www.pyimagesearch.com/2015/04/06/zero-parameter-automatic-canny-edge-detection-with-python-and-opencv/
-
-    Function to find Edge image from a grayscale image
-    based on the thresholding parameter sigma.
-
-    parameters
-    --------------------------------------
-    sigma : float, optional, default : 0.33
-
+    Generates random image names made of random numbers
+    Args:
+        n (int) : Number of names to generate
+    Returns:
+        (List[str]) : List of string names to generate.
+    Example:
+    ::
+        >>> # Generating `n` random integer string (names)
+        >>> generate_random_swtimage_names(3)
+        ['SWTImage_982112', 'SWTImage_571388', 'SWTImage_866821']
     """
-    # compute the median of the single channel pixel intensities
-    v = np.median(image)
+    random_names: List[str] = []
+    np.random.seed(999)
+    for _ in range(n):
+        random_names.append(f'SWTImage_{np.random.randint(100_000, 999_999)}')
+    return random_names
 
-    # apply automatic Canny edge detection using the computed median
+
+def auto_canny(img: np.ndarray, sigma: Optional[float] = 0.33) -> np.ndarray:
+    """
+    Autocanny Function.
+     Taken from : https://www.pyimagesearch.com/2015/04/06/zero-parameter-automatic-canny-edge-detection-with-python-and-opencv/
+     Function to find Edge image from a grayscale image
+     based on the thresholding parameter sigma.
+    Args:
+        img (np.ndarray) : Input gray-scale image.
+        sigma (Optional[float]): Sigma Value,default : 0.33
+    Example:
+    ::
+        >>> # Generating Canny Edge Image
+        >>> root_path = '../swtloc/examples/test_images/'
+        >>> single_image_path = root_path+'test_img1.jpg'
+        >>> original_image = cv2.imread(single_image_path)
+        >>> edge_image = auto_canny(img=original_image, sigma=0.2)
+        >>> print(original_image.shape, edge_image.shape)
+        (768, 1024, 3) (768, 1024)
+    """
+    # Compute the median of the single channel pixel intensities
+    v = np.median(img)
+
+    # Apply automatic Canny edge detection using the computed median
     lower = int(max(0, (1.0 - sigma) * v))
     upper = int(min(255, (1.0 + sigma) * v))
-    edged = cv2.Canny(image, lower, upper)
-    # return the edged image
-    return edged    
+    edged = cv2.Canny(img, lower, upper)
 
-def print_valcnts(image,_print=True, remove_0=True):
+    return edged
+
+
+def image_1C_to_3C(image_1C: np.ndarray, all_colors: Optional[List[Tuple[int]]] = None,
+                   scale_with_values: Optional[bool] = False) -> np.ndarray:
     """
-    Calculate the value counts in a image
+    Prepare the RGB channel image from a single channel image (gray-scale).
+    Each unique integer in `image_1C` will be given a unique color, unless
+    `all_colors` parameter is provided. `scale_with_values` parameter ensures
+    color so generated (if `all_colors` parameter not given) will be generated
+    using the *sequential* matplotlib color scheme.
+
+    Args:
+        image_1C (np.ndarray) : Input single channel image, which needs to be transformed
+        all_colors (Optional[List[Tuple[int]]]) : Colors corresponding to each unique integer in the image
+        scale_with_values (Optional[bool]) : Whether to use matplotlib *sequential* color map or not.
+    Returns:
+        (np.ndarray) : Three channel image, after the conversions of the single channel image
     """
-    val, counts = np.unique(image, return_counts=True)
-    vcdict = {k: v for k, v in sorted(dict(zip(val,counts)).items(), key=lambda item: item[1], reverse=True)}
-    if remove_0:
-        del vcdict[0]
-    if _print:
-        print("".join([str(k)+': '+str(v)+'\n' for k,v in vcdict.items()]))
-    return vcdict
+    rmask = image_1C.copy()
+    gmask = image_1C.copy()
+    bmask = image_1C.copy()
 
-def prepCC(labelmask):
-    """
-    Prepare the Connected Components with 3 RGB channels
-    """
+    unique_labels = np.unique(rmask)
+    num_colors = len(unique_labels)
 
-    rmask = labelmask.copy()
-    gmask = labelmask.copy()
-    bmask = labelmask.copy()
+    if not all_colors:
+        if scale_with_values:
+            cm = plt.get_cmap('Oranges')
+        else:
+            cm = plt.get_cmap('tab20c')
+        all_colors = [cm(1. * i / num_colors) for i in range(num_colors)]
 
-    NUM_COLORS = len(np.unique(rmask))
-    cm = plt.get_cmap('gist_rainbow')
-    allcolors = [cm(1.*i/NUM_COLORS) for i in range(NUM_COLORS)]
-
-    countdict = print_valcnts(labelmask, _print=False)
-    
-    for color, label in zip(allcolors, np.unique(rmask)):
+    for color, label in zip(all_colors, sorted(unique_labels)):
+        mask_indices = np.where(rmask == label)
         if label == 0:
-            color = (0,0,0)
-        rmask[rmask==label] = int(color[0]*255)
-        gmask[gmask==label] = int(color[1]*255)
-        bmask[bmask==label] = int(color[2]*255)
+            color = (0, 0, 0)
+
+        rmask[mask_indices] = int(color[2] * 255)
+        gmask[mask_indices] = int(color[1] * 255)
+        bmask[mask_indices] = int(color[0] * 255)
 
     colored_masks = np.dstack((rmask, gmask, bmask))
     return colored_masks.astype(np.uint8)
 
-def imgshow(img, title='',imsize=(10,10)):
-    """
-    Show an image
-    """
-    if isinstance(img, str):
-        img = cv2.imread(img)
-    
-    fig,ax = plt.subplots(figsize=imsize)
-    if len(img.shape) == 3:
-        plt.imshow(imutils.convenience.opencv2matplotlib(img))
-    elif len(img.shape) == 2:
-        plt.imshow(img, cmap='gray')
-    plt.title(title)
-    plt.show()
 
-def imgsave(img, title, savepath, imsize=(10,10)):
+def show_N_images(images: List[np.ndarray],
+                  individual_titles: List[str],
+                  plot_title: Optional[str] = 'SWTLoc Plot',
+                  sup_title: Optional[str] = '',
+                  return_img: Optional[bool] = False) -> Optional[np.ndarray]:
     """
-    Save an image
-    """
-    if isinstance(img, str):
-        img = cv2.imread(img)
-    
-    fig,ax = plt.subplots(figsize=imsize)
-    if len(img.shape) == 3:
-        plt.imshow(imutils.convenience.opencv2matplotlib(img))
-    elif len(img.shape) == 2:
-        plt.imshow(img, cmap='gray')
-    plt.title(title)
-    plt.savefig(savepath, bbox_inches='tight')
-    plt.close()
+    Display n (<=4) images in a grid.
 
-def imgshowN(images:list, titles:list=[], place_pix_val=False,
-             sup_title='Grouped Images', savepath=None, figsize = (10,10)):
+    Args:
+        images (List[np.ndarray]) : List of images to display
+        individual_titles (List[str]) : Title for each image to be displayed
+        plot_title (Optional[str]) : Plot Title. [default = 'SWTLoc Plot']
+        sup_title (Optional[str]) : Plot sub title. [default = '']
+        return_img (Optional[bool]) : Whether to return the plotted figure or not. [default = False]
+    Raises:
+        SWTValueError
+    Returns:
+        (matplotlib.figure.Figure) : Plotted figure if the `return_fig` parameter was given as `True`
     """
-    Show N images
-    """
-    if titles == []:
-        titles = ['Image '+str(k+1) for k in range(len(images))]
-    if place_pix_val:
-        for eimg in images:
-            assert len(eimg.shape) == 2
-    _rows = int(np.ceil(len(images)/3))
-    _cols = len(images) if len(images)<=3 else 3
-    
-    fig = plt.figure(figsize=figsize, dpi = 100)
-    # plt.xlabel(sup_title, fontsize=10) # TODO : Borders too wide
-    # plt.tick_params(top=False, bottom=False, left=False, right=False,
-    #                 labelleft=False, labelbottom=False)
-    plt.rcParams['figure.dpi']=120
+    nimages = len(images)
+    if nimages <= 3:
+        _rows = 1
+        _cols = nimages
+        fig_size = (12, 5.5)
+    elif nimages == 4:
+        _rows = 2
+        _cols = 2
+        fig_size = (12, 9)
+    else:
+        raise SWTValueError("Maximum of 4 images allowed")
 
-    grid = ImageGrid(fig, 111, nrows_ncols=(_rows, _cols), axes_pad=0.1)
+    fig = plt.figure(figsize=fig_size, dpi=98)
+    plt.suptitle(plot_title + sup_title, fontsize=14)
 
-    for _img , _title, _ax in zip(images, titles, grid):
+    grid = ImageGrid(fig, 111, nrows_ncols=(_rows, _cols), axes_pad=0.4, label_mode='L')
+
+    for _img, _title, _ax in zip(images, individual_titles, grid):
         if _img.shape[-1] == 3:
-            _ax.imshow(imutils.convenience.opencv2matplotlib(_img))
+            _ax.imshow(cv2.cvtColor(_img, cv2.COLOR_BGR2RGB))
         else:
             _ax.imshow(_img, cmap='gray')
-            
-            if place_pix_val:
-                for  _y in range(_img.shape[0]):
-                    for _x in range(_img.shape[1]):
-                        _ax.annotate(_img[_y,_x], (_x-0.3,_y), color='r', fontsize=6)
-                        
-        _ax.set_title(_title)
-        
-        
+
+        _ax.set_title(_title, fontsize=10)
+
     for _delax in grid[len(images):]:
         fig.delaxes(_delax)
-    
-    if savepath:
-        plt.savefig(savepath, bbox_inches='tight')
+
+    if return_img:
+        return fig
 
     plt.show()
-    
-def resize_maintinaAR(image, width=1.0, height=1.0, inter=cv2.INTER_AREA, mode='proportion'):
+
+
+def unique_value_counts(image: np.ndarray, remove_0: Optional[bool] = True) -> Dict:
     """
-    A function to resize the image based on the params.
-    
-    Arguments
-    ------------------------------
-        image : Original Image, np.ndarray
-            Image to resize
-        
-        width(Optional) : int or float.
-            How much to resize based on the width.
-        
-        height(Optional) : int or float
-            How much to resize based on the height.
-        
-        inter(Optional) : opencv interpolation mode
-        
-        mode(Optional) : One of 'proportion' or 'actual'
-            Which mode to resize the image in.
-    Returns
-    ------------------------------
-    Resized image
+    Calculate unique integers in an image and their counts
+
+    Args:
+        image (np.ndarray) : Image of which the unique values need to be calculated
+        remove_0 (Optional[bool]) : Whether to remove integer 0 from the calculated
+         dictionary or not.
+    Returns:
+        (dict) : Dictionary containing key as unique integer and value as counts
+         of that integer in the image
     """
-    #Adopted from : https://stackoverflow.com/a/55306956/6297658
-    dim = None
-    (h, w) = image.shape[:2]
+    val, counts = np.unique(image, return_counts=True)
+    vcdict = {k: v for k, v in sorted(dict(zip(val, counts)).items(), key=lambda item: item[1], reverse=True)}
+    if remove_0:
+        vcdict.pop(0, None)
+    return vcdict
 
-    if mode == 'proportion':
-        width *= w
-        width = int(width)
-        height *= h
-        height = int(height)
 
-    # Return original image if no need to resize
-    if width is None and height is None:
-        return image
+class SWTLocExceptions(Exception):
+    """Base class for SWTLoc Exceptions"""
 
-    # We are resizing height if width is none
-    if width is None:
-        # Calculate the ratio of the height and construct the dimensions
-        r = height / float(h)
-        dim = (int(w * r), height)
-    # We are resizing width if height is none
-    else:
-        # Calculate the ratio of the width and construct the dimensions
-        r = width / float(w)
-        dim = (width, int(h * r))
 
-    # Return the resized image
-    return cv2.resize(image, dim, interpolation=inter)
+class SWTLocalizerValueError(SWTLocExceptions):
+    """Raised when wrong input is provided to the `SWTLocalizer` class"""
 
+
+class SWTImageProcessError(SWTLocExceptions):
+    """Raised when functions don't follow a proper flow for SWTImage"""
+
+
+class SWTValueError(SWTLocExceptions):
+    """Raised when non-acceptable value is received in the parameters"""
+
+
+class SWTTypeError(SWTLocExceptions):
+    """Raised when non-acceptable type is received in the parameters"""

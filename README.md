@@ -13,113 +13,141 @@ This repo contains a python implementation structured as a python package pertai
 Boris Epshtein, Eyal Ofek & Yonatan Wexler
 (June, 2010)](https://www.microsoft.com/en-us/research/publication/detecting-text-in-natural-scenes-with-stroke-width-transform/)
 
-<img style="float: right;" src="swtloc/images/logo.gif" align="centre">
+<img style="float: right;" src="swtloc/static/logo.gif" align="centre">
 
-## Installation
-****
-Installation 
+This library extends the transformation stage of the image for textual content by giving the ability to :
+
+- Localize `Letter`'s : through `SWTImage.localizeLetters`
+- Localize `Words`'s, via fusing individual `Letter`'s : through `SWTImage.localizeWords`
+
+The process flow of is depicted in the image below : 
+
+<img style="float: right;" src="swtloc/static/SWTLoc_Process_Flow.png" align="centre">
+
+
+### Installation 
 ```py
 pip install swtloc
 ```
 
-## Usage
-****
-- ### Stroke Width Transform
-    This function applies Stroke Width Transform on a list of images(loaded from list of imagepaths, internally) or a single image(loaded from imagepath or a pre-loaded image), and once done with the transformation the results are stored in the directory mentioned in `save_rootpath` parameter, under the name of the image being processed
-    
-    *NOTE : If you are processing multiple images with same name, the stored results will be overridden, Process images with different names.
+## Speed Benchmarking
+Below is the speed comparison between different versions of ``SWTLoc`` and their various engines. The time measured for
+each test image was calculated based on 10 iterations of 10 runs each.
 
-    ```py
-    from swtloc import SWTLocalizer
-    import numpy as np
-    
-    swtl = SWTLocalizer()
-    imgpaths = ... # Image paths, can be one image(path as str) or more than one(paths as list of str)
-    swtl.swttransform(imgpaths=imgpath, save_results=True, save_rootpath='swtres/',
-                      edge_func = 'ac', ac_sigma = 1.0, text_mode = 'lb_df',
-                      gs_blurr=True, blurr_kernel = (5,5), minrsw = 3, 
-                      maxCC_comppx = 10000, maxrsw = 200, max_angledev = np.pi/6, 
-                      acceptCC_aspectratio = 5.0)
-    # If you have a pre-loaded image then
-    loaded_image = cv2.imread(imgpath)
-    swtl.swttransform(image=loaded_image, save_results=True, save_rootpath='swtres/',
-                      edge_func = 'ac', ac_sigma = 1.0, text_mode = 'lb_df',
-                      gs_blurr=True, blurr_kernel = (5,5), minrsw = 3, 
-                      maxCC_comppx = 10000, maxrsw = 200, max_angledev = np.pi/6, 
-                      acceptCC_aspectratio = 5.0)
-    ```
-    <img style="float: right;" src="swtloc/images/test_img2_res.png" align="centre">
-
-    ****
-- ### Individual & Grouped Bounding Boxes and Annotations
-    These group of functions returns bounding boxes to individual components and grouped bounding boxes of words.
-    - *Minimum CC Bounding Boxes*
-
-        Generate Minimum Bounding box for each of the Connected Components after applying SWT, can be a rotated rectangle.
-        ```py
-        min_bboxes, min_bbox_annotated = swtl.get_min_bbox(show=True, padding=10)
-        ```
-        <img style="float: right;" src="swtloc/images/test_img3_res.png" align="centre">
-    - *Extreme CC Bounding Boxes*
-
-        Generate External Bounding box for each of the Connected Components after applying SWT.
-        ```py
-        min_bboxes, min_bbox_annotated = swtl.get_extreme_bbox(show=True, padding=10)
-        ```
-        <img style="float: right;" src="swtloc/images/test_img6_res.png" align="centre">
-    - *CC Outline*
-
-        Generate Outline of each of the Connected Components after applying SWT.
-        ```py
-        comp_outlines, comp_outline_annot = swtl.get_comp_outline(show=True, padding=10)
-        ```
-        <img style="float: right;" src="swtloc/images/test_img9_res.png" align="centre">
-    - *CC Bubble Bounding Boxes*
-
-        Generate Bubble Bounding box for the **grouped letters into a word**.
-        ```py
-        respacket = swtl.get_grouped(lookup_radii_multiplier=1, sw_ratio=2,
-                             cl_deviat=[13,13,13], ht_ratio=2, 
-                             ar_ratio=3, ang_deviat=30)
-        
-        grouped_labels = respacket[0]
-        grouped_bubblebbox = respacket[1]
-        grouped_annot_bubble = respacket[2]
-        grouped_annot = respacket[3]
-        maskviz = respacket[4]
-        maskcomb  = respacket[5]
-        ```
-        <img style="float: right;" src="swtloc/images/test_img7_res.png" align="centre">
-        
-        <img style="float: right;" src="swtloc/images/test_img2_res1.png" align="centre">
-
-        <img style="float: right;" src="swtloc/images/test_img1_res.png" align="centre">
-
-        <img style="float: right;" src="swtloc/images/test_img6_res1.png" align="centre">
-        
-    *CC = Connected Component
+Test Image | SWT v1.1.1 (Python) | SWT v1.1.1 (Python) [x] | SWT v2.0.0 (Python) | SWT v2.0.0 (Python) [x] | SWT v2.0.0 (numba) | SWT v2.0.0 (numba) [x]
+--- | --- | --- | --- |--- |--- |--- 
+test_img1.jpg | 15.614 seconds | 1.0x | 8.071 seconds | 1.935x | 0.308 seconds | 50.66x
+test_img2.jpg | 9.644 seconds | 1.0x | 4.173 seconds | 2.311x | 0.176 seconds | 54.829x
+test_img3.jpg | 4.386 seconds | 1.0x | 2.638 seconds | 1.663x | 0.083 seconds | 53.104x
+test_img4.jpeg | 7.225 seconds | 1.0x | 3.887 seconds | 1.858x | 0.14 seconds | 51.42x
+test_img5.jpg | 16.338 seconds | 1.0x | 7.592 seconds | 2.152x | 0.3 seconds | 54.405x
+test_img6.jpg | 4.831 seconds | 1.0x | 2.873 seconds | 1.682x | 0.083 seconds | 57.853x
 
 
-## History Logs
-****
-<u>v1.1.1 : Refine Versioning System</u>
-- New versioning system defined : x[Major Update].x[Minor Update].x[Fixes]
-- Tag 1.1.x Represents all bug fixed versions of 1.1. 
-- Bug Fixes
+## Usage 
+These code blocks can be found in [SWTloc Usage [v2.0.0 onwards].ipynb](examples/SWTloc-Usage-[v2.0.0-onwards].ipynb)
+notebook in examples/.
 
-<u>v1.0.0.3 : Add Individual Image Processsing</u>
-- Functionality to transform pre-loaded image
-- Minor Bug Fixes
-- Add support for Python 3.6
-- Reduce Dependency
+### Initialisation of ``SWTLocalizer``
+- Initialising the  - This is the entry point, which can accept either single image path (str)/
+multiple image paths (List[str])/ single image (np.ndarray)/ multiple images (List[np.ndarray]).
+```py
+from swtloc import SWTLocalizer
+imgpath = 'images/test_image_4/test_img4.jpeg'
+respath = 'images/test_image_4/usage_results/'
+swtl = SWTLocalizer(image_paths=imgpath)
+swtImgObj = swtl.swtimages[0]
+print(swtImgObj, type(swtImgObj))
+swtImgObj.showImage()
+```
+> SWTImage-test_img4 <class 'swtloc.abstractions.SWTImage'>
+> ![a](examples/images/test_image_4/usage_results/test_img4_01.jpg)
+> <img style="float: right;" src="examples/images/test_image_4/usage_results/test_img4_01.jpg" align="centre">
 
-<u>v1.0.0.2 : Few bug fixes and addendums</u>
-- Add parameter to govern the width of BubbleBBox 
-- Add Examples - StackOverflow Q/A
-- Add image resizing utility function to the utils.py
+### Stroke Width Transformation using ``SWTImage.transformImage``
+```py
+swt_mat = swtImgObj.transformImage(text_mode='lb_df',
+                                   auto_canny_sigma=1.0,
+                                   maximum_stroke_width=20)
+```
+> ![a](examples/images/test_image_4/usage_results/test_img4_01_02_03_04.jpg)
+> <img style="float: right;" src="examples/images/test_image_4/usage_results/test_img4_01_02_03_04.jpg" align="centre">
 
-<u>v1.0.0.1 : Original Package</u>
-- Add SWTlocaliser to the package
-- Add the logic for Bubble Bounding Boxes
-- Add Examples
+### Finding Connected Components and Pruning them using ``SWTImage.findAndPruneConnectedComponents``
+```py
+image_1C, pruned_image_1C = swtImgObj.findAndPruneConnectedComponents(minimum_pixels_per_cc=50,
+                                                                      maximum_pixels_per_cc=10_000,
+                                                                      acceptable_aspect_ratio=0.2)
+```
+> ![a](examples/images/test_image_4/usage_results/test_img4_04_06_07_09.jpg)
+> <img style="float: right;" src="examples/images/test_image_4/usage_results/test_img4_04_06_07_09.jpg" align="centre">
+
+### Localizing Letters using ``SWTImage.localizeLetters``
+```py
+localized_letters = swtImgObj.localizeLetters()
+letter_labels = list([int(k) for k in localized_letters.keys()])
+```
+> ![a](examples/images/test_image_4/usage_results/test_img4_11_12_13.jpg)
+> <img style="float: right;" src="examples/images/test_image_4/usage_results/test_img4_11_12_13.jpg" align="centre">
+
+### Query a Letter using ``SWTImage.getLetter``
+```py
+letter_label = letter_labels[3]
+locletter = swtImgObj.getLetter(key=letter_label)
+```
+> ![a](examples/images/test_image_4/usage_results/test_img4_17_18.jpg)
+> <img style="float: right;" src="examples/images/test_image_4/usage_results/test_img4_17_18.jpg" align="centre">
+
+### Localizing Letters using ``SWTImage.localizeWords``
+```py
+localized_words = swtImgObj.localizeWords()
+word_labels = list([int(k) for k in localized_words.keys()])
+```
+> ![a](examples/images/test_image_4/usage_results/test_img4_14_15_16.jpg)
+> <img style="float: right;" src="examples/images/test_image_4/usage_results/test_img4_14_15_16.jpg" align="centre">
+
+### Query a Word using ``SWTImage.getWord``
+```py
+word_label = word_labels[12]
+locword = swtImgObj.getWord(key=word_label)
+```
+> ![a](examples/images/test_image_4/usage_results/test_img4_19_20.jpg)
+> <img style="float: right;" src="examples/images/test_image_4/usage_results/test_img4_19_20.jpg" align="centre">
+
+### Accessing intermediary stage images using ``SWTImage.showImage`` and saving them
+```py
+swtImgObj.showImage(image_codes=[IMAGE_ORIGINAL,
+                                 IMAGE_ORIGINAL_MASKED_WORD_LOCALIZATIONS],
+                    plot_title='Original & Bubble Mask')
+```
+> ![a](examples/images/test_image_4/usage_results/test_img4_01_16.jpg)
+> <img style="float: right;" src="examples/images/test_image_4/usage_results/test_img4_01_16.jpg" align="centre">
+
+
+### Saving Crops of the localized letters and words
+```py
+# Letter Crops
+swtImgObj.saveCrop(save_path=respath, crop_of='letters', crop_key=4, crop_type='min_bbox', crop_on=IMAGE_ORIGINAL)
+swtImgObj.saveCrop(save_path=respath, crop_of='letters', crop_key=4, crop_type='min_bbox', crop_on=IMAGE_SWT_TRANSFORMED)
+
+# Word Crops
+swtImgObj.saveCrop(save_path=respath, crop_of='words', crop_key=13, crop_type='bubble', crop_on=IMAGE_ORIGINAL)
+swtImgObj.saveCrop(save_path=respath, crop_of='words', crop_key=13, crop_type='bubble', crop_on=IMAGE_SWT_TRANSFORMED)
+```
+> ![a](examples/images/test_image_4/usage_results/test_img4_letters-4_min_bbox_IMAGE_ORIGINAL_CROP.jpg)
+> <img style="float: right;" src="examples/images/test_image_4/usage_results/test_img4_letters-4_min_bbox_IMAGE_ORIGINAL_CROP.jpg" align="left">
+> ![a](examples/images/test_image_4/usage_results/test_img4_letters-4_min_bbox_IMAGE_SWT_TRANSFORMED_CROP.jpg)
+> <img style="float: right;" src="examples/images/test_image_4/usage_results/test_img4_letters-4_min_bbox_IMAGE_SWT_TRANSFORMED_CROP.jpg" align="right">
+
+> ![a](examples/images/test_image_4/usage_results/test_img4_words-13_bubble_IMAGE_ORIGINAL_CROP.jpg)
+> <img style="float: right;" src="examples/images/test_image_4/usage_results/test_img4_words-13_bubble_IMAGE_ORIGINAL_CROP.jpg" align="left">
+> ![a](examples/images/test_image_4/usage_results/test_img4_words-13_bubble_IMAGE_SWT_TRANSFORMED_CROP.jpg)
+> <img style="float: right;" src="examples/images/test_image_4/usage_results/test_img4_words-13_bubble_IMAGE_SWT_TRANSFORMED_CROP.jpg" align="right">
+
+
+### Other examples
+```py
+Images from other transformations as coming out of the SWT Usage notebook.
+```
+
 

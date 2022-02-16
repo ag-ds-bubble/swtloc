@@ -3,31 +3,39 @@ __pycache__/
 *__pycache__/
 **__pycache__/
 
+examples/images/*
+!examples/images/test_image_1/
+!examples/images/test_image_2/
+!examples/images/test_image_3/
+!examples/images/test_image_4/
+!examples/images/test_image_5/
+!examples/images/test_image_6/
+
+
 *.pyc
 **.pyc
 
 # Editor and Notebook
-.DS_Store
-.vscode/
-.idea/
 .ipynb_checkpoints/
-Chasis Number Extraction (SWT)-Refined.ipynb
-Chasis Number Extraction (SWT).ipynb
-# *.ipynb
-# **.ipynb
+*.ipynb_checkpoints/
+**.ipynb_checkpoints/
 
-# Virtual Environment
-swtVenv/
-swtVenvDev/
+.idea/
+*.idea/
+**.idea/
+
+.vscode/
+*.vscode/
+**.vscode/
+
+.DS_Store
+*.DS_Store
+**.DS_Store
 
 # Testing files
-testrun.py
 SWTlocResults/
-testimages/
-gifimages/
-example.gif
-images2gif.py
-swtres/
+
+# Build's
 dist/*
 build/*
 swtloc.egg-info/*
