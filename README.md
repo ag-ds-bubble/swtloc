@@ -127,12 +127,12 @@ swtImgObj.saveCrop(save_path=respath, crop_of='words', crop_key=13, crop_type='b
 swtImgObj.saveCrop(save_path=respath, crop_of='words', crop_key=13, crop_type='bubble', crop_on=IMAGE_SWT_TRANSFORMED)
 ```
 <p align="middle">
-  <img src="examples/images/test_image_4/usage_results/test_img4_letters-4_min_bbox_IMAGE_ORIGINAL_CROP.jpg" width="180px" height="160px"/>
-  <img src="examples/images/test_image_4/usage_results/test_img4_letters-4_min_bbox_IMAGE_SWT_TRANSFORMED_CROP.jpg" width="180px" height="160px"/> 
+  <img src="examples/images/test_image_4/usage_results/test_img4_letters-4_min_bbox_IMAGE_ORIGINAL_CROP.jpg" width="300px" height="200px"/>
+  <img src="examples/images/test_image_4/usage_results/test_img4_letters-4_min_bbox_IMAGE_SWT_TRANSFORMED_CROP.jpg" width="300px" height="200px"/> 
 </p>
 <p align="middle">
-  <img src="examples/images/test_image_4/usage_results/test_img4_words-13_bubble_IMAGE_ORIGINAL_CROP.jpg"  width="500px" height="100px"/>
-  <img src="examples/images/test_image_4/usage_results/test_img4_words-13_bubble_IMAGE_SWT_TRANSFORMED_CROP.jpg" width="500px" height="100px"/> 
+  <img src="examples/images/test_image_4/usage_results/test_img4_words-13_bubble_IMAGE_ORIGINAL_CROP.jpg" width="300px" height="200px"/>
+  <img src="examples/images/test_image_4/usage_results/test_img4_words-13_bubble_IMAGE_SWT_TRANSFORMED_CROP.jpg" width="300px" height="200px"/> 
 </p>
 
 ### Other examples
