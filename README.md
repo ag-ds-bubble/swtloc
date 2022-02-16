@@ -13,7 +13,7 @@ This repo contains a python implementation structured as a python package pertai
 Boris Epshtein, Eyal Ofek & Yonatan Wexler
 (June, 2010)](https://www.microsoft.com/en-us/research/publication/detecting-text-in-natural-scenes-with-stroke-width-transform/)
 
-<img style="float: right;" src="swtloc/static/logo.gif" align="centre">
+<p style="text-align:center"><img style="float: center;" src="swtloc/static/logo.gif" align="centre"></p>
 
 This library extends the transformation stage of the image for textual content by giving the ability to :
 
