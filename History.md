@@ -1,5 +1,3 @@
-# SWTloc : Stroke Width Transform Text Localizer
-
 ## History Logs
 ****
 <u>v2.0.0 : Major Release - Refactoring, New Engines, Abstraction Addition</u>
@@ -43,6 +41,9 @@
     - Addition of `TextTransformBase` : A base class to be inherited by `SWTImage`
   - (+) New [configs.py](swtloc/configs.py) file
     - Houses configurations for the Stroke Width Transform
+  - (+) Add [Improvements in v2.0.0.ipynb](examples/Improvements-in-v2.0.0.ipynb) notebook
+  - (+) Add [StackOverflow QnA [DEPRECATED] (Will be removed in v2.1.0).ipynb](examples/StackOverflow-QnA-[DEPRECATED]-(Will-be-removed-in-v2.1.0).ipynb) notebook
+  - (+) Add [SWTloc Usage [v2.0.0 onwards].ipynb](examples/SWTloc-Usage-[v2.0.0-onwards].ipynb) notebook
 
 <u>v1.1.1 : Refine Versioning System</u>
 - New versioning system defined : x[Major Update].x[Minor Update].x[Fixes]

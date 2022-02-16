@@ -1,5 +1,5 @@
 # SWTloc : Stroke Width Transform Text Localizer
-<img style="float: right;" src="swtloc/images/logo.png" height=139 width=418 align="right">
+<img style="float: right;" src="swtloc/static/logo.png" height=139 width=418 align="right">
 
 [![PyPI Latest Release](https://img.shields.io/pypi/v/swtloc)](https://pypi.org/project/swtloc/)
 [![PyPI Downloads](https://img.shields.io/pypi/dm/swtloc)](https://pypi.org/project/swtloc/)
@@ -36,7 +36,7 @@ each test image was calculated based on 10 iterations of 10 runs each.
 
 Test Image | SWT v1.1.1 (Python) | SWT v1.1.1 (Python) [x] | SWT v2.0.0 (Python) | SWT v2.0.0 (Python) [x] | SWT v2.0.0 (numba) | SWT v2.0.0 (numba) [x]
 --- | --- | --- | --- |--- |--- |--- 
-test_img1.jpg | 15.614 seconds | 1.0x | 8.071 seconds | 1.935x | 0.308 seconds | 50.66x
+test_img1.jpg | 15.614 seconds | 1.0x | 8.071 seconds | 1.935x | 0.308 seconds | 100.66x
 test_img2.jpg | 9.644 seconds | 1.0x | 4.173 seconds | 2.311x | 0.176 seconds | 54.829x
 test_img3.jpg | 4.386 seconds | 1.0x | 2.638 seconds | 1.663x | 0.083 seconds | 53.104x
 test_img4.jpeg | 7.225 seconds | 1.0x | 3.887 seconds | 1.858x | 0.14 seconds | 51.42x
@@ -61,7 +61,6 @@ print(swtImgObj, type(swtImgObj))
 swtImgObj.showImage()
 ```
 > SWTImage-test_img4 <class 'swtloc.abstractions.SWTImage'>
-> ![a](examples/images/test_image_4/usage_results/test_img4_01.jpg)
 > <img style="float: right;" src="examples/images/test_image_4/usage_results/test_img4_01.jpg" align="centre">
 
 ### Stroke Width Transformation using ``SWTImage.transformImage``
@@ -70,16 +69,14 @@ swt_mat = swtImgObj.transformImage(text_mode='lb_df',
                                    auto_canny_sigma=1.0,
                                    maximum_stroke_width=20)
 ```
-> ![a](examples/images/test_image_4/usage_results/test_img4_01_02_03_04.jpg)
 > <img style="float: right;" src="examples/images/test_image_4/usage_results/test_img4_01_02_03_04.jpg" align="centre">
 
 ### Finding Connected Components and Pruning them using ``SWTImage.findAndPruneConnectedComponents``
 ```py
-image_1C, pruned_image_1C = swtImgObj.findAndPruneConnectedComponents(minimum_pixels_per_cc=50,
+image_1C, pruned_image_1C = swtImgObj.findAndPruneConnectedComponents(minimum_pixels_per_cc=100,
                                                                       maximum_pixels_per_cc=10_000,
                                                                       acceptable_aspect_ratio=0.2)
 ```
-> ![a](examples/images/test_image_4/usage_results/test_img4_04_06_07_09.jpg)
 > <img style="float: right;" src="examples/images/test_image_4/usage_results/test_img4_04_06_07_09.jpg" align="centre">
 
 ### Localizing Letters using ``SWTImage.localizeLetters``
@@ -87,7 +84,6 @@ image_1C, pruned_image_1C = swtImgObj.findAndPruneConnectedComponents(minimum_pi
 localized_letters = swtImgObj.localizeLetters()
 letter_labels = list([int(k) for k in localized_letters.keys()])
 ```
-> ![a](examples/images/test_image_4/usage_results/test_img4_11_12_13.jpg)
 > <img style="float: right;" src="examples/images/test_image_4/usage_results/test_img4_11_12_13.jpg" align="centre">
 
 ### Query a Letter using ``SWTImage.getLetter``
@@ -95,7 +91,6 @@ letter_labels = list([int(k) for k in localized_letters.keys()])
 letter_label = letter_labels[3]
 locletter = swtImgObj.getLetter(key=letter_label)
 ```
-> ![a](examples/images/test_image_4/usage_results/test_img4_17_18.jpg)
 > <img style="float: right;" src="examples/images/test_image_4/usage_results/test_img4_17_18.jpg" align="centre">
 
 ### Localizing Letters using ``SWTImage.localizeWords``
@@ -103,7 +98,6 @@ locletter = swtImgObj.getLetter(key=letter_label)
 localized_words = swtImgObj.localizeWords()
 word_labels = list([int(k) for k in localized_words.keys()])
 ```
-> ![a](examples/images/test_image_4/usage_results/test_img4_14_15_16.jpg)
 > <img style="float: right;" src="examples/images/test_image_4/usage_results/test_img4_14_15_16.jpg" align="centre">
 
 ### Query a Word using ``SWTImage.getWord``
@@ -111,7 +105,6 @@ word_labels = list([int(k) for k in localized_words.keys()])
 word_label = word_labels[12]
 locword = swtImgObj.getWord(key=word_label)
 ```
-> ![a](examples/images/test_image_4/usage_results/test_img4_19_20.jpg)
 > <img style="float: right;" src="examples/images/test_image_4/usage_results/test_img4_19_20.jpg" align="centre">
 
 ### Accessing intermediary stage images using ``SWTImage.showImage`` and saving them
@@ -120,7 +113,6 @@ swtImgObj.showImage(image_codes=[IMAGE_ORIGINAL,
                                  IMAGE_ORIGINAL_MASKED_WORD_LOCALIZATIONS],
                     plot_title='Original & Bubble Mask')
 ```
-> ![a](examples/images/test_image_4/usage_results/test_img4_01_16.jpg)
 > <img style="float: right;" src="examples/images/test_image_4/usage_results/test_img4_01_16.jpg" align="centre">
 
 
@@ -134,16 +126,11 @@ swtImgObj.saveCrop(save_path=respath, crop_of='letters', crop_key=4, crop_type='
 swtImgObj.saveCrop(save_path=respath, crop_of='words', crop_key=13, crop_type='bubble', crop_on=IMAGE_ORIGINAL)
 swtImgObj.saveCrop(save_path=respath, crop_of='words', crop_key=13, crop_type='bubble', crop_on=IMAGE_SWT_TRANSFORMED)
 ```
-> ![a](examples/images/test_image_4/usage_results/test_img4_letters-4_min_bbox_IMAGE_ORIGINAL_CROP.jpg)
-> <img style="float: right;" src="examples/images/test_image_4/usage_results/test_img4_letters-4_min_bbox_IMAGE_ORIGINAL_CROP.jpg" align="left">
-> ![a](examples/images/test_image_4/usage_results/test_img4_letters-4_min_bbox_IMAGE_SWT_TRANSFORMED_CROP.jpg)
-> <img style="float: right;" src="examples/images/test_image_4/usage_results/test_img4_letters-4_min_bbox_IMAGE_SWT_TRANSFORMED_CROP.jpg" align="right">
 
-> ![a](examples/images/test_image_4/usage_results/test_img4_words-13_bubble_IMAGE_ORIGINAL_CROP.jpg)
-> <img style="float: right;" src="examples/images/test_image_4/usage_results/test_img4_words-13_bubble_IMAGE_ORIGINAL_CROP.jpg" align="left">
-> ![a](examples/images/test_image_4/usage_results/test_img4_words-13_bubble_IMAGE_SWT_TRANSFORMED_CROP.jpg)
-> <img style="float: right;" src="examples/images/test_image_4/usage_results/test_img4_words-13_bubble_IMAGE_SWT_TRANSFORMED_CROP.jpg" align="right">
-
+<img style="float: right;" src="examples/images/test_image_4/usage_results/test_img4_letters-4_min_bbox_IMAGE_ORIGINAL_CROP.jpg" align="left" width="200" height="100">
+<img style="float: right;" src="examples/images/test_image_4/usage_results/test_img4_letters-4_min_bbox_IMAGE_SWT_TRANSFORMED_CROP.jpg" align="right" align="left" width="200" height="100">
+<img style="float: right;" src="examples/images/test_image_4/usage_results/test_img4_words-13_bubble_IMAGE_ORIGINAL_CROP.jpg" align="left" align="left" width="200" height="100">
+<img style="float: right;" src="examples/images/test_image_4/usage_results/test_img4_words-13_bubble_IMAGE_SWT_TRANSFORMED_CROP.jpg" align="right" align="left" width="200" height="100">
 
 ### Other examples
 ```py
