@@ -366,29 +366,25 @@ class TextTransformBase:
         # Flag to reflect if the transform stage is done
         self.transform_stage_done: bool = False
 
-        # > Parameters for findAndPruneConnectedComponents
+        # > Parameters for localizing letters
         # Number of Connected Components before pruning
-        self.num_cc: int = 0
+        self.unpruned_num_cc: int = -1
         # Image of Connected Components - Single Channel
-        self.image_cc_1C: np.ndarray = np.array([])
+        self.unpruned_image_cc_1C: np.ndarray = np.array([])
         # Statistics of Connected Components before pruning
-        self.cc_stats: np.ndarray = np.array([])
+        self.unpruned_cc_stats: np.ndarray = np.array([])
         # Centroids of Connected Components before pruning
-        self.cc_centroids: np.ndarray = np.array([])
+        self.unpruned_cc_centroids: np.ndarray = np.array([])
         # Image of Connected Components to be pruning
         self.image_cc_3C_to_be_pruned: np.ndarray = np.array([])
         # Pruned Number of Connected Components
-        self.pruned_num_cc: int = 0
+        self.pruned_num_cc: int = -1
         # Pruned Image of Connected Components - Single Channel
         self.pruned_image_cc_1C: np.ndarray = np.array([])
         # Statistics of the Pruned Image of Connected Components
         self.pruned_cc_stats: np.ndarray = np.array([])
         # Centroids of the Pruned Image of Connected Components
         self.pruned_cc_centroids: np.ndarray = np.array([])
-        # Flag to reflect if the pruning stage is done
-        self.pruning_stage_done: bool = False
-
-        # > Parameters for localizing letters
         # RGB Channel pruned components which qualified as letters
         self.image_pruned_3C_letter_localized: np.ndarray = np.array([])
         # Original image pruned components which qualified as letters
@@ -433,37 +429,12 @@ class TextTransformBase:
          - localizeWords Parameters
         """
         # Reset downstream functions
-        self._resetFindPruneParams()
         self._resetLocalizeLettersParams()
         self._resetLocalizeWordsParams()
 
         # > Parameters for transformImage
         self.transform_time: str = ''
         self.transform_stage_done: bool = False
-
-    # ######################################### #
-    #    FIND AND PRUNE CONNECTED COMPONENTS    #
-    # ######################################### #
-    def _resetFindPruneParams(self):
-        """
-        Resets the findAndPrune stage parameters and the downstream stage parameters :
-         - localizeLetters Parameters
-         - localizeWords Parameters
-        """
-        # Reset downstream functions
-        self._resetLocalizeLettersParams()
-        self._resetLocalizeWordsParams()
-        # > Parameters for findAndPruneConnectedComponents
-        self.num_cc: int = 0
-        self.image_cc_1C: np.ndarray = np.array([])
-        self.cc_stats: np.ndarray = np.array([])
-        self.cc_centroids: np.ndarray = np.array([])
-        self.image_cc_3C_to_be_pruned: np.ndarray = np.array([])
-        self.pruned_num_cc: int = 0
-        self.pruned_image_cc_1C: np.ndarray = np.array([])
-        self.pruned_cc_stats: np.ndarray = np.array([])
-        self.pruned_cc_centroids: np.ndarray = np.array([])
-        self.pruning_stage_done: bool = False
 
     # ######################################### #
     #            LOCALIZE LETTERS               #
@@ -476,11 +447,23 @@ class TextTransformBase:
         # Reset downstream functions
         self._resetLocalizeWordsParams()
         # > Parameters for localizing letters
+        self.unpruned_num_cc: int = -1
+        self.unpruned_image_cc_1C: np.ndarray = np.array([])
+        self.unpruned_cc_stats: np.ndarray = np.array([])
+        self.unpruned_cc_centroids: np.ndarray = np.array([])
+        self.pruned_num_cc: int = -1
+        self.pruned_image_cc_1C: np.ndarray = np.array([])
+        self.pruned_cc_stats: np.ndarray = np.array([])
+        self.pruned_cc_centroids: np.ndarray = np.array([])
+
+        self.image_cc_3C_to_be_pruned: np.ndarray = np.array([])
         self.image_pruned_3C_letter_localized: np.ndarray = np.array([])
         self.image_original_letter_localized: np.ndarray = np.array([])
         self.image_original_masked_letter_localized: np.ndarray = np.array([])
+
         self.individual_letter_localized_edgeswt: np.ndarray = np.array([])
         self.individual_letter_localized_original: np.ndarray = np.array([])
+
         self.letter_stage_done: bool = False
         self.letter_min_done: bool = False
         self.letter_ext_done: bool = False

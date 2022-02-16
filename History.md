@@ -21,18 +21,18 @@
   - (+) New [abstractions.py](swtloc/abstractions.py) file:
     - Addition of class `SWTImage` - An abstraction for an individual images sent in for processing. Has following major functions : 
       - transformImage : To transform the original image to its stroke widths (*1)
-      - findAndPruneConnectedComponents : To find and prune the connected components
-      - localizeLetters : To localize prospective letters
-      - localizeWords : To group prospective letters into words
+      - localizeLetters : To localize letters
+      - localizeWords : To letters into words
       - getLetter : To retrieve an individual letters
+      - letterIterator : Returns a generator over all the letters with visualization capabilities
       - getWord : To retrieve an individual word
-      - saveImage : To save an image through is bytecode
+      - wordIterator : Returns a generator over all the words with visualization capabilities
       - saveCrop : To crop and save a letter or a word
-      - showImage: To display one/multiple images using the Image Codes defined in [configs.py](swtloc/configs.py)
+      - showImage: To display one/multiple images using the Image Codes defined in [configs.py](swtloc/configs.py), also has the ability to save the prepared image
     - Addition of class `Letter` - Represent and houses properties of possible letters
-      - Functionality : Add various localization to input image
+      - Functionality : Add various localization annotation to input image
     - Addition of class `Words` - Represent and houses properties of possible words
-      - Functionality : Add various localizations to input image
+      - Functionality : Add various localization annotation to input image
   - (+) New [core.py](swtloc/core.py) file
     - Addition of `swt_strokes` & `swt_strokes_jitted` function corresponding to the `python` and `numba` engines
     - Addition of `Fusion` & `ProxyLetter` for grouping of letters into probable letters

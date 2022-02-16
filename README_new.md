@@ -37,12 +37,12 @@ each test image was calculated based on 10 iterations of 10 runs each.
 
 Test Image | SWT v1.1.1 (Python) | SWT v1.1.1 (Python) [x] | SWT v2.0.0 (Python) | SWT v2.0.0 (Python) [x] | SWT v2.0.0 (numba) | SWT v2.0.0 (numba) [x]
 --- | --- | --- | --- |--- |--- |--- 
-test_img1.jpg | 15.614 seconds | 1.0x | 8.071 seconds | 1.935x | 0.308 seconds | 50.695x
-test_img2.jpg | 9.644 seconds | 1.0x | 4.173 seconds | 2.311x | 0.176 seconds | 54.829x
-test_img3.jpg | 4.386 seconds | 1.0x | 2.638 seconds | 1.663x | 0.083 seconds | 53.104x
-test_img4.jpeg | 7.225 seconds | 1.0x | 3.887 seconds | 1.858x | 0.14 seconds | 51.42x
-test_img5.jpg | 16.338 seconds | 1.0x | 7.592 seconds | 2.152x | 0.3 seconds | 54.405x
-test_img6.jpg | 4.831 seconds | 1.0x | 2.873 seconds | 1.682x | 0.083 seconds | 57.853x
+test_img1.jpg | 16.929 seconds| 1.0x| 8.145 seconds| 2.078x| 0.33 seconds| 51.315x
+test_img2.jpg | 10.107 seconds| 1.0x| 4.205 seconds| 2.404x| 0.678 seconds| 14.905x
+test_img3.jpg | 4.545 seconds| 1.0x| 2.701 seconds| 1.683x| 0.082 seconds| 55.625x
+test_img4.jpeg | 7.626 seconds| 1.0x| 3.992 seconds| 1.91x| 0.142 seconds| 53.859x
+test_img5.jpg | 17.071 seconds| 1.0x| 7.554 seconds| 2.26x| 0.302 seconds| 56.62x
+test_img6.jpg | 4.973 seconds| 1.0x| 3.104 seconds| 1.602x| 0.094 seconds| 53.076x
 
 ****
 ## Frequently Used Code Snippets
@@ -98,15 +98,12 @@ swt_mat = swtImgObj.transformImage(text_mode='db_lf',
                                    minimum_stroke_width=5,
                                    maximum_stroke_width=50,
                                    display=False)  # NOTE: Set display=True 
-# Find And Prune Connected Components <- Finding Letters
-image_cc, pruned_image_cc = swtImgObj.findAndPruneConnectedComponents(minimum_pixels_per_cc=950,
-                                                                      maximum_pixels_per_cc=5200,
-                                                                      display=False)  # NOTE: Set display=True 
-# Calculate and Draw Letter Annotations
-localized_letters = swtImgObj.localizeLetters()
+# Localizing Letters
+localized_letters = swtImgObj.localizeLetters(minimum_pixels_per_cc=950,
+                                              maximum_pixels_per_cc=5200)
 letter_labels = [int(k) for k in list(localized_letters.keys())]
 ```
-<img style="float: right;" src="examples/images/test_image_1/usage_results/SWTImage_982112_11_12_13.jpg" align="centre" width="900px" height="412px">
+<img style="float: right;" src="examples/images/test_image_1/usage_results/SWTImage_982112_06_07_11_13.jpg" align="centre" width="900px" height="675px">
 
 ```python
 # Some Other Helpful Letter related functions
@@ -174,4 +171,4 @@ word_labels = [int(k) for k in list(localized_words.keys())]
 
 ### For Usage :
 - [Usage.md](Usage.md)
-- [SWTloc Usage [v2.0.0 onwards].ipynb](examples/SWTloc-Usage-[v2.0.0-onwards].ipynb)
+- [SWTloc Usage [v2.0.0 onwards].ipynb](examples/SWTloc-Usage-[v2.0.0-onwards].ipynb) in ``examples/`` folder.

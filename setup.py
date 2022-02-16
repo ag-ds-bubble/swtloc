@@ -1,8 +1,4 @@
 import setuptools
-import json
-import sys
-from urllib import request
-from pkg_resources import parse_version
 from swtloc import __version__ as current_version
 
 """"
@@ -48,7 +44,6 @@ setuptools.setup(name="swtloc",
                  long_description_content_type="text/markdown",
                  url="https://github.com/ag-ds-bubble/swtloc",
                  packages=setuptools.find_packages(),
-                 include_package_data=True,
                  install_requires=REQS,
                  classifiers=CLASSIFIERS,
                  python_requires='>=3.6')

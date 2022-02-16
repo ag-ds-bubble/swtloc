@@ -1,8 +1,60 @@
 # Author : Achintya Gupta
 # Purpose : Houses Abstractions for Stroke Width Transforms
 
-import matplotlib.pyplot as plt
+import math
+import os
+import time
+from copy import deepcopy
+from typing import ByteString
+from typing import Callable
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Tuple
+from typing import Union
 
+import matplotlib.pyplot as plt
+import numpy as np
+from cv2 import cv2
+
+from .base import GroupedComponentsBase
+from .base import IndividualComponentBase
+from .base import TextTransformBase
+from .configs import CODE_VAR_NAME_MAPPINGS
+from .configs import (CONFIG__SWTIMAGE__GETLETTER,
+                      CONFIG__SWTIMAGE__GETLETTER_KEY,
+                      CONFIG__SWTIMAGE__GETLETTER_LOCALIZE_BY,
+                      CONFIG__SWTIMAGE__GETLETTER_DISPLAY)
+from .configs import (CONFIG__SWTIMAGE__GETWORD,
+                      CONFIG__SWTIMAGE__GETWORD_KEY,
+                      CONFIG__SWTIMAGE__GETWORD_LOCALIZE_BY,
+                      CONFIG__SWTIMAGE__GETWORD_DISPLAY)
+from .configs import (CONFIG__SWTIMAGE__LOCALIZELETTERS,
+                      CONFIG__SWTIMAGE__LOCALIZELETTERS_MAXIMUM_PIXELS_PER_CC,
+                      CONFIG__SWTIMAGE__LOCALIZELETTERS_MINIMUM_PIXELS_PER_CC,
+                      CONFIG__SWTIMAGE__LOCALIZELETTERS_ACCEPTABLE_ASPECT_RATIO,
+                      CONFIG__SWTIMAGE__LOCALIZELETTERS_LOCALIZE_BY,
+                      CONFIG__SWTIMAGE__LOCALIZELETTERS_PADDING_PCT,
+                      CONFIG__SWTIMAGE__LOCALIZELETTERS_DISPLAY)
+from .configs import (CONFIG__SWTIMAGE__LOCALIZEWORDS,
+                      CONFIG__SWTIMAGE__LOCALIZEWORDS_LOCALIZE_BY,
+                      CONFIG__SWTIMAGE__LOCALIZEWORDS_LOOKUP_RADIUS_MULTIPLIER,
+                      CONFIG__SWTIMAGE__LOCALIZEWORDS_ACCEPTABLE_STROKE_WIDTH_RATIO,
+                      CONFIG__SWTIMAGE__LOCALIZEWORDS_ACCEPTABLE_COLOR_DEVIATION,
+                      CONFIG__SWTIMAGE__LOCALIZEWORDS_ACCEPTABLE_HEIGHT_RATIO,
+                      CONFIG__SWTIMAGE__LOCALIZEWORDS_ACCEPTABLE_ANGLE_DEVIATION,
+                      CONFIG__SWTIMAGE__LOCALIZEWORDS_POLYGON_DILATE_ITERATIONS,
+                      CONFIG__SWTIMAGE__LOCALIZEWORDS_POLYGON_DILATE_KERNEL,
+                      CONFIG__SWTIMAGE__LOCALIZEWORDS_DISPLAY)
+from .configs import (CONFIG__SWTIMAGE__SAVECROPS,
+                      CONFIG__SWTIMAGE__SAVECROPS_SAVE_PATH,
+                      CONFIG__SWTIMAGE__SAVECROPS_CROP_OF,
+                      CONFIG__SWTIMAGE__SAVECROPS_CROP_KEY,
+                      CONFIG__SWTIMAGE__SAVECROPS_CROP_ON)
+from .configs import (CONFIG__SWTIMAGE__SHOWIMAGE,
+                      CONFIG__SWTIMAGE__SHOWIMAGE_IMAGE_CODES,
+                      CONFIG__SWTIMAGE__SHOWIMAGE_PLOT_TITLE,
+                      CONFIG__SWTIMAGE__SHOWIMAGE_PLOT_SUP_TITLE)
 from .configs import (CONFIG__SWTIMAGE__TRANSFORM,
                       CONFIG__SWTIMAGE__TRANSFORM_GAUSSIAN_BLURR,
                       CONFIG__SWTIMAGE__TRANSFORM_GAUSSIAN_BLURR_KERNEL,
@@ -16,63 +68,12 @@ from .configs import (CONFIG__SWTIMAGE__TRANSFORM,
                       CONFIG__SWTIMAGE__TRANSFORM_ENGINE,
                       CONFIG__SWTIMAGE__TRANSFORM_INCLUDE_EDGES_IN_SWT,
                       CONFIG__SWTIMAGE__TRANSFORM_DISPLAY)
-
-from .configs import (CONFIG__SWTIMAGE__FINDANDPRUNECC,
-                      CONFIG__SWTIMAGE__FINDANDPRUNECC_MAXIMUM_PIXELS_PER_CC,
-                      CONFIG__SWTIMAGE__FINDANDPRUNECC_MINIMUM_PIXELS_PER_CC,
-                      CONFIG__SWTIMAGE__FINDANDPRUNECC_ACCEPTABLE_ASPECT_RATIO,
-                      CONFIG__SWTIMAGE__FINDANDPRUNECC_DISPLAY)
-
-from .configs import (CONFIG__SWTIMAGE__LOCALIZELETTERS,
-                      CONFIG__SWTIMAGE__LOCALIZELETTERS_LOCALIZE_BY,
-                      CONFIG__SWTIMAGE__LOCALIZELETTERS_PADDING_PCT,
-                      CONFIG__SWTIMAGE__LOCALIZELETTERS_DISPLAY)
-
-from .configs import (CONFIG__SWTIMAGE__LOCALIZEWORDS,
-                      CONFIG__SWTIMAGE__LOCALIZEWORDS_LOCALIZE_BY,
-                      CONFIG__SWTIMAGE__LOCALIZEWORDS_LOOKUP_RADIUS_MULTIPLIER,
-                      CONFIG__SWTIMAGE__LOCALIZEWORDS_ACCEPTABLE_STROKE_WIDTH_RATIO,
-                      CONFIG__SWTIMAGE__LOCALIZEWORDS_ACCEPTABLE_COLOR_DEVIATION,
-                      CONFIG__SWTIMAGE__LOCALIZEWORDS_ACCEPTABLE_HEIGHT_RATIO,
-                      CONFIG__SWTIMAGE__LOCALIZEWORDS_ACCEPTABLE_ANGLE_DEVIATION,
-                      CONFIG__SWTIMAGE__LOCALIZEWORDS_POLYGON_DILATE_ITERATIONS,
-                      CONFIG__SWTIMAGE__LOCALIZEWORDS_POLYGON_DILATE_KERNEL,
-                      CONFIG__SWTIMAGE__LOCALIZEWORDS_DISPLAY)
-
-from .configs import (CONFIG__SWTIMAGE__GETLETTER,
-                      CONFIG__SWTIMAGE__GETLETTER_KEY,
-                      CONFIG__SWTIMAGE__GETLETTER_LOCALIZE_BY,
-                      CONFIG__SWTIMAGE__GETLETTER_DISPLAY)
-
-from .configs import (CONFIG__SWTIMAGE__GETWORD,
-                      CONFIG__SWTIMAGE__GETWORD_KEY,
-                      CONFIG__SWTIMAGE__GETWORD_LOCALIZE_BY,
-                      CONFIG__SWTIMAGE__GETWORD_DISPLAY)
-
-from .configs import (CONFIG__SWTIMAGE__SHOWIMAGE,
-                      CONFIG__SWTIMAGE__SHOWIMAGE_IMAGE_CODES,
-                      CONFIG__SWTIMAGE__SHOWIMAGE_PLOT_TITLE,
-                      CONFIG__SWTIMAGE__SHOWIMAGE_PLOT_SUP_TITLE)
-
-from .configs import (IMAGE_ORIGINAL,
-                      IMAGE_GRAYSCALE,
-                      IMAGE_EDGED,
-                      IMAGE_SWT_TRANSFORMED)
-
+# Image Codes
 from .configs import (IMAGE_CONNECTED_COMPONENTS_1C,
                       IMAGE_CONNECTED_COMPONENTS_3C,
                       IMAGE_CONNECTED_COMPONENTS_PRUNED_1C,
                       IMAGE_CONNECTED_COMPONENTS_PRUNED_3C,
                       IMAGE_CONNECTED_COMPONENTS_3C_WITH_PRUNED_ELEMENTS)
-
-from .configs import (TRANSFORM_INPUT__3C_IMAGE,
-                      IMAGE_PRUNED_3C_LETTER_LOCALIZATIONS,
-                      IMAGE_ORIGINAL_LETTER_LOCALIZATIONS,
-                      IMAGE_ORIGINAL_MASKED_LETTER_LOCALIZATIONS,
-                      IMAGE_PRUNED_3C_WORD_LOCALIZATIONS,
-                      IMAGE_ORIGINAL_WORD_LOCALIZATIONS,
-                      IMAGE_ORIGINAL_MASKED_WORD_LOCALIZATIONS)
-
 from .configs import (IMAGE_INDIVIDUAL_LETTER_LOCALIZATION,
                       IMAGE_ORIGINAL_INDIVIDUAL_LETTER_LOCALIZATION,
                       IMAGE_INDIVIDUAL_WORD_LOCALIZATION,
@@ -80,44 +81,31 @@ from .configs import (IMAGE_INDIVIDUAL_LETTER_LOCALIZATION,
                       CONFIG__SWTIMAGE__SHOWIMAGE_SAVE_DIR,
                       CONFIG__SWTIMAGE__SHOWIMAGE_SAVE_FIG,
                       CONFIG__SWTIMAGE__SHOWIMAGE_DPI)
-
-from .configs import (CONFIG__SWTIMAGE__SAVECROPS,
-                      CONFIG__SWTIMAGE__SAVECROPS_SAVE_PATH,
-                      CONFIG__SWTIMAGE__SAVECROPS_CROP_OF,
-                      CONFIG__SWTIMAGE__SAVECROPS_CROP_KEY,
-                      CONFIG__SWTIMAGE__SAVECROPS_CROP_ON)
-
+from .configs import (IMAGE_ORIGINAL,
+                      IMAGE_GRAYSCALE,
+                      IMAGE_EDGED,
+                      IMAGE_SWT_TRANSFORMED)
+from .configs import (TRANSFORM_INPUT__3C_IMAGE,
+                      IMAGE_PRUNED_3C_LETTER_LOCALIZATIONS,
+                      IMAGE_ORIGINAL_LETTER_LOCALIZATIONS,
+                      IMAGE_ORIGINAL_MASKED_LETTER_LOCALIZATIONS,
+                      IMAGE_PRUNED_3C_WORD_LOCALIZATIONS,
+                      IMAGE_ORIGINAL_WORD_LOCALIZATIONS,
+                      IMAGE_ORIGINAL_MASKED_WORD_LOCALIZATIONS)
+from .configs import get_code_descriptions
 from .core import Fusion
-from .core import swt_strokes
 from .core import ProxyLetter
+from .core import swt_strokes
+from .core import swt_strokes_jitted
+from .utils import SWTImageProcessError
+from .utils import SWTValueError
 from .utils import auto_canny
+from .utils import image_1C_to_3C
+from .utils import perform_type_sanity_checks
+from .utils import get_connected_components_with_stats
 from .utils import print_in_red
 from .utils import show_N_images
-from .utils import SWTValueError
-from .utils import image_1C_to_3C
-from .core import swt_strokes_jitted
 from .utils import unique_value_counts
-from .utils import SWTImageProcessError
-from .configs import get_code_descriptions
-from .configs import CODE_VAR_NAME_MAPPINGS
-from .utils import perform_type_sanity_checks
-from .base import IndividualComponentBase
-from .base import GroupedComponentsBase
-from .base import TextTransformBase
-
-import os
-import time
-import math
-import numpy as np
-from cv2 import cv2
-from typing import Dict
-from typing import List
-from typing import Tuple
-from typing import Union
-from copy import deepcopy
-from typing import Callable
-from typing import Optional
-from typing import ByteString
 
 _LETTER_SUP_TITLE_MAPPINGS = {"outline": "Outline",
                               "ext_bbox": "External\ Bounding\ Box",
@@ -321,6 +309,8 @@ class SWTImage(TextTransformBase):
         Alongside them, attributes pertaining to Stroke Width Transforms are also reset.
         """
         self._resetTransformParams()
+        self.letters: Dict[int, Letter] = dict()
+        self.words: Dict[int, Word] = dict()
         self.image_grayscale: np.ndarray = np.array([])  # Stage-1
         self.image_gaussian_blurred: np.ndarray = np.array([])  # Stage-2
         self.image_edged: np.ndarray = np.array([])  # Stage-3
@@ -511,18 +501,18 @@ class SWTImage(TextTransformBase):
         ::
             >>> # Transform the image using the default engine [default : engine='numba']
             >>> from swtloc import SWTLocalizer
-            >>> root_path = '../swtloc/examples/test_images/'
-            >>> swtl = SWTLocalizer(image_paths=root_path+'test_img1.jpg')
+            >>> root_path = 'examples/images/'
+            >>> swtl = SWTLocalizer(image_paths=root_path+'test_image_1/test_img1.jpg')
             >>> swtImgObj = swtl.swtimages[0]
             >>> swt_image = swtImgObj.transformImage(text_mode='db_lf', maximum_angle_deviation=np.pi/2,
             >>>                                      edge_function='ac', gaussian_blurr_kernel=(11, 11),
             >>>                                      minimum_stroke_width=5, maximum_stroke_width=50, display=True)
             >>> # (A plot will be displayed as well)
             >>> print('Time Taken', swtImgObj.transform_time)
-            Time Taken 0.215 sec
+            Time Taken 0.193 sec
 
             >>> # Python engine been used for `transformImage` for engine = 'python'
-            >>> swtl = SWTLocalizer(image_paths=root_path+'test_img1.jpg')
+            >>> swtl = SWTLocalizer(image_paths=root_path+'test_image_1/test_img1.jpg')
             >>> swtImgObj = swtl.swtimages[0]
             >>> swt_image = swtImgObj.transformImage(text_mode='db_lf', maximum_angle_deviation=np.pi/2,
             >>>                                      edge_function='ac', gaussian_blurr_kernel=(11, 11),
@@ -543,13 +533,11 @@ class SWTImage(TextTransformBase):
             >>>     laplacian_conv = cv2.Laplacian(gauss_image, -1, (5,5))
             >>>     canny_edge = cv2.Canny(laplacian_conv, 20, 90)
             >>>     return canny_edge
-            >>> swtl = SWTLocalizer(image_paths=root_path+'test_img1.jpg')
+            >>> swtl = SWTLocalizer(image_paths=root_path+'test_image_1/test_img1.jpg')
             >>> swtImgObj = swtl.swtimages[0]
             >>> swt_image = swtImgObj.transformImage(text_mode='db_lf', maximum_angle_deviation=np.pi/2,
             >>>                                      edge_function=custom_edge_func, gaussian_blurr_kernel=(3,3),
             >>>                                      minimum_stroke_width=5, maximum_stroke_width=50)
-
-
         """
         # Reset Parameters
         self._resetSWTTransformParams()
@@ -637,24 +625,21 @@ class SWTImage(TextTransformBase):
             raise SWTValueError(f"Condition must be satisfied : 0 < minimum_stroke_width < maximum_stroke_width")
 
     # ######################################### #
-    #    FIND AND PRUNE CONNECTED COMPONENTS    #
+    #            LOCALIZE LETTERS               #
     # ######################################### #
 
-    def findAndPruneConnectedComponents(self, minimum_pixels_per_cc: Optional[int] = 50,
-                                        maximum_pixels_per_cc: Optional[int] = 10_000,
-                                        acceptable_aspect_ratio: Optional[float] = 0.2,
-                                        display: Optional[bool] = True):
+    def localizeLetters(self, minimum_pixels_per_cc: Optional[int] = 50,
+                        maximum_pixels_per_cc: Optional[int] = 10_000,
+                        acceptable_aspect_ratio: Optional[float] = 0.2,
+                        localize_by: Optional[str] = 'min_bbox',
+                        padding_pct: Optional[float] = 0.01,
+                        display: Optional[bool] = True) -> Dict[int, Letter]:
         """
         .. note::
-            This function need to be run only after `transformImage` has been run
+            This function need to be run only after `SWTImage.transformImage` has been run.
 
-        From the transformed image, find the individual connected components (which will become letters
-        later, after being pruned). For finding the connected component's opencv's `connectedComponentsWithStats`
-        function is used.
-
-        Once the connected components are converged, many of them will not be qualifying for `Letters` per se..
-        To prune those connected components, properties like : aspect ratio, minimum and maximum pixels per
-        individual components are looked into.
+        After having found and pruned the individual connected components, this function add boundaries
+        to the `Letter`'s so found in the `SWTImage.transformImage`.
 
         Args:
             minimum_pixels_per_cc (Optional[int]) : Minimum pixels for each components to make it eligible
@@ -666,137 +651,13 @@ class SWTImage(TextTransformBase):
             acceptable_aspect_ratio (Optional[float]) : Acceptable Aspect Ratio of each component to make it
              eligible for being a `Letter`. [default = 0.2]
 
-            display (Optional[bool]) : If set to True, this function will display images of intermediary stages,
-             pre- and post- pruning of the individual components. Following images will be displayed
-                IMAGE_SWT_TRANSFORMED = b'04' -> SWT Transformed image converted to RGB Channels
-                IMAGE_CONNECTED_COMPONENTS_3C = b'06' -> Pre-Pruning Connected Components RGB Channels
-                IMAGE_CONNECTED_COMPONENTS_3C_WITH_PRUNED_ELEMENTS = b'07' -> Showing the elements which were pruned
-                IMAGE_CONNECTED_COMPONENTS_PRUNED_3C = b'09' -> Post Pruning image
-        Returns:
-            (np.ndarray) : Pre-Pruning Connected Components
-            (np.ndarray) : Post-Pruning Connected Components
-        Raise:
-            SWTValueError, SWTTypeError, SWTImageProcessError
-        Example:
-        ::
-            >>> # Find and Prune the Individual Connected Components
-            >>> from swtloc import SWTLocalizer
-            >>> root_path = '../swtloc/examples/test_images/'
-            >>> swtl = SWTLocalizer(image_paths=root_path+'test_img1.jpg')  # Initialise S objectWTLocalizer
-            >>> swtImgObj = swtl.swtimages[0]  # Retrieve a SWTImage Object
-            >>> swt_image = swtImgObj.transformImage(text_mode='db_lf', maximum_angle_deviation=np.pi/2,
-            >>>                                      edge_function='ac', gaussian_blurr_kernel=(11, 11),
-            >>>                                      minimum_stroke_width=5, maximum_stroke_width=50)
-            >>> cc_1C, pruned_cc_1C = swtImgObj.findAndPruneConnectedComponents(minimum_pixels_per_cc=950,
-            >>>                                                                 maximum_pixels_per_cc=5200)
-            >>> # (A plot will be displayed as well)
-
-            >>> # Running `findAndPruneConnectedComponents` before having run `transformImage` -> Raises SWTImageProcessError
-            >>> swtl = SWTLocalizer(image_paths=root_path+'test_img1.jpg')
-            >>> swtImgObj = swtl.swtimages[0]
-            >>> # Find and Prune the Individual Connected Components
-            >>> cc_1C, pruned_cc_1C = swtImgObj.findAndPruneConnectedComponents(minimum_pixels_per_cc=950,
-            >>>                                                                 maximum_pixels_per_cc=5200)
-            >>> # (A plot will be displayed as well)
-            SWTImageProcessError: `SWTImage.transform` function must be called before this function
-        """
-        self.letters: Dict[int, Letter] = dict()  # Reset letters dict
-        self.words: Dict[int, Word] = dict()
-        # Check if transform stage has been run first or not
-        if not self.transform_stage_done:
-            raise SWTImageProcessError("`SWTImage.transform` function must be called before this function")
-        self._resetFindPruneParams()
-        # Update configs
-        self.cfg[CONFIG__SWTIMAGE__FINDANDPRUNECC_MINIMUM_PIXELS_PER_CC] = minimum_pixels_per_cc
-        self.cfg[CONFIG__SWTIMAGE__FINDANDPRUNECC_MAXIMUM_PIXELS_PER_CC] = maximum_pixels_per_cc
-        self.cfg[CONFIG__SWTIMAGE__FINDANDPRUNECC_ACCEPTABLE_ASPECT_RATIO] = acceptable_aspect_ratio
-        self.cfg[CONFIG__SWTIMAGE__FINDANDPRUNECC_DISPLAY] = display
-        # Type Sanity checks
-        self._findAndPruneLettersSanityChecks()
-        threshmask = self.image_swt.copy().astype(np.int16)
-        threshmask[threshmask > 0] = 1
-        threshmask = threshmask.astype(np.int8)
-        result_pack = cv2.connectedComponentsWithStats(threshmask, connectivity=8)
-        self.num_cc, self.image_cc_1C, self.cc_stats, self.cc_centroids = result_pack
-        connected_components_labels = np.arange(self.num_cc)
-        # Pruning based on min and max number of pixels in a CC
-        pixel_check = np.logical_and(self.cc_stats[:, -1] > minimum_pixels_per_cc,
-                                     self.cc_stats[:, -1] < maximum_pixels_per_cc)
-        # Pruning based on Aspect Ratio
-        aspect_ratios = self.cc_stats[:, 2] / self.cc_stats[:, 3]
-        # NOTE : Since its assumed that for letters, aspect ratio (width/height) will, almost always
-        #        be < 1, i.e height of a letter will be more than the width it occupies. Therefore
-        #        for all those letter where `aspect_ratios` calculated was > 1, then it will be assumed that
-        #        width needs to be interchanged with height.
-        aspect_ratios[aspect_ratios > 1] = 1 / aspect_ratios[aspect_ratios > 1]
-        aspect_ratio_check = np.logical_and(aspect_ratios > acceptable_aspect_ratio,
-                                            aspect_ratios < (1 / acceptable_aspect_ratio))
-
-        pruning_checks = np.logical_and(aspect_ratio_check, pixel_check)
-        pruned_connected_component_labels = connected_components_labels[pruning_checks]
-        labels_to_be_pruned = np.setdiff1d(connected_components_labels, pruned_connected_component_labels)
-
-        temp = self.image_cc_1C.copy()
-        to_be_pruned_mask = np.isin(temp, [k for k in labels_to_be_pruned if k != 0])
-        temp[temp > 0] = 255
-        rmask = gmask = bmask = temp.copy()
-        self.image_cc_3C_to_be_pruned = np.dstack((rmask, gmask, bmask)).astype(np.uint8)
-        self.image_cc_3C_to_be_pruned[to_be_pruned_mask, 0] = 67
-        self.image_cc_3C_to_be_pruned[to_be_pruned_mask, 1] = 78
-        self.image_cc_3C_to_be_pruned[to_be_pruned_mask, 2] = 232
-
-        self.pruned_image_cc_1C = self.image_cc_1C.copy()
-        self.pruned_image_cc_1C[np.isin(self.pruned_image_cc_1C, labels_to_be_pruned)] = 0
-        threshmask = self.pruned_image_cc_1C.copy().astype(np.int16)
-        threshmask[threshmask > 0] = 1
-        threshmask = threshmask.astype(np.int8)
-        result_pack = cv2.connectedComponentsWithStats(threshmask, connectivity=8)
-        self.pruned_num_cc, self.pruned_image_cc_1C, self.pruned_cc_stats, self.pruned_cc_centroids = result_pack
-        self.pruning_stage_done = True
-        if display:
-            self.showImage(image_codes=[IMAGE_SWT_TRANSFORMED,
-                                        IMAGE_CONNECTED_COMPONENTS_3C,
-                                        IMAGE_CONNECTED_COMPONENTS_3C_WITH_PRUNED_ELEMENTS,
-                                        IMAGE_CONNECTED_COMPONENTS_PRUNED_3C],
-                           plot_title='Find & Prune Connected Components\n',
-                           plot_sup_title=r'SWT$\Rightarrow$Connected Components$\Rightarrow$Connected '
-                                          r'Components+Pruning$\Rightarrow$After Pruning')
-
-        return self.image_cc_1C, self.pruned_image_cc_1C
-
-    def _findAndPruneLettersSanityChecks(self):
-        """
-        Perform Sanity Checks for `transformImage` parameters
-        Raise:
-            SWTValueError, SWTTypeError, SWTImageProcessError
-        """
-        perform_type_sanity_checks(cfg=self.cfg, cfg_of=CONFIG__SWTIMAGE__FINDANDPRUNECC)
-        # Pair Parameters
-        min_pixels_per_cc = self.cfg.get(CONFIG__SWTIMAGE__FINDANDPRUNECC_MINIMUM_PIXELS_PER_CC)
-        max_pixels_per_cc = self.cfg.get(CONFIG__SWTIMAGE__FINDANDPRUNECC_MAXIMUM_PIXELS_PER_CC)
-        if not (0 < min_pixels_per_cc < max_pixels_per_cc):
-            raise SWTValueError(f"Condition must be satisfied : 0 < minimum_pixels_per_cc < maximum_pixels_per_cc")
-
-    # ######################################### #
-    #            LOCALIZE LETTERS               #
-    # ######################################### #
-
-    def localizeLetters(self, localize_by: Optional[str] = 'min_bbox',
-                        padding_pct: Optional[float] = 0.01,
-                        display: Optional[bool] = True) -> Dict[int, Letter]:
-        """
-        .. note::
-            This function need to be run only after `findAndPruneConnectedComponents` has been run.
-
-        After having found and pruned the individual connected components, this function add boundaries
-        to the `Letter`'s so found in the `findAndPruneConnectedComponents`.
-
-        Args:
             localize_by (Optional[str]) : Which method to localize the letters from : [default = 'min_bbox']
                 1) `min_bbox` - Minimum Bounding Box (Rotating Bounding Box)
                 2) `ext_bbox` - External Bounding Box
                 3) `outline` - Contour
+
             padding_pct (Optional[float]) : How much padding to apply to each localizations [default = 0.01]
+
             display (Optional[bool]) : If set to True, this will display the following [default = True]
                 IMAGE_PRUNED_3C_LETTER_LOCALIZATIONS = b'11' -> Localization on Pruned RGB channel image
                 IMAGE_ORIGINAL_LETTER_LOCALIZATIONS = b'12' -> Localization on Original image
@@ -809,72 +670,120 @@ class SWTImage(TextTransformBase):
         ::
             >>> # Localizing Letters
             >>> from swtloc import SWTLocalizer
-            >>> root_path = '../swtloc/examples/test_images/'
-            >>> swtl = SWTLocalizer(image_paths=root_path+'test_img1.jpg')
+            >>> root_path = 'examples/images/'
+            >>> swtl = SWTLocalizer(image_paths=root_path+'test_image_1/test_img1.jpg')
             >>> swtImgObj = swtl.swtimages[0]
             >>> swt_image = swtImgObj.transformImage(text_mode='db_lf', maximum_angle_deviation=np.pi/2,
             >>>                                      edge_function='ac', gaussian_blurr_kernel=(11, 11),
             >>>                                      minimum_stroke_width=5, maximum_stroke_width=50, display=False)
-            >>> # Find and Prune the Individual Connected Components
-            >>> cc_1C, pruned_cc_1C = swtImgObj.findAndPruneConnectedComponents(minimum_pixels_per_cc=950,
-            >>>                                                                 maximum_pixels_per_cc=5200,
-            >>>                                                                 display=False)
             >>> # (A plot will be displayed as well)
-            >>>  localized_letters = swtImgObj.localizeLetters(localize_by='min_bbox')
+            >>>  localized_letters = swtImgObj.localizeLetters(minimum_pixels_per_cc=950,
+            >>>                                                maximum_pixels_per_cc=5200,
+            >>>                                                localize_by='min_bbox')
 
-            >>> # Running `localizeLetters` before having run `findAndPruneConnectedComponents` -> Raises SWTImageProcessError
-            >>> swtl = SWTLocalizer(image_paths=root_path+'test_img1.jpg')
+            >>> # Running `localizeLetters` before having run `transformImage` -> Raises SWTImageProcessError
+            >>> swtl = SWTLocalizer(image_paths=root_path+'test_image_1/test_img1.jpg')
             >>> swtImgObj = swtl.swtimages[0]
-            >>> swt_image = swtImgObj.transformImage(text_mode='db_lf', maximum_angle_deviation=np.pi/2,
-            >>>                                      edge_function='ac', gaussian_blurr_kernel=(11, 11),
-            >>>                                      minimum_stroke_width=5, maximum_stroke_width=50, display=False)
-            >>> # (A plot will be displayed as well)
             >>> localized_letters = swtImgObj.localizeLetters(localize_by='min_bbox')
-            SWTImageProcessError: `SWTImage.findAndPruneConnectedComponents` must be called before this function
+            SWTImageProcessError: `SWTImage.transformImage` must be called before this function
         """
-        # Check if pruning stage has been run first or not
-        if not self.pruning_stage_done:
-            raise SWTImageProcessError("`SWTImage.findAndPruneConnectedComponents` must be called before this function")
+
+        # Check if the transformImage stage has been done or not
+        if not self.transform_stage_done:
+            raise SWTImageProcessError("`SWTImage.transformImage` must be called before this function")
+
+        # Old parameters
+        check1 = self.cfg.get(CONFIG__SWTIMAGE__LOCALIZELETTERS_MINIMUM_PIXELS_PER_CC) == minimum_pixels_per_cc
+        check2 = self.cfg.get(CONFIG__SWTIMAGE__LOCALIZELETTERS_MAXIMUM_PIXELS_PER_CC) == maximum_pixels_per_cc
+        check3 = self.cfg.get(CONFIG__SWTIMAGE__LOCALIZELETTERS_ACCEPTABLE_ASPECT_RATIO) == acceptable_aspect_ratio
+
         # Update configs
+        self.cfg[CONFIG__SWTIMAGE__LOCALIZELETTERS_MINIMUM_PIXELS_PER_CC] = minimum_pixels_per_cc
+        self.cfg[CONFIG__SWTIMAGE__LOCALIZELETTERS_MAXIMUM_PIXELS_PER_CC] = maximum_pixels_per_cc
+        self.cfg[CONFIG__SWTIMAGE__LOCALIZELETTERS_ACCEPTABLE_ASPECT_RATIO] = acceptable_aspect_ratio
         self.cfg[CONFIG__SWTIMAGE__LOCALIZELETTERS_LOCALIZE_BY] = localize_by
         self.cfg[CONFIG__SWTIMAGE__LOCALIZELETTERS_PADDING_PCT] = padding_pct
         self.cfg[CONFIG__SWTIMAGE__LOCALIZELETTERS_DISPLAY] = display
         # Perform Sanity Checks
         self._localizeLettersSanityChecks()
 
+        # Perform pruning only when the localization parameters have been changed
+        # or its the first run
+        if (not (check1 and check2 and check3)) or (self.pruned_num_cc == -1):
+            # Reset Parameters only when the localization parameters have changed
+            self._resetLocalizeLettersParams()
+            self.letters: Dict[int, Letter] = dict()  # Reset letters dict
+            self.words: Dict[int, Word] = dict()  # Reset words dict
+            # Get unpruned properties
+            _res = get_connected_components_with_stats(img=self.image_swt)
+            self.unpruned_num_cc, self.unpruned_image_cc_1C, self.unpruned_cc_stats, self.unpruned_cc_centroids = _res
+            # Pruning
+            connected_components_labels = np.arange(self.unpruned_num_cc)
+            # Pruning based on min and max number of pixels in a CC
+            pixel_check = np.logical_and(self.unpruned_cc_stats[:, -1] > minimum_pixels_per_cc,
+                                         self.unpruned_cc_stats[:, -1] < maximum_pixels_per_cc)
+            # Pruning based on Aspect Ratio
+            aspect_ratios = self.unpruned_cc_stats[:, 2] / self.unpruned_cc_stats[:, 3]
+            # NOTE : Since its assumed that for letters, aspect ratio (width/height) will, almost always
+            #        be < 1, i.e height of a letter will be more than the width it occupies. Therefore
+            #        for all those letter where `aspect_ratios` calculated was > 1, then it will be assumed that
+            #        width needs to be interchanged with height.
+            aspect_ratios[aspect_ratios > 1] = 1 / aspect_ratios[aspect_ratios > 1]
+            aspect_ratio_check = np.logical_and(aspect_ratios > acceptable_aspect_ratio,
+                                                aspect_ratios < (1 / acceptable_aspect_ratio))
+
+            pruning_checks = np.logical_and(aspect_ratio_check, pixel_check)
+            pruned_connected_component_labels = connected_components_labels[pruning_checks]
+            labels_to_be_pruned = np.setdiff1d(connected_components_labels, pruned_connected_component_labels)
+
+            temp = self.unpruned_image_cc_1C.copy()
+            to_be_pruned_mask = np.isin(temp, [k for k in labels_to_be_pruned if k != 0])
+            temp[temp > 0] = 255
+            rmask = gmask = bmask = temp.copy()
+            self.image_cc_3C_to_be_pruned = np.dstack((rmask, gmask, bmask)).astype(np.uint8)
+            self.image_cc_3C_to_be_pruned[to_be_pruned_mask, 0] = 67
+            self.image_cc_3C_to_be_pruned[to_be_pruned_mask, 1] = 78
+            self.image_cc_3C_to_be_pruned[to_be_pruned_mask, 2] = 232
+
+            self.pruned_image_cc_1C = self.unpruned_image_cc_1C.copy()
+            self.pruned_image_cc_1C[np.isin(self.pruned_image_cc_1C, labels_to_be_pruned)] = 0
+
+            # Get unpruned properties
+            _res = get_connected_components_with_stats(img=self.pruned_image_cc_1C)
+            self.pruned_num_cc, self.pruned_image_cc_1C, self.pruned_cc_stats, self.pruned_cc_centroids = _res
+
+        # Make the Letter objects
         orig_img = self.image.copy()
         swt_mat = self.image_swt.copy()
         pruned_cc = self.pruned_image_cc_1C.copy()
 
-        if not self.letters:
-            for letter_label in np.arange(1, self.pruned_num_cc):
-                letter = Letter(label=letter_label, image_height=self.image_height, image_width=self.image_width)
-                letter_mask = pruned_cc.copy() == letter_label
-                letter_mask = np.uint8(letter_mask)
-                _ciy, _cix = letter_mask.nonzero()
-                # Properties related to original image for this particular connected component
-                _letter_color_values = orig_img[_ciy, _cix].copy()
-                _mean_color = _letter_color_values.mean(axis=0).round(2)
-                _median_color = np.median(_letter_color_values, axis=0).round(2)
-                # Properties related to stroke widths seen in this component
-                _component_sw_values = swt_mat[_ciy, _cix].copy()
-                _sw_mean = np.mean(_component_sw_values)
-                _sw_median = np.median(_component_sw_values)
-                _sw_variance = np.var(_component_sw_values)
-                _sw_count_dict = unique_value_counts(_component_sw_values)
-                # Number of pixels this connected component occupies
-                _area = self.pruned_cc_stats[letter_label, -1]
-                # Contour of this connected component
-                _contour = cv2.findContours(letter_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-                _contour = _contour[0] if len(_contour) == 2 else _contour[1]
-                letter._setLetterProps(area=_area, sw_mean=_sw_mean, sw_median=_sw_median, sw_var=_sw_variance,
-                                       sw_counts=_sw_count_dict, color_mean=_mean_color, color_median=_median_color,
-                                       outline=_contour)
-                self.letters[letter_label] = letter
+        for letter_label in np.arange(1, self.pruned_num_cc):
+            letter = Letter(label=letter_label, image_height=self.image_height, image_width=self.image_width)
+            letter_mask = pruned_cc == letter_label
+            letter_mask = np.uint8(letter_mask)
+            _ciy, _cix = letter_mask.nonzero()
+            # Properties related to original image for this particular connected component
+            _letter_color_values = orig_img[_ciy, _cix].copy()
+            _mean_color = _letter_color_values.mean(axis=0).round(2)
+            _median_color = np.median(_letter_color_values, axis=0).round(2)
+            # Properties related to stroke widths seen in this component
+            _component_sw_values = swt_mat[_ciy, _cix].copy()
+            _sw_mean = np.mean(_component_sw_values)
+            _sw_median = np.median(_component_sw_values)
+            _sw_variance = np.var(_component_sw_values)
+            _sw_count_dict = unique_value_counts(_component_sw_values)
+            # Number of pixels this connected component occupies
+            _area = self.pruned_cc_stats[letter_label, -1]
+            # Contour of this connected component
+            _contour = cv2.findContours(letter_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            _contour = _contour[0] if len(_contour) == 2 else _contour[1]
+            letter._setLetterProps(area=_area, sw_mean=_sw_mean, sw_median=_sw_median, sw_var=_sw_variance,
+                                   sw_counts=_sw_count_dict, color_mean=_mean_color, color_median=_median_color,
+                                   outline=_contour)
+            self.letters[letter_label] = letter
 
             self.letter_outline_done = True
 
-        # (2) Then localize according to the parameter.
         if localize_by == 'min_bbox':
             for letter_label, letter in self.letters.items():
                 letter_contour = letter.outline
@@ -913,6 +822,7 @@ class SWTImage(TextTransformBase):
                                             min_bbox=_minimum_bbox)
             self.letter_min_done = True
         elif localize_by == 'ext_bbox':
+            pruned_cc = self.pruned_image_cc_1C.copy()
             for letter_label, letter in self.letters.items():
                 letter_mask = np.uint8(pruned_cc.copy() == letter_label)
                 if np.sum(letter_mask) > 0:
@@ -964,12 +874,11 @@ class SWTImage(TextTransformBase):
         self.image_original_masked_letter_localized = self.image_original_masked_letter_localized * self.image.copy()
         self.image_original_masked_letter_localized[self.image_original_masked_letter_localized == 0] = 255
         self.letter_stage_done = True
-
-        # (3) Display the localizations
         if display:
             _plt_sup_title = _LETTER_SUP_TITLE_MAPPINGS.get(localize_by)
-            self.showImage(image_codes=[IMAGE_PRUNED_3C_LETTER_LOCALIZATIONS,
-                                        IMAGE_ORIGINAL_LETTER_LOCALIZATIONS,
+            self.showImage(image_codes=[IMAGE_CONNECTED_COMPONENTS_3C,
+                                        IMAGE_CONNECTED_COMPONENTS_3C_WITH_PRUNED_ELEMENTS,
+                                        IMAGE_PRUNED_3C_LETTER_LOCALIZATIONS,
                                         IMAGE_ORIGINAL_MASKED_LETTER_LOCALIZATIONS],
                            plot_title='Letter Localizations\n',
                            plot_sup_title=rf'Localization Method : ${_plt_sup_title}$')
@@ -987,6 +896,10 @@ class SWTImage(TextTransformBase):
         padding_pct = self.cfg.get(CONFIG__SWTIMAGE__LOCALIZELETTERS_PADDING_PCT)
         if not (0 <= padding_pct <= 1.0):
             raise SWTValueError("`padding_pct` can take only values in the range of [0.0, 1.0]")
+        min_pixels_per_cc = self.cfg.get(CONFIG__SWTIMAGE__LOCALIZELETTERS_MINIMUM_PIXELS_PER_CC)
+        max_pixels_per_cc = self.cfg.get(CONFIG__SWTIMAGE__LOCALIZELETTERS_MAXIMUM_PIXELS_PER_CC)
+        if not (0 < min_pixels_per_cc < max_pixels_per_cc):
+            raise SWTValueError(f"Condition must be satisfied : 0 < minimum_pixels_per_cc < maximum_pixels_per_cc")
 
     def getLetter(self, key: int, localize_by: Optional[str] = 'min_bbox', display: Optional[bool] = True):
         """
@@ -1014,18 +927,15 @@ class SWTImage(TextTransformBase):
         ::
             >>> # Localizing Letters
             >>> from swtloc import SWTLocalizer
-            >>> root_path = '../swtloc/examples/test_images/'
-            >>> swtl = SWTLocalizer(image_paths=root_path+'test_img1.jpg')
+            >>> root_path = 'examples/images/'
+            >>> swtl = SWTLocalizer(image_paths=root_path+'test_image_1/test_img1.jpg')
             >>> swtImgObj = swtl.swtimages[0]
             >>> swt_image = swtImgObj.transformImage(text_mode='db_lf', maximum_angle_deviation=np.pi/2,
             >>>                                      edge_function='ac', gaussian_blurr_kernel=(11, 11),
             >>>                                      minimum_stroke_width=5, maximum_stroke_width=50, display=False)
-            >>> # Find and Prune the Individual Connected Components
-            >>> cc_1C, pruned_cc_1C = swtImgObj.findAndPruneConnectedComponents(minimum_pixels_per_cc=950,
-            >>>                                                                 maximum_pixels_per_cc=5200,
-            >>>                                                                 display=False)
-            >>> # (A plot will be displayed as well)
-            >>> localized_letter = swtImgObj.localizeLetters(localize_by='min_bbox', display=False)
+            >>> localized_letter = swtImgObj.localizeLetters(minimum_pixels_per_cc=950,
+            >>>                                              maximum_pixls_per_cc=5200,
+            >>>                                              localize_by='min_bbox', display=False)
 
             >>> # Access all the letters which have been localized
             >>> swtImgObj.letters
@@ -1037,18 +947,15 @@ class SWTImage(TextTransformBase):
             >>> # Accessing `getLetter` for a `localize_by` which hasn't been run already by the
             >>> # `localizeLetters` function will raise an error -> SWTImageProcessError will be raised
             >>> from swtloc import SWTLocalizer
-            >>> root_path = '../swtloc/examples/test_images/'
-            >>> swtl = SWTLocalizer(image_paths=root_path+'test_img1.jpg')
+            >>> root_path = 'examples/images/'
+            >>> swtl = SWTLocalizer(image_paths=root_path+'test_image_1/test_img1.jpg')
             >>> swtImgObj = swtl.swtimages[0]
             >>> swt_image = swtImgObj.transformImage(text_mode='db_lf', maximum_angle_deviation=np.pi/2,
             >>>                                      edge_function='ac', gaussian_blurr_kernel=(11, 11),
             >>>                                      minimum_stroke_width=5, maximum_stroke_width=50, display=False)
-            >>> # Find and Prune the Individual Connected Components
-            >>> cc_1C, pruned_cc_1C = swtImgObj.findAndPruneConnectedComponents(minimum_pixels_per_cc=950,
-            >>>                                                                 maximum_pixels_per_cc=5200,
-            >>>                                                                 display=False)
-            >>> # (A plot will be displayed as well)
-            >>> localized_letters = swtImgObj.localizeLetters(localize_by='min_bbox', display=False)
+            >>> localized_letters = swtImgObj.localizeLetters(minimum_pixels_per_cc=950,
+            >>>                                               maximum_pixels_per_cc=5200,
+            >>>                                               localize_by='min_bbox', display=False)
             >>> # Accessing `min_bbox` wont raise any error as that has been run already by the localizeLetters function
             >>> _letter, _edgeswt_letter, _orig_image_letter = swtImgObj.getLetter(1, localize_by='min_bbox', display=True)
             >>> # Accessing `ext_bbox` when `ext_bbox` hasn't been run already by the localizeLetters function
@@ -1118,21 +1025,18 @@ class SWTImage(TextTransformBase):
         Example:
         ::
             >>> from swtloc import SWTLocalizer
-            >>> root_path = '../swtloc/examples/test_images/'
-            >>> swtl = SWTLocalizer(image_paths=root_path+'test_img1.jpg')
+            >>> root_path = 'examples/images/'
+            >>> swtl = SWTLocalizer(image_paths=root_path+'test_image_1/test_img1.jpg')
             >>> swtImgObj = swtl.swtimages[0]
             >>> swt_image = swtImgObj.transformImage(text_mode='db_lf', maximum_angle_deviation=np.pi/2,
             >>>                                      edge_function='ac', gaussian_blurr_kernel=(11, 11),
             >>>                                      minimum_stroke_width=5, maximum_stroke_width=50, display=False)
-            >>> # Find and Prune the Individual Connected Components
-            >>> cc_1C, pruned_cc_1C = swtImgObj.findAndPruneConnectedComponents(minimum_pixels_per_cc=950,
-            >>>                                                                 maximum_pixels_per_cc=5200,
-            >>>                                                                 display=False)
-            >>> localized_letters = swtImgObj.localizeLetters(localize_by='min_bbox', display=False)
+            >>> localized_letters = swtImgObj.localizeLetters(minimum_pixels_per_cc=950,
+            >>>                                               maximum_pixels_per_cc=5200,
+            >>>                                               localize_by='min_bbox', display=False)
             >>> # (A plot will be displayed as well at every `next` call to this generator since display=True)
             >>> # Ensure the localize_by parameter has already been run in `localizeLetters` function.
-            >>> localized_letter_generator = swtImgObj.letterIterator(localize_by='min_bbox', display=True)
-
+            >>> localized_letter_generator = swtImgObj.letterIterator(localize_by='min_bbox', display=False)
             >>> _letter, _edgeswt_letter, _orig_image_letter = next(localized_letter_generator)
         """
         if self.letters:
@@ -1209,56 +1113,47 @@ class SWTImage(TextTransformBase):
         ::
             >>> # To Localize Words, after having localized Letters
             >>> from swtloc import SWTLocalizer
-            >>> root_path = '../swtloc/examples/test_images/'
-            >>> swtl = SWTLocalizer(image_paths=root_path+'test_img1.jpg')
+            >>> root_path = 'examples/images/'
+            >>> swtl = SWTLocalizer(image_paths=root_path+'test_image_1/test_img1.jpg')
             >>> swtImgObj = swtl.swtimages[0]
             >>> swt_image = swtImgObj.transformImage(text_mode='db_lf', maximum_angle_deviation=np.pi/2,
             >>>                                      edge_function='ac', gaussian_blurr_kernel=(11, 11),
             >>>                                      minimum_stroke_width=5, maximum_stroke_width=50, display=False)
-            >>> # Find and Prune the Individual Connected Components
-            >>> cc_1C, pruned_cc_1C = swtImgObj.findAndPruneConnectedComponents(minimum_pixels_per_cc=950,
-            >>>                                                                 maximum_pixels_per_cc=5200,
-            >>>                                                                 display=False)
-            >>> localized_letter = swtImgObj.localizeLetters(localize_by='min_bbox', display=False)
+            >>> localized_letter = swtImgObj.localizeLetters(minimum_pixels_per_cc=950,
+            >>>                                              maximum_pixels_per_cc=5200,
+            >>>                                              localize_by='min_bbox', display=False)
             >>> # (A plot will be displayed as well)
             >>> localized_words = swtImgObj.localizeWords()
 
             >>> # If `localizeWords` is run before having run `localizeLetters`, it will
             >>> # raise an error -> SWTImageProcessError will be raised
             >>> from swtloc import SWTLocalizer
-            >>> root_path = '../swtloc/examples/test_images/'
-            >>> swtl = SWTLocalizer(image_paths=root_path+'test_img1.jpg')
+            >>> root_path = 'examples/images/'
+            >>> swtl = SWTLocalizer(image_paths=root_path+'test_image_1/test_img1.jpg')
             >>> swtImgObj = swtl.swtimages[0]
             >>> swt_image = swtImgObj.transformImage(text_mode='db_lf', maximum_angle_deviation=np.pi/2,
             >>>                                      edge_function='ac', gaussian_blurr_kernel=(11, 11),
             >>>                                      minimum_stroke_width=5, maximum_stroke_width=50, display=False)
-            >>> # Find and Prune the Individual Connected Components
-            >>> cc_1C, pruned_cc_1C = swtImgObj.findAndPruneConnectedComponents(minimum_pixels_per_cc=950,
-            >>>                                                                 maximum_pixels_per_cc=5200,
-            >>>                                                                 display=False)
-            >>> # (A plot will be displayed as well)
             >>> localized_words = swtImgObj.localizeWords()
             SWTImageProcessError: `SWTImage.localizeLetters` with localize_by='min_bbox' must be called before this function
 
             >>> # Before running `localizeWords` its required that `localizeLetters` has been
-            >>> # run with localize_by='min_bbox' parameter. Otherwise an error is raised
-            >>> # -> SWTImageProcessError is raised
+            >>> # run with localize_by='min_bbox' parameter. Otherwise SWTImageProcessError is raised
             >>> from swtloc import SWTLocalizer
-            >>> root_path = '../swtloc/examples/test_images/'
-            >>> swtl = SWTLocalizer(image_paths=root_path+'test_img1.jpg')
+            >>> root_path = 'examples/images/'
+            >>> swtl = SWTLocalizer(image_paths=root_path+'test_image_1/test_img1.jpg')
             >>> swtImgObj = swtl.swtimages[0]
             >>> swt_image = swtImgObj.transformImage(text_mode='db_lf', maximum_angle_deviation=np.pi/2,
             >>>                                      edge_function='ac', gaussian_blurr_kernel=(11, 11),
             >>>                                      minimum_stroke_width=5, maximum_stroke_width=50, display=False)
-            >>> # Find and Prune the Individual Connected Components
-            >>> cc_1C, pruned_cc_1C = swtImgObj.findAndPruneConnectedComponents(minimum_pixels_per_cc=950,
-            >>>                                                                 maximum_pixels_per_cc=5200,
-            >>>                                                                 display=False)
-            >>> # (A plot will be displayed as well)
-            >>> localized_letter = swtImgObj.localizeLetters(localize_by='ext_bbox', display=False)
+            >>> localized_letter = swtImgObj.localizeLetters(minimum_pixels_per_cc=950,
+            >>>                                              maximum_pixels_per_cc=5200,
+            >>>                                              localize_by='ext_bbox', display=False)
             >>> localized_words = swtImgObj.localizeWords()
             SWTImageProcessError: `SWTImage.localizeLetters` with localize_by='min_bbox' must be called before this function
         """
+        # TODO : Add the functionality to detect whether the changes were made to the
+        # TODO : localizations parameters or just annotation parameter and accordingly make the resets.
         # Check if transform stage has been run first or not
         if not self.letter_min_done:
             raise SWTImageProcessError(
@@ -1441,18 +1336,15 @@ class SWTImage(TextTransformBase):
         Example:
         ::
             >>> from swtloc import SWTLocalizer
-            >>> root_path = '../swtloc/examples/test_images/'
-            >>> swtl = SWTLocalizer(image_paths=root_path+'test_img1.jpg')
+            >>> root_path = 'examples/images/'
+            >>> swtl = SWTLocalizer(image_paths=root_path+'test_image_1/test_img1.jpg')
             >>> swtImgObj = swtl.swtimages[0]
             >>> swt_image = swtImgObj.transformImage(text_mode='db_lf', maximum_angle_deviation=np.pi/2,
             >>>                                      edge_function='ac', gaussian_blurr_kernel=(11, 11),
             >>>                                      minimum_stroke_width=5, maximum_stroke_width=50, display=False)
-            >>> # Find and Prune the Individual Connected Components
-            >>> cc_1C, pruned_cc_1C = swtImgObj.findAndPruneConnectedComponents(minimum_pixels_per_cc=950,
-            >>>                                                                 maximum_pixels_per_cc=5200,
-            >>>                                                                 display=False)
-            >>> # (A plot will be displayed as well)
-            >>> localized_letter = swtImgObj.localizeLetters(localize_by='min_bbox', display=False)
+            >>> localized_letter = swtImgObj.localizeLetters(minimum_pixels_per_cc=950,
+            >>>                                              maximum_pixels_per_cc=5200,
+            >>>                                              localize_by='min_bbox', display=False)
             >>> localized_words = swtImgObj.localizeWords(display=False)
             >>> # Access all the words which have been localized
             >>> swtImgObj.words
@@ -1463,18 +1355,15 @@ class SWTImage(TextTransformBase):
             >>> # Accessing `getWord` for a `localize_by` which hasn't been run already by the
             >>> # `localizeLetters` function will raise an error -> SWTImageProcessError will be raised
             >>> from swtloc import SWTLocalizer
-            >>> root_path = '../swtloc/examples/test_images/'
-            >>> swtl = SWTLocalizer(image_paths=root_path+'test_img1.jpg')
+            >>> root_path = 'examples/images/'
+            >>> swtl = SWTLocalizer(image_paths=root_path+'test_image_1/test_img1.jpg')
             >>> swtImgObj = swtl.swtimages[0]
             >>> swt_image = swtImgObj.transformImage(text_mode='db_lf', maximum_angle_deviation=np.pi/2,
             >>>                                      edge_function='ac', gaussian_blurr_kernel=(11, 11),
             >>>                                      minimum_stroke_width=5, maximum_stroke_width=50, display=False)
-            >>> # Find and Prune the Individual Connected Components
-            >>> cc_1C, pruned_cc_1C = swtImgObj.findAndPruneConnectedComponents(minimum_pixels_per_cc=950,
-            >>>                                                                 maximum_pixels_per_cc=5200,
-            >>>                                                                 display=False)
-            >>> # (A plot will be displayed as well)
-            >>> localized_letter = swtImgObj.localizeLetters(localize_by='min_bbox', display=False)
+            >>> localized_letter = swtImgObj.localizeLetters(minimum_pixels_per_cc=950,
+            >>>                                              maximum_pixels_per_cc=5200,
+            >>>                                              localize_by='min_bbox', display=False)
             >>> localized_words = swtImgObj.localizeWords(display=False)
             >>> # Accessing an individual word by its key in `swtImgObj.words` dictionary
             >>> _word, _edgeswt_word, _orig_image_word = swtImgObj.getWord(1, localize_by='polygon', display=True)
@@ -1545,18 +1434,15 @@ class SWTImage(TextTransformBase):
         Example:
         ::
             >>> from swtloc import SWTLocalizer
-            >>> root_path = '../swtloc/examples/test_images/'
-            >>> swtl = SWTLocalizer(image_paths=root_path+'test_img1.jpg')
+            >>> root_path = 'examples/images/'
+            >>> swtl = SWTLocalizer(image_paths=root_path+'test_image_1/test_img1.jpg')
             >>> swtImgObj = swtl.swtimages[0]
             >>> swt_image = swtImgObj.transformImage(text_mode='db_lf', maximum_angle_deviation=np.pi/2,
             >>>                                      edge_function='ac', gaussian_blurr_kernel=(11, 11),
             >>>                                      minimum_stroke_width=5, maximum_stroke_width=50, display=False)
-            >>> # Find and Prune the Individual Connected Components
-            >>> cc_1C, pruned_cc_1C = swtImgObj.findAndPruneConnectedComponents(minimum_pixels_per_cc=950,
-            >>>                                                                 maximum_pixels_per_cc=5200,
-            >>>                                                                 display=False)
-            >>> # (A plot will be displayed as well)
-            >>> localized_letter = swtImgObj.localizeLetters(localize_by='min_bbox', display=False)
+            >>> localized_letter = swtImgObj.localizeLetters(minimum_pixels_per_cc=950,
+            >>>                                              maximum_pixels_per_cc=5200,
+            >>>                                              localize_by='min_bbox', display=False)
             >>> localized_words = swtImgObj.localizeWords(localize_by='polygon', display=False, polygon_dilate_iterations=3)
             >>> # Creating a generator for a specific localize_by
             >>> word_iterator = swtImgObj.wordIterator(localize_by='polygon', display=True)
@@ -1630,23 +1516,22 @@ class SWTImage(TextTransformBase):
         elif image_code == IMAGE_SWT_TRANSFORMED:
             img = image_1C_to_3C(self.image_swt.copy(), scale_with_values=True)
             err_string = 'Call .transformImage method for this Image Code to be populated'
-        # run with findAndPruneConnectedComponents
+        # localizeLetters
         elif image_code == IMAGE_CONNECTED_COMPONENTS_1C:
-            img = self.image_cc_1C
-            err_string = 'Call .findAndPruneConnectedComponents method for this Image Code to be populated'
+            img = self.unpruned_image_cc_1C
+            err_string = 'Call .localizeLetters method for this Image Code to be populated'
         elif image_code == IMAGE_CONNECTED_COMPONENTS_3C:
-            img = image_1C_to_3C(self.image_cc_1C)
-            err_string = 'Call .findAndPruneConnectedComponents method for this Image Code to be populated'
+            img = image_1C_to_3C(self.unpruned_image_cc_1C)
+            err_string = 'Call .localizeLetters method for this Image Code to be populated'
         elif image_code == IMAGE_CONNECTED_COMPONENTS_3C_WITH_PRUNED_ELEMENTS:
             img = self.image_cc_3C_to_be_pruned
-            err_string = 'Call .findAndPruneConnectedComponents method for this Image Code to be populated'
+            err_string = 'Call .localizeLetters method for this Image Code to be populated'
         elif image_code == IMAGE_CONNECTED_COMPONENTS_PRUNED_1C:
             img = self.pruned_image_cc_1C
-            err_string = 'Call .findAndPruneConnectedComponents method for this Image Code to be populated'
+            err_string = 'Call .localizeLetters method for this Image Code to be populated'
         elif image_code == IMAGE_CONNECTED_COMPONENTS_PRUNED_3C:
             img = image_1C_to_3C(self.pruned_image_cc_1C)
-            err_string = 'Call .findAndPruneConnectedComponents method for this Image Code to be populated'
-        # localizeLetters
+            err_string = 'Call .localizeLetters method for this Image Code to be populated'
         elif image_code == IMAGE_PRUNED_3C_LETTER_LOCALIZATIONS:
             img = self.image_pruned_3C_letter_localized
             err_string = 'Call .localizeLetters method for this Image Code to be populated'
@@ -1732,17 +1617,15 @@ class SWTImage(TextTransformBase):
             >>> from swtloc import SWTLocalizer
             >>> from swtloc.configs import IMAGE_PRUNED_3C_WORD_LOCALIZATIONS
             >>> from swtloc.configs import IMAGE_PRUNED_3C_LETTER_LOCALIZATIONS
-            >>> root_path = '../swtloc/examples/test_images/'
-            >>> swtl = SWTLocalizer(image_paths=root_path+'test_img1.jpg')
+            >>> root_path = 'examples/images/'
+            >>> swtl = SWTLocalizer(image_paths=root_path+'test_image_1/test_img1.jpg')
             >>> swtImgObj = swtl.swtimages[0]
             >>> swt_image = swtImgObj.transformImage(text_mode='db_lf', maximum_angle_deviation=np.pi/2,
             >>>                                      edge_function='ac', gaussian_blurr_kernel=(11, 11),
             >>>                                      minimum_stroke_width=5, maximum_stroke_width=50, display=False)
-            >>> # Find and Prune the Individual Connected Components
-            >>> cc_1C, pruned_cc_1C = swtImgObj.findAndPruneConnectedComponents(minimum_pixels_per_cc=950,
-            >>>                                                                 maximum_pixels_per_cc=5200,
-            >>>                                                                 display=False)
-            >>> localized_letter = swtImgObj.localizeLetters(display=False)
+            >>> localized_letter = swtImgObj.localizeLetters(minimum_pixels_per_cc=950,
+            >>>                                              maximum_pixels_per_cc=5200,
+            >>>                                              display=False)
             >>> localized_words = swtImgObj.localizeWords(display=False)
             >>> # To generate and save the crops of `letters`
             >>> swtImgObj.saveCrop(save_path='../', crop_of='letters', crop_key=3, crop_on=IMAGE_PRUNED_3C_LETTER_LOCALIZATIONS,
@@ -1755,15 +1638,11 @@ class SWTImage(TextTransformBase):
             >>> # An error will be raised if `.saveCrops` functions is called for `crop_of='letters'`
             >>> # even before `.localizeLetters` for localize_by = crop_type hasn't been called before
             >>> # -> SWTImageProcessError will be raised
-            >>> swtl = SWTLocalizer(image_paths=root_path+'test_img1.jpg')
+            >>> swtl = SWTLocalizer(image_paths=root_path+'test_image_1/test_img1.jpg')
             >>> swtImgObj = swtl.swtimages[0]
             >>> swt_image = swtImgObj.transformImage(text_mode='db_lf', maximum_angle_deviation=np.pi/2,
             >>>                                      edge_function='ac', gaussian_blurr_kernel=(11, 11),
             >>>                                      minimum_stroke_width=5, maximum_stroke_width=50, display=False)
-            >>> # Find and Prune the Individual Connected Components
-            >>> cc_1C, pruned_cc_1C = swtImgObj.findAndPruneConnectedComponents(minimum_pixels_per_cc=950,
-            >>>                                                                 maximum_pixels_per_cc=5200,
-            >>>                                                                 display=False)
             >>> swtImgObj.saveCrop(save_path='../', crop_of='letters', crop_key=3, crop_on=IMAGE_PRUNED_3C_LETTER_LOCALIZATIONS,
             >>>                    crop_type='outline', padding_pct=0.01)
             Call .localizeLetters method for this Image Code to be populated
@@ -1772,16 +1651,14 @@ class SWTImage(TextTransformBase):
             >>> # An error will be raised if `.saveCrops` functions is called for `crop_of='words'`
             >>> # even before `.localizeWords` for localize_by = crop_type hasn't been called before
             >>> # -> SWTImageProcessError will be raised
-            >>> swtl = SWTLocalizer(image_paths=root_path+'test_img1.jpg')
+            >>> swtl = SWTLocalizer(image_paths=root_path+'test_image_1/test_img1.jpg')
             >>> swtImgObj = swtl.swtimages[0]
             >>> swt_image = swtImgObj.transformImage(text_mode='db_lf', maximum_angle_deviation=np.pi/2,
             >>>                                      edge_function='ac', gaussian_blurr_kernel=(11, 11),
             >>>                                      minimum_stroke_width=5, maximum_stroke_width=50, display=False)
-            >>> # Find and Prune the Individual Connected Components
-            >>> cc_1C, pruned_cc_1C = swtImgObj.findAndPruneConnectedComponents(minimum_pixels_per_cc=950,
-            >>>                                                                 maximum_pixels_per_cc=5200,
-            >>>                                                                 display=False)
-            >>> localized_letter = swtImgObj.localizeLetters(display=False)
+            >>> localized_letter = swtImgObj.localizeLetters(minimum_pixels_per_cc=950,
+            >>>                                              maximum_pixels_per_cc=5200,
+            >>>                                              display=False)
             >>> swtImgObj.saveCrop(save_path='../', crop_of='words', crop_key=8, crop_on=IMAGE_PRUNED_3C_WORD_LOCALIZATIONS,
             >>>                    crop_type='bubble', padding_pct=0.01)
             Call .localizeWords method for this Image Code to be populated
@@ -1911,25 +1788,22 @@ class SWTImage(TextTransformBase):
             >>> from swtloc.configs import IMAGE_SWT_TRANSFORMED
             >>> from swtloc.configs import IMAGE_PRUNED_3C_LETTER_LOCALIZATIONS
 
-            >>> root_path = '../swtloc/examples/test_images/'
-            >>> swtl = SWTLocalizer(image_paths=root_path+'test_img1.jpg')
+            >>> root_path = 'examples/images/'
+            >>> swtl = SWTLocalizer(image_paths=root_path+'test_image_1/test_img1.jpg')
             >>> swtImgObj = swtl.swtimages[0]
             >>> swt_image = swtImgObj.transformImage(text_mode='db_lf', maximum_angle_deviation=np.pi/2,
             >>>                                      edge_function='ac', gaussian_blurr_kernel=(11, 11),
             >>>                                      minimum_stroke_width=5, maximum_stroke_width=50, display=False)
-            >>> # Find and Prune the Individual Connected Components
-            >>> cc_1C, pruned_cc_1C = swtImgObj.findAndPruneConnectedComponents(minimum_pixels_per_cc=950,
-            >>>                                                                 maximum_pixels_per_cc=5200,
-            >>>                                                                 display=False)
-            >>> # (A plot will be displayed as well)
-            >>> localized_letter = swtImgObj.localizeLetters(display=False)
+            >>> localized_letter = swtImgObj.localizeLetters(minimum_pixels_per_cc=950,
+            >>>                                              maximum_pixels_per_cc=5200,
+            >>>                                              display=False)
             >>> swtImgObj.showImage(image_codes=[IMAGE_ORIGINAL,
             >>>                                  IMAGE_SWT_TRANSFORMED,
             >>>                                  IMAGE_PRUNED_3C_LETTER_LOCALIZATIONS],
             >>>                     plot_title="Process Flow",
             >>>                     plot_sup_title="Original -> SWT -> Pruned Letters")
 
-            >>> # (A plot will be displayed as well) + Save the prepaerd plot
+            >>> # (A plot will be displayed as well) + Save the prepared plot
             >>> localized_letter = swtImgObj.localizeLetters(display=False)
             >>> swtImgObj.showImage(image_codes=[IMAGE_ORIGINAL,
             >>>                                  IMAGE_SWT_TRANSFORMED,

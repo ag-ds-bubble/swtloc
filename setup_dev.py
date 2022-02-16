@@ -38,9 +38,11 @@ def parse_requirements(filename):
 
 # Constants
 REQS = parse_requirements('requirements.txt')
-_next_version = _next_dev_version('swtloc')
+_next_version = '2.0.0'
+# _next_version = _next_dev_version('swtloc')
 
-with open("README.md", "r") as fh:
+
+with open("README.md", "r", encoding='utf-8') as fh:
     long_description = fh.read()
 
 CLASSIFIERS = ["Programming Language :: Python :: 3",
@@ -62,7 +64,6 @@ setuptools.setup(name="swtloc",
                  long_description_content_type="text/markdown",
                  url="https://github.com/ag-ds-bubble/swtloc",
                  packages=setuptools.find_packages(),
-                 include_package_data=True,
                  install_requires=REQS,
                  classifiers=CLASSIFIERS,
                  python_requires='>=3.6')

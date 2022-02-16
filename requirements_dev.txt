@@ -7,3 +7,4 @@ seaborn
 pandas
 jupyter
 autopep8
+twine

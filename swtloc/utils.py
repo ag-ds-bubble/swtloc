@@ -257,6 +257,23 @@ def unique_value_counts(image: np.ndarray, remove_0: Optional[bool] = True) -> D
     return vcdict
 
 
+def get_connected_components_with_stats(img: np.ndarray):
+    """
+    Function to find the connected components alongside their
+    stats using oepncv's connectedComponentWithStats function for
+    any given image.
+
+    Args:
+        img (np.ndarray) : Input Image
+    Returns:
+        (Tuple[int, np.ndarray, np.ndarray, np.ndarray]) : Results of opencv connectedComponentsWithStats
+    """
+    threshmask = img.copy().astype(np.int16)
+    threshmask[threshmask > 0] = 1
+    threshmask = threshmask.astype(np.int8)
+    return cv2.connectedComponentsWithStats(threshmask, connectivity=8)
+
+
 class SWTLocExceptions(Exception):
     """Base class for SWTLoc Exceptions"""
 

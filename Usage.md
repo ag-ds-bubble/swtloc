@@ -7,8 +7,8 @@ notebook in examples/.
 multiple image paths (List[str])/ single image (np.ndarray)/ multiple images (List[np.ndarray]).
 ```py
 from swtloc import SWTLocalizer
-imgpath = 'examples/images/test_image_4/test_img4.jpeg'
-respath = 'examples/images/test_image_4/usage_results/'
+imgpath = 'images/test_img4/test_img4.jpeg'
+respath = 'images/test_img4/usage_results/'
 swtl = SWTLocalizer(image_paths=imgpath)
 swtImgObj = swtl.swtimages[0]
 print(swtImgObj, type(swtImgObj))
@@ -16,7 +16,7 @@ swtImgObj.showImage()
 ```
 > SWTImage-test_img4 <class 'swtloc.abstractions.SWTImage'>
 
-<img style="float: right;" src="examples/images/test_image_4/usage_results/test_img4_01.jpg" align="middle" width="900px" height="406px">
+<img style="float: right;" src="examples/images/test_img4/usage_results/test_img4_01.jpg" align="middle" width="900px" height="406px">
 
 ### Stroke Width Transformation using ``SWTImage.transformImage``
 ```py
@@ -24,43 +24,37 @@ swt_mat = swtImgObj.transformImage(text_mode='lb_df',
                                    auto_canny_sigma=1.0,
                                    maximum_stroke_width=20)
 ```
-<img style="float: right;" src="examples/images/test_image_4/usage_results/test_img4_01_02_03_04.jpg" align="centre" width="900px" height="675px">
-
-### Finding Connected Components and Pruning them using ``SWTImage.findAndPruneConnectedComponents``
-```py
-image_1C, pruned_image_1C = swtImgObj.findAndPruneConnectedComponents(minimum_pixels_per_cc=100,
-                                                                      maximum_pixels_per_cc=10_000,
-                                                                      acceptable_aspect_ratio=0.2)
-```
-<img style="float: right;" src="examples/images/test_image_4/usage_results/test_img4_04_06_07_09.jpg" align="centre" width="900px" height="675px">
+<img style="float: right;" src="examples/images/test_img4/usage_results/test_img4_01_02_03_04.jpg" align="centre" width="900px" height="675px">
 
 ### Localizing Letters using ``SWTImage.localizeLetters``
 ```py
-localized_letters = swtImgObj.localizeLetters()
+localized_letters = swtImgObj.localizeLetters(minimum_pixels_per_cc=100,
+                                              maximum_pixels_per_cc=10_000,
+                                              acceptable_aspect_ratio=0.2)
 letter_labels = list([int(k) for k in localized_letters.keys()])
 ```
-<img style="float: right;" src="examples/images/test_image_4/usage_results/test_img4_11_12_13.jpg" align="centre"  width="900px" height="406px">
+<img style="float: right;" src="examples/images/test_img4/usage_results/test_img4_06_07_11_13.jpg" align="centre"  width="900px" height="675px">
 
 ### Query a Letter using ``SWTImage.getLetter``
 ```py
 letter_label = letter_labels[3]
 locletter = swtImgObj.getLetter(key=letter_label)
 ```
-<img style="float: right;" src="examples/images/test_image_4/usage_results/test_img4_17_18.jpg" align="centre" width="900px" height="406px">
+<img style="float: right;" src="examples/images/test_img4/usage_results/test_img4_17_18.jpg" align="centre" width="900px" height="406px">
 
 ### Localizing Letters using ``SWTImage.localizeWords``
 ```py
 localized_words = swtImgObj.localizeWords()
 word_labels = list([int(k) for k in localized_words.keys()])
 ```
-<img style="float: right;" src="examples/images/test_image_4/usage_results/test_img4_14_15_16.jpg" align="centre"  width="900px" height="406px">
+<img style="float: right;" src="examples/images/test_img4/usage_results/test_img4_14_15_16.jpg" align="centre"  width="900px" height="406px">
 
 ### Query a Word using ``SWTImage.getWord``
 ```py
 word_label = word_labels[12]
 locword = swtImgObj.getWord(key=word_label)
 ```
-<img style="float: right;" src="examples/images/test_image_4/usage_results/test_img4_19_20.jpg" align="centre" width="900px" height="406px">
+<img style="float: right;" src="examples/images/test_img4/usage_results/test_img4_19_20.jpg" align="centre" width="900px" height="406px">
 
 ### Accessing intermediary stage images using ``SWTImage.showImage`` and saving them
 ```py
@@ -68,7 +62,7 @@ swtImgObj.showImage(image_codes=[IMAGE_ORIGINAL,
                                  IMAGE_ORIGINAL_MASKED_WORD_LOCALIZATIONS],
                     plot_title='Original & Bubble Mask')
 ```
-<img style="float: right;" src="examples/images/test_image_4/usage_results/test_img4_01_16.jpg" align="middle" width="900px" height="406px">
+<img style="float: right;" src="examples/images/test_img4/usage_results/test_img4_01_16.jpg" align="middle" width="900px" height="406px">
 
 
 ### Saving Crops of the localized letters and words
@@ -83,12 +77,12 @@ swtImgObj.saveCrop(save_path=respath, crop_of='words', crop_key=13, crop_type='b
 ```
 > Letter Crops
 <p align="middle" title="Letter Crops">
-  <img src="examples/images/test_image_4/usage_results/test_img4_letters-4_min_bbox_IMAGE_ORIGINAL_CROP.jpg" width="300px" height="200px"/>
-  <img src="examples/images/test_image_4/usage_results/test_img4_letters-4_min_bbox_IMAGE_SWT_TRANSFORMED_CROP.jpg" width="300px" height="200px"/> 
+  <img src="examples/images/test_img4/usage_results/test_img4_letters-4_min_bbox_IMAGE_ORIGINAL_CROP.jpg" width="300px" height="200px"/>
+  <img src="examples/images/test_img4/usage_results/test_img4_letters-4_min_bbox_IMAGE_SWT_TRANSFORMED_CROP.jpg" width="300px" height="200px"/> 
 </p>
 
 > Word Crops
 <p align="middle" title="Word Crops">
-  <img src="examples/images/test_image_4/usage_results/test_img4_words-13_bubble_IMAGE_ORIGINAL_CROP.jpg" width="300px" height="200px"/>
-  <img src="examples/images/test_image_4/usage_results/test_img4_words-13_bubble_IMAGE_SWT_TRANSFORMED_CROP.jpg" width="300px" height="200px"/> 
+  <img src="examples/images/test_img4/usage_results/test_img4_words-13_bubble_IMAGE_ORIGINAL_CROP.jpg" width="300px" height="200px"/>
+  <img src="examples/images/test_img4/usage_results/test_img4_words-13_bubble_IMAGE_SWT_TRANSFORMED_CROP.jpg" width="300px" height="200px"/> 
 </p>

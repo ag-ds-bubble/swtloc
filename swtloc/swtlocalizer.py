@@ -75,32 +75,32 @@ class SWTLocalizer:
         >>> from swtloc import SWTLocalizer
         >>> from cv2 import cv2
         >>>
-        >>> root_path = '../swtloc/examples/test_images/'
+        >>> root_path = 'examples/images/'
         >>>
         >>> # Single Image Path (NOTE : Use your own image paths)
-        >>> single_image_path = root_path+'test_img1.jpg'
+        >>> single_image_path = root_path+'test_image_1/test_img1.jpg'
         >>> swtl = SWTLocalizer(image_paths=single_image_path)
         >>>
         >>> # Multiple Image Paths (NOTE : Use your own image paths)
-        >>> multiple_image_paths = [root_path+'test_img2.jpg',
-        >>>                         root_path+'test_img3.jpg',
-        >>>                         root_path+'test_img4.jpeg' ]
+        >>> multiple_image_paths = [root_path+'test_image_2/test_img2.jpg',
+        >>>                         root_path+'test_image_3/test_img3.jpg',
+        >>>                         root_path+'test_image_4/test_img4.jpeg' ]
         >>> swtl = SWTLocalizer(image_paths=multiple_image_paths)
 
         >>> # Single Pre-Loaded Image - Agnostic to image channels
-        >>> single_image = cv2.imread(root_path+'test_img1.jpg')
+        >>> single_image = cv2.imread(root_path+'test_image_1/test_img1.jpg')
         >>> swtl = SWTLocalizer(images=single_image)
 
         >>> # Multiple Pre-Loaded Image
-        >>> multiple_images = [cv2.imread(each_path) for each_path in [root_path+'test_img2.jpg',
-        >>>                                                            root_path+'test_img3.jpg',
-        >>>                                                            root_path+'test_img4.jpeg' ]]
+        >>> multiple_images = [cv2.imread(each_path) for each_path in [root_path+'test_image_2/test_img2.jpg',
+        >>>                                                            root_path+'test_image_3/test_img3.jpg',
+        >>>                                                            root_path+'test_image_4/test_img4.jpeg' ]]
         >>> swtl = SWTLocalizer(images=multiple_images)
 
         >>> # Accessing `SWTImage` objects from the `SWTLocalizer`
-        >>> multiple_images = [cv2.imread(each_path) for each_path in [root_path+'test_img2.jpg',
-        >>>                                                            root_path+'test_img3.jpg',
-        >>>                                                            root_path+'test_img4.jpeg' ]]
+        >>> multiple_images = [cv2.imread(each_path) for each_path in [root_path+'test_image_2/test_img2.jpg',
+        >>>                                                            root_path+'test_image_3/test_img3.jpg',
+        >>>                                                            root_path+'test_image_4/test_img4.jpeg' ]]
         >>> swtl = SWTLocalizer(images=multiple_images)
         >>> print(swtl.swtimages, type(swtl.swtimages[0]))
         [Image-SWTImage_982112, Image-SWTImage_571388, Image-SWTImage_866821] <class 'swtloc.abstractions.SWTImage'>
@@ -111,27 +111,27 @@ class SWTLocalizer:
         >>>
         >>>
         >>> # Mixed input given  -> Raises SWTLocalizerValueError
-        >>> mixed_input = [root_path+'test_img1.jpg' , cv2.imread(root_path+'test_img1.jpg')]
+        >>> mixed_input = [root_path+'test_image_1/test_img1.jpg' , cv2.imread(root_path+'test_image_1/test_img1.jpg')]
         >>> swtl = SWTLocalizer(images=mixed_input)
         SWTLocalizerValueError: If a list is provided to `images`, each element should be an np.ndarray
         >>>
         >>> # Wrong input type given  -> Raises SWTLocalizerValueError
-        >>> wrong_input = [True, 1, 'abc', root_path+'test_img1.jpg']
+        >>> wrong_input = [True, 1, 'abc', root_path+'test_image_1/test_img1.jpg']
         >>> swtl = SWTLocalizer(image_paths=wrong_input)
         SWTLocalizerValueError: `image_paths` should be a `list` of `str`
         >>>
         >>>
         >>> # If the file is not present at the location (NOTE : Use your own image paths) -> Raises FileNotFoundError
-        >>> multiple_image_paths = [root_path+'test_img2.jpg',
-        >>>                         root_path+'image_not_there.jpg',
-        >>>                         root_path+'test_img4.jpeg' ]
+        >>> multiple_image_paths = [root_path+'test_image_2/test_img2.jpg',
+        >>>                         root_path+'test_image_/image_not_there.jpg',
+        >>>                         root_path+'test_image_4/test_img4.jpeg' ]
         >>> swtl = SWTLocalizer(image_paths=multiple_image_paths)
         FileNotFoundError: No image present at ../swtloc/examples/test_images/image_not_there.jpg
 
         >>> # Random Names being assigned to each image when `images` parameter is provided
-        >>> multiple_images = [cv2.imread(each_path) for each_path in [root_path+'test_img2.jpg',
-        >>>                                                            root_path+'test_img3.jpg',
-        >>>                                                            root_path+'test_img4.jpeg' ]]
+        >>> multiple_images = [cv2.imread(each_path) for each_path in [root_path+'test_image_2/test_img2.jpg',
+        >>>                                                            root_path+'test_image_3/test_img3.jpg',
+        >>>                                                            root_path+'test_image_4/test_img4.jpeg' ]]
         >>> swtl = SWTLocalizer(images=multiple_images)
         >>> print([each_image.image_name for each_image in swtl.swtimages])
         ['SWTImage_982112', 'SWTImage_571388', 'SWTImage_866821']
