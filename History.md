@@ -7,8 +7,9 @@
     - `bubble_bbox.py` → `_bubble_bbox.py`
     - `swt.py` → `_swt.py`
     - `utils.py` → `_utils.py`
-  - Add [README.md](README.md) (v2.0.0 onwards) and deprecated the old ones
-  - Add [History.md](History.md) files to house history logs
+  - Add [README_new.md](README_new.md) (v2.0.0 onwards)
+  - Add [History.md](History.md) : File to house history logs
+  - Add [Usage.md](Usage.md) : Gives overview of the usage of the package
   - Newer files added:
     - [core.py](swtloc/core.py) : To house all the core algorithms - `findStrokes`, `Fusion`.
     - [abstractions.py](swtloc/abstractions.py) : To house all the abstractions - `SWTImage`, `Letter` and `Word`.
