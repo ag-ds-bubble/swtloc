@@ -53,8 +53,8 @@ notebook in examples/.
 multiple image paths (List[str])/ single image (np.ndarray)/ multiple images (List[np.ndarray]).
 ```py
 from swtloc import SWTLocalizer
-imgpath = 'images/test_image_4/test_img4.jpeg'
-respath = 'images/test_image_4/usage_results/'
+imgpath = 'examples/images/test_image_4/test_img4.jpeg'
+respath = 'examples/images/test_image_4/usage_results/'
 swtl = SWTLocalizer(image_paths=imgpath)
 swtImgObj = swtl.swtimages[0]
 print(swtImgObj, type(swtImgObj))
@@ -127,11 +127,11 @@ swtImgObj.saveCrop(save_path=respath, crop_of='letters', crop_key=4, crop_type='
 swtImgObj.saveCrop(save_path=respath, crop_of='words', crop_key=13, crop_type='bubble', crop_on=IMAGE_ORIGINAL)
 swtImgObj.saveCrop(save_path=respath, crop_of='words', crop_key=13, crop_type='bubble', crop_on=IMAGE_SWT_TRANSFORMED)
 ```
-<p align="middle">
+<p align="middle" title="Letter Crops">
   <img src="examples/images/test_image_4/usage_results/test_img4_letters-4_min_bbox_IMAGE_ORIGINAL_CROP.jpg" width="300px" height="200px"/>
   <img src="examples/images/test_image_4/usage_results/test_img4_letters-4_min_bbox_IMAGE_SWT_TRANSFORMED_CROP.jpg" width="300px" height="200px"/> 
 </p>
-<p align="middle">
+<p align="middle" title="Word Crops">
   <img src="examples/images/test_image_4/usage_results/test_img4_words-13_bubble_IMAGE_ORIGINAL_CROP.jpg" width="300px" height="200px"/>
   <img src="examples/images/test_image_4/usage_results/test_img4_words-13_bubble_IMAGE_SWT_TRANSFORMED_CROP.jpg" width="300px" height="200px"/> 
 </p>
