@@ -1,5 +1,9 @@
 # SWTloc : Stroke Width Transform Text Localizer
-<img style="float: right;" src="swtloc/images/logo.png" height=139 width=418 align="right">
+⚠️- This **README.md** is deprecated alongside *Usage* as mentioned here from v2.0.0 onwards. Go to [README_new.md](README_new.md). This README.md will be removed in v2.1.0.
+⚠️- SWTLoc v2.1.0 will be released on 15th March 2022.
+
+
+<img style="float: right;" src="swtloc/static/logo.png" height=139 width=418 align="right">
 
 [![PyPI Latest Release](https://img.shields.io/pypi/v/swtloc)](https://pypi.org/project/swtloc/)
 [![PyPI Downloads](https://img.shields.io/pypi/dm/swtloc)](https://pypi.org/project/swtloc/)
@@ -13,7 +17,7 @@ This repo contains a python implementation structured as a python package pertai
 Boris Epshtein, Eyal Ofek & Yonatan Wexler
 (June, 2010)](https://www.microsoft.com/en-us/research/publication/detecting-text-in-natural-scenes-with-stroke-width-transform/)
 
-<img style="float: right;" src="swtloc/images/logo.gif" align="centre">
+<img style="float: right;" src="swtloc/static/logo.gif" align="centre">
 
 ## Installation
 ****
@@ -21,7 +25,6 @@ Installation
 ```py
 pip install swtloc
 ```
-
 ## Usage
 ****
 - ### Stroke Width Transform
@@ -48,7 +51,7 @@ pip install swtloc
                       maxCC_comppx = 10000, maxrsw = 200, max_angledev = np.pi/6, 
                       acceptCC_aspectratio = 5.0)
     ```
-    <img style="float: right;" src="swtloc/images/test_img2_res.png" align="centre">
+    <img style="float: right;" src="swtloc/static/_test_img2_res.png" align="centre">
 
     ****
 - ### Individual & Grouped Bounding Boxes and Annotations
@@ -59,21 +62,21 @@ pip install swtloc
         ```py
         min_bboxes, min_bbox_annotated = swtl.get_min_bbox(show=True, padding=10)
         ```
-        <img style="float: right;" src="swtloc/images/test_img3_res.png" align="centre">
+        <img style="float: right;" src="swtloc/static/_test_img3_res.png" align="centre">
     - *Extreme CC Bounding Boxes*
 
         Generate External Bounding box for each of the Connected Components after applying SWT.
         ```py
         min_bboxes, min_bbox_annotated = swtl.get_extreme_bbox(show=True, padding=10)
         ```
-        <img style="float: right;" src="swtloc/images/test_img6_res.png" align="centre">
+        <img style="float: right;" src="swtloc/static/_test_img6_res.png" align="centre">
     - *CC Outline*
 
         Generate Outline of each of the Connected Components after applying SWT.
         ```py
         comp_outlines, comp_outline_annot = swtl.get_comp_outline(show=True, padding=10)
         ```
-        <img style="float: right;" src="swtloc/images/test_img9_res.png" align="centre">
+        <img style="float: right;" src="swtloc/static/_test_img9_res.png" align="centre">
     - *CC Bubble Bounding Boxes*
 
         Generate Bubble Bounding box for the **grouped letters into a word**.
@@ -89,13 +92,13 @@ pip install swtloc
         maskviz = respacket[4]
         maskcomb  = respacket[5]
         ```
-        <img style="float: right;" src="swtloc/images/test_img7_res.png" align="centre">
+        <img style="float: right;" src="swtloc/static/_test_img7_res.png" align="centre">
         
-        <img style="float: right;" src="swtloc/images/test_img2_res1.png" align="centre">
+        <img style="float: right;" src="swtloc/static/_test_img2_res1.png" align="centre">
 
-        <img style="float: right;" src="swtloc/images/test_img1_res.png" align="centre">
+        <img style="float: right;" src="swtloc/static/_test_img1_res.png" align="centre">
 
-        <img style="float: right;" src="swtloc/images/test_img6_res1.png" align="centre">
+        <img style="float: right;" src="swtloc/static/_test_img6_res1.png" align="centre">
         
     *CC = Connected Component
 
