@@ -1,5 +1,5 @@
 # Usage 
-These code blocks can be found in [SWTloc Usage [v2.0.0 onwards].ipynb](examples/SWTloc-Usage-[v2.0.0-onwards].ipynb)
+These code blocks can be found in [SWTloc-Usage-[v2.0.0-onwards].ipynb](examples/SWTloc-Usage-[v2.0.0-onwards].ipynb)
 notebook in examples/.
 
 ### Initialisation of ``SWTLocalizer``
@@ -83,6 +83,6 @@ swtImgObj.saveCrop(save_path=respath, crop_of='words', crop_key=13, crop_type='b
 
 > Word Crops
 <p align="middle" title="Word Crops">
-  <img src="examples/images/test_img4/usage_results/test_img4_words-13_bubble_IMAGE_ORIGINAL_CROP.jpg" width="300px" height="200px"/>
-  <img src="examples/images/test_img4/usage_results/test_img4_words-13_bubble_IMAGE_SWT_TRANSFORMED_CROP.jpg" width="300px" height="200px"/> 
+  <img src="examples/images/test_img4/usage_results/test_img4_words-8_bubble_IMAGE_ORIGINAL_CROP.jpg" width="300px" height="200px"/>
+  <img src="examples/images/test_img4/usage_results/test_img4_words-8_bubble_IMAGE_SWT_TRANSFORMED_CROP.jpg" width="300px" height="200px"/> 
 </p>

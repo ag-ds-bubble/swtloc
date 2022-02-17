@@ -35,7 +35,7 @@ pip install swtloc
 Below is the speed comparison between different versions of ``SWTLoc`` and their various engines. The time measured for
 each test image was calculated based on 10 iterations of 10 runs each. Test Images can be found in ``examples/images/``
 folder in this repository, and the code for generating the below table can be found in - 
-[Improvements in v2.0.0.ipynb](examples/Improvements-in-v2.0.0.ipynb) notebook in ``examples/`` folder.
+[Improvements-in-v2.0.0.ipynb](examples/Improvements-in-v2.0.0.ipynb) notebook in ``examples/`` folder.
 
 Test Image | SWT v1.1.1 (Python) | SWT v1.1.1 (Python) [x] | SWT v2.0.0 (Python) | SWT v2.0.0 (Python) [x] | SWT v2.0.0 (numba) | SWT v2.0.0 (numba) [x]
 --- | --- | --- | --- |--- |--- |--- 
@@ -70,7 +70,7 @@ swtImgObj = swtl.swtimages[0]
 # Performing Stroke Width Transformation
 swt_mat = swtImgObj.transformImage(text_mode='db_lf')
 ```
-<img style="float: right;" src="examples/images/test_image_5/usage_results/test_img5_01_02_03_04.jpg" align="centre" width="900px" height="675px">
+<img style="float: right;" src="examples/images/test_img5/usage_results/test_img5_01_02_03_04.jpg" align="centre" width="900px" height="675px">
 
 ### Localizing & Annotating Letters and Generating Crops of Letters
 ```python
@@ -105,7 +105,7 @@ localized_letters = swtImgObj.localizeLetters(minimum_pixels_per_cc=950,
                                               maximum_pixels_per_cc=5200)
 letter_labels = [int(k) for k in list(localized_letters.keys())]
 ```
-<img style="float: right;" src="examples/images/test_image_1/usage_results/SWTImage_982112_06_07_11_13.jpg" align="centre" width="900px" height="675px">
+<img style="float: right;" src="examples/images/test_img1/usage_results/SWTImage_982112_06_07_11_13.jpg" align="centre" width="900px" height="675px">
 
 ```python
 # Some Other Helpful Letter related functions
@@ -161,7 +161,7 @@ localized_letters = swtImgObj.localizeLetters(minimum_pixels_per_cc=400,
 localized_words = swtImgObj.localizeWords(display=True)  # NOTE: Set display=True 
 word_labels = [int(k) for k in list(localized_words.keys())]
 ```
-<img style="float: right;" src="examples/images/test_image_2/usage_results/test_img2_14_15_16.jpg" align="centre" width="900px" height="412px">
+<img style="float: right;" src="examples/images/test_img2/usage_results/test_img2_14_15_16.jpg" align="centre" width="900px" height="412px">
 
 ```python
 # Some Other Helpful Words related functions
@@ -190,4 +190,4 @@ swtImgObj.saveCrop(save_path=respath, crop_of='words', crop_key=9, crop_on=IMAGE
 
 ### For Usage :
 - [Usage.md](Usage.md)
-- [SWTloc Usage [v2.0.0 onwards].ipynb](examples/SWTloc-Usage-[v2.0.0-onwards].ipynb) in ``examples/`` folder.
+- [SWTloc-Usage-[v2.0.0-onwards].ipynb](examples/SWTloc-Usage-[v2.0.0-onwards].ipynb) in ``examples/`` folder.
