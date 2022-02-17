@@ -183,11 +183,10 @@ swtImgObj.saveCrop(save_path=respath, crop_of='words', crop_key=9, crop_on=IMAGE
 ```
 
 ****
-
-### For History Logs 
-[History.md](History.md)
-****
-
 ### For Usage :
 - [Usage.md](Usage.md)
 - [SWTloc-Usage-[v2.0.0-onwards].ipynb](examples/SWTloc-Usage-[v2.0.0-onwards].ipynb) in ``examples/`` folder.
+
+****
+### For History Logs 
+- [History.md](History.md)
