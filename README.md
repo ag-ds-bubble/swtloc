@@ -1,5 +1,6 @@
 # SWTloc : Stroke Width Transform Text Localizer
-⚠️- This **README.md** is deprecated alongside *Usage* as mentioned here from v2.0.0 onwards. Go to [README_new.md](README_new.md). This README.md will be removed in v2.1.0 .
+⚠️- This **README.md** is deprecated alongside *Usage* as mentioned here from v2.0.0 onwards. Go to [README_new.md](README_new.md). This README.md will be removed in v2.1.0.
+⚠️- SWTLoc v2.1.0 will be released on 15th March 2022.
 
 
 <img style="float: right;" src="swtloc/static/logo.png" height=139 width=418 align="right">

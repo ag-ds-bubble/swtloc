@@ -4,12 +4,12 @@ __pycache__/
 **__pycache__/
 
 examples/images/*
-!examples/images/test_image_1/
-!examples/images/test_image_2/
-!examples/images/test_image_3/
-!examples/images/test_image_4/
-!examples/images/test_image_5/
-!examples/images/test_image_6/
+!examples/images/test_img1/
+!examples/images/test_img2/
+!examples/images/test_img3/
+!examples/images/test_img4/
+!examples/images/test_img5/
+!examples/images/test_img6/
 
 
 *.pyc

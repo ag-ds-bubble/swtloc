@@ -263,7 +263,7 @@ class SWTImage(TextTransformBase):
         """
         Create an ``SWTImage``, an abstraction to various procedures to be performed on a ***single***
         input image.
-        
+
         Args:
             image (np.ndarray) : Input image on which transformation will be performed
 
@@ -752,37 +752,36 @@ class SWTImage(TextTransformBase):
             _res = get_connected_components_with_stats(img=self.pruned_image_cc_1C)
             self.pruned_num_cc, self.pruned_image_cc_1C, self.pruned_cc_stats, self.pruned_cc_centroids = _res
 
-        # Make the Letter objects
-        orig_img = self.image.copy()
-        swt_mat = self.image_swt.copy()
-        pruned_cc = self.pruned_image_cc_1C.copy()
+            # Make the Letter objects
+            orig_img = self.image.copy()
+            swt_mat = self.image_swt.copy()
+            pruned_cc = self.pruned_image_cc_1C.copy()
+            for letter_label in np.arange(1, self.pruned_num_cc):
+                letter = Letter(label=letter_label, image_height=self.image_height, image_width=self.image_width)
+                letter_mask = pruned_cc == letter_label
+                letter_mask = np.uint8(letter_mask)
+                _ciy, _cix = letter_mask.nonzero()
+                # Properties related to original image for this particular connected component
+                _letter_color_values = orig_img[_ciy, _cix].copy()
+                _mean_color = _letter_color_values.mean(axis=0).round(2)
+                _median_color = np.median(_letter_color_values, axis=0).round(2)
+                # Properties related to stroke widths seen in this component
+                _component_sw_values = swt_mat[_ciy, _cix].copy()
+                _sw_mean = np.mean(_component_sw_values)
+                _sw_median = np.median(_component_sw_values)
+                _sw_variance = np.var(_component_sw_values)
+                _sw_count_dict = unique_value_counts(_component_sw_values)
+                # Number of pixels this connected component occupies
+                _area = self.pruned_cc_stats[letter_label, -1]
+                # Contour of this connected component
+                _contour = cv2.findContours(letter_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+                _contour = _contour[0] if len(_contour) == 2 else _contour[1]
+                letter._setLetterProps(area=_area, sw_mean=_sw_mean, sw_median=_sw_median, sw_var=_sw_variance,
+                                       sw_counts=_sw_count_dict, color_mean=_mean_color, color_median=_median_color,
+                                       outline=_contour)
+                self.letters[letter_label] = letter
 
-        for letter_label in np.arange(1, self.pruned_num_cc):
-            letter = Letter(label=letter_label, image_height=self.image_height, image_width=self.image_width)
-            letter_mask = pruned_cc == letter_label
-            letter_mask = np.uint8(letter_mask)
-            _ciy, _cix = letter_mask.nonzero()
-            # Properties related to original image for this particular connected component
-            _letter_color_values = orig_img[_ciy, _cix].copy()
-            _mean_color = _letter_color_values.mean(axis=0).round(2)
-            _median_color = np.median(_letter_color_values, axis=0).round(2)
-            # Properties related to stroke widths seen in this component
-            _component_sw_values = swt_mat[_ciy, _cix].copy()
-            _sw_mean = np.mean(_component_sw_values)
-            _sw_median = np.median(_component_sw_values)
-            _sw_variance = np.var(_component_sw_values)
-            _sw_count_dict = unique_value_counts(_component_sw_values)
-            # Number of pixels this connected component occupies
-            _area = self.pruned_cc_stats[letter_label, -1]
-            # Contour of this connected component
-            _contour = cv2.findContours(letter_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-            _contour = _contour[0] if len(_contour) == 2 else _contour[1]
-            letter._setLetterProps(area=_area, sw_mean=_sw_mean, sw_median=_sw_median, sw_var=_sw_variance,
-                                   sw_counts=_sw_count_dict, color_mean=_mean_color, color_median=_median_color,
-                                   outline=_contour)
-            self.letters[letter_label] = letter
-
-            self.letter_outline_done = True
+                self.letter_outline_done = True
 
         if localize_by == 'min_bbox':
             for letter_label, letter in self.letters.items():

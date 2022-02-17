@@ -1,6 +1,6 @@
 ## History Logs
 ****
-<u>v2.0.0 : Major Release - Refactoring, New Engines, Abstraction Addition</u>
+<u>v2.0.0 : Major Release - Refactoring, New Engines, Abstraction Addition (Py36, Py37, Py38, Py39 & Py310 Compatible)</u>
 - Following refactoring Additions/Changes were made: 
   - Core algorithms moved to [core.py](swtloc/core.py)
   - Older files deprecated and names changed, these files would be removed in v2.0.1
@@ -44,7 +44,7 @@
     - Houses configurations for the Stroke Width Transform
   - (+) Add [Improvements in v2.0.0.ipynb](examples/Improvements-in-v2.0.0.ipynb) notebook
   - (+) Add [README Code Blocks.ipynb](examples/README-Code-Blocks.ipynb) notebook
-  - (+) Add [StackOverflow QnA [DEPRECATED] (Will be removed in v2.1.0).ipynb](examples/StackOverflow-QnA-[DEPRECATED]-(Will-be-removed-in-v2.1.0).ipynb) notebook
+  - (+) Add [QnA [v2.0.0 onwards].ipynb](examples/QnA-[v2.0.0-onwards].ipynb) notebook
   - (+) Add [SWTloc Usage [v2.0.0 onwards].ipynb](examples/SWTloc-Usage-[v2.0.0-onwards].ipynb) notebook
 
 <u>v1.1.1 : Refine Versioning System</u>
@@ -67,4 +67,8 @@
 - Add SWTlocaliser to the package
 - Add the logic for Bubble Bounding Boxes
 - Add Examples
+
+(+) -> Addition
+(-) -> Deletion
+(+/-) -> Modification
 

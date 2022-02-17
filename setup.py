@@ -7,7 +7,7 @@ versioning : x[Major Update].x[Minor Update].x[Fixes]
 
 
 # Command to upload to pypi : cls & rmdir /s /q build dist swtloc.egg-info & python setup.py sdist & python setup.py bdist_wheel & twine upload dist/*
-# Installation :- pip install swtloc
+# Installation :- pip install --no-cache-dir -I swtloc
 
 def parse_requirements(filename):
     """ load requirements from a pip requirements file """
@@ -22,7 +22,7 @@ def parse_requirements(filename):
 # Constants
 REQS = parse_requirements('requirements.txt')
 
-with open("README.md", "r") as fh:
+with open("README.md", "r", encoding='utf-8') as fh:
     long_description = fh.read()
 
 CLASSIFIERS = ["Programming Language :: Python :: 3",
