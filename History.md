@@ -1,4 +1,4 @@
-## History Logs
+## Version Logs
 ****
 <u>v2.0.0 : Major Release - Refactoring, New Engines, Abstraction Addition (Py36, Py37, Py38, Py39 & Py310 Compatible)</u>
 - Following refactoring Additions/Changes were made: 
@@ -7,7 +7,7 @@
     - `bubble_bbox.py` → `_bubble_bbox.py`
     - `swt.py` → `_swt.py`
     - `utils.py` → `_utils.py`
-  - Add [README_new.md](README_new.md) (v2.0.0 onwards)
+  - Add [README.md](README.md) (v2.0.0 onwards)
   - Add [History.md](History.md) : File to house history logs
   - Add [Usage.md](Usage.md) : Gives overview of the usage of the package
   - Newer files added:
