@@ -293,6 +293,8 @@ class SWTLocalizer:
                      save_results=False, save_rootpath='../SWTLocResults/', *args, **kwargs):
 
         """
+        .. deprecated:: 2.0.0
+
         Function to apply SWT transform on the images present in the imgpaths
 
         parameters
@@ -885,6 +887,8 @@ class SWTLocalizer:
                         removed_in="v2.1.0", relocated=True)
     def get_min_bbox(self, show=False, padding=5):
         """
+        .. deprecated:: 2.0.0
+
         Function to retrieve the vetrices of BBox which occupy minimum
         area rectangle for a Connected Component.
 
@@ -937,6 +941,8 @@ class SWTLocalizer:
                         removed_in="v2.1.0", relocated=True)
     def get_extreme_bbox(self, show=False, padding=5):
         """
+        .. deprecated:: 2.0.0
+
         Function to retrieve the vetrices of BBox Connected Component.
 
         parameters
@@ -983,6 +989,8 @@ class SWTLocalizer:
                         removed_in="v2.1.0", relocated=True)
     def get_comp_outline(self, show=False):
         """
+        .. deprecated:: 2.0.0
+
         Function to retrieve the outer contour of Connected Component.
 
         parameters
@@ -1019,7 +1027,9 @@ class SWTLocalizer:
                     cl_deviat=[13, 13, 13], ht_ratio=2.0, ar_ratio=3.0, ang_deviat=30.0,
                     bubble_width=1):
         """
-        Function to Group Connected Component into possible 'words' based 
+        .. deprecated:: 2.0.0
+
+        Function to Group Connected Component into possible 'words' based
         on argument value.
 
         parameters

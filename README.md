@@ -1,9 +1,5 @@
 # SWTloc : Stroke Width Transform Text Localizer
-⚠️- This **README.md** is deprecated alongside *Usage* as mentioned here from v2.0.0 onwards. Go to [README_new.md](README_new.md). This README.md will be removed in v2.1.0.
-⚠️- SWTLoc v2.1.0 will be released on 15th March 2022.
-
-
-<img style="float: right;" src="swtloc/static/logo.png" height=139 width=418 align="right">
+<img style="float: right;" src="swtloc/static/logo.png" height=139 width=418 align="right" >
 
 [![PyPI Latest Release](https://img.shields.io/pypi/v/swtloc)](https://pypi.org/project/swtloc/)
 [![PyPI Downloads](https://img.shields.io/pypi/dm/swtloc)](https://pypi.org/project/swtloc/)
@@ -17,112 +13,172 @@ This repo contains a python implementation structured as a python package pertai
 Boris Epshtein, Eyal Ofek & Yonatan Wexler
 (June, 2010)](https://www.microsoft.com/en-us/research/publication/detecting-text-in-natural-scenes-with-stroke-width-transform/)
 
-<img style="float: right;" src="swtloc/static/logo.gif" align="centre">
+<p style="text-align:center"><img style="float: center;" src="swtloc/static/logo.gif" align="centre"></p>
 
-## Installation
+This library extends the transformation stage of the image for textual content by giving the ability to :
+
+- Localize `Letter`'s : through `SWTImage.localizeLetters`
+- Localize `Words`'s, via fusing individual `Letter`'s : through `SWTImage.localizeWords`
+
+The process flow of is depicted in the image below : 
+
+<img style="float: right;" src= "swtloc/static/SWTLoc_Process_Flow.png" align="centre">
+
 ****
-Installation 
+### Installation 
 ```py
 pip install swtloc
 ```
-## Usage
+
 ****
-- ### Stroke Width Transform
-    This function applies Stroke Width Transform on a list of images(loaded from list of imagepaths, internally) or a single image(loaded from imagepath or a pre-loaded image), and once done with the transformation the results are stored in the directory mentioned in `save_rootpath` parameter, under the name of the image being processed
-    
-    *NOTE : If you are processing multiple images with same name, the stored results will be overridden, Process images with different names.
+## Speed Benchmarking
+Below is the speed comparison between different versions of ``SWTLoc`` and their various engines. The time measured for
+each test image was calculated based on 10 iterations of 10 runs each. Test Images can be found in ``examples/images/``
+folder in this repository, and the code for generating the below table can be found in - 
+[Improvements-in-v2.0.0.ipynb](../examples/Improvements-in-v2.0.0.ipynb) notebook in ``examples/`` folder.
 
-    ```py
-    from swtloc import SWTLocalizer
-    import numpy as np
-    
-    swtl = SWTLocalizer()
-    imgpaths = ... # Image paths, can be one image(path as str) or more than one(paths as list of str)
-    swtl.swttransform(imgpaths=imgpath, save_results=True, save_rootpath='swtres/',
-                      edge_func = 'ac', ac_sigma = 1.0, text_mode = 'lb_df',
-                      gs_blurr=True, blurr_kernel = (5,5), minrsw = 3, 
-                      maxCC_comppx = 10000, maxrsw = 200, max_angledev = np.pi/6, 
-                      acceptCC_aspectratio = 5.0)
-    # If you have a pre-loaded image then
-    loaded_image = cv2.imread(imgpath)
-    swtl.swttransform(image=loaded_image, save_results=True, save_rootpath='swtres/',
-                      edge_func = 'ac', ac_sigma = 1.0, text_mode = 'lb_df',
-                      gs_blurr=True, blurr_kernel = (5,5), minrsw = 3, 
-                      maxCC_comppx = 10000, maxrsw = 200, max_angledev = np.pi/6, 
-                      acceptCC_aspectratio = 5.0)
-    ```
-    <img style="float: right;" src="swtloc/static/_test_img2_res.png" align="centre">
+Test Image | SWT v1.1.1 (Python) | SWT v1.1.1 (Python) [x] | SWT v2.0.0 (Python) | SWT v2.0.0 (Python) [x] | SWT v2.0.0 (numba) | SWT v2.0.0 (numba) [x]
+--- | --- | --- | --- |--- |--- |--- 
+test_img1.jpg | 16.929 seconds| 1.0x| 8.145 seconds| 2.078x| 0.33 seconds| 51.315x
+test_img2.jpg | 10.107 seconds| 1.0x| 4.205 seconds| 2.404x| 0.678 seconds| 50.904x
+test_img3.jpg | 4.545 seconds| 1.0x| 2.701 seconds| 1.683x| 0.082 seconds| 55.625x
+test_img4.jpeg | 7.626 seconds| 1.0x| 3.992 seconds| 1.91x| 0.142 seconds| 53.859x
+test_img5.jpg | 17.071 seconds| 1.0x| 7.554 seconds| 2.26x| 0.302 seconds| 56.62x
+test_img6.jpg | 4.973 seconds| 1.0x| 3.104 seconds| 1.602x| 0.094 seconds| 53.076x
 
-    ****
-- ### Individual & Grouped Bounding Boxes and Annotations
-    These group of functions returns bounding boxes to individual components and grouped bounding boxes of words.
-    - *Minimum CC Bounding Boxes*
-
-        Generate Minimum Bounding box for each of the Connected Components after applying SWT, can be a rotated rectangle.
-        ```py
-        min_bboxes, min_bbox_annotated = swtl.get_min_bbox(show=True, padding=10)
-        ```
-        <img style="float: right;" src="swtloc/static/_test_img3_res.png" align="centre">
-    - *Extreme CC Bounding Boxes*
-
-        Generate External Bounding box for each of the Connected Components after applying SWT.
-        ```py
-        min_bboxes, min_bbox_annotated = swtl.get_extreme_bbox(show=True, padding=10)
-        ```
-        <img style="float: right;" src="swtloc/static/_test_img6_res.png" align="centre">
-    - *CC Outline*
-
-        Generate Outline of each of the Connected Components after applying SWT.
-        ```py
-        comp_outlines, comp_outline_annot = swtl.get_comp_outline(show=True, padding=10)
-        ```
-        <img style="float: right;" src="swtloc/static/_test_img9_res.png" align="centre">
-    - *CC Bubble Bounding Boxes*
-
-        Generate Bubble Bounding box for the **grouped letters into a word**.
-        ```py
-        respacket = swtl.get_grouped(lookup_radii_multiplier=1, sw_ratio=2,
-                             cl_deviat=[13,13,13], ht_ratio=2, 
-                             ar_ratio=3, ang_deviat=30)
-        
-        grouped_labels = respacket[0]
-        grouped_bubblebbox = respacket[1]
-        grouped_annot_bubble = respacket[2]
-        grouped_annot = respacket[3]
-        maskviz = respacket[4]
-        maskcomb  = respacket[5]
-        ```
-        <img style="float: right;" src="swtloc/static/_test_img7_res.png" align="centre">
-        
-        <img style="float: right;" src="swtloc/static/_test_img2_res1.png" align="centre">
-
-        <img style="float: right;" src="swtloc/static/_test_img1_res.png" align="centre">
-
-        <img style="float: right;" src="swtloc/static/_test_img6_res1.png" align="centre">
-        
-    *CC = Connected Component
-
-
-## History Logs
 ****
-<u>v1.1.1 : Refine Versioning System</u>
-- New versioning system defined : x[Major Update].x[Minor Update].x[Fixes]
-- Tag 1.1.x Represents all bug fixed versions of 1.1. 
-- Bug Fixes
+## Frequently Used Code Snippets
+### Performing Stroke Width Transformation
+```python
+# Installation
+# !pip install swtloc
 
-<u>v1.0.0.3 : Add Individual Image Processsing</u>
-- Functionality to transform pre-loaded image
-- Minor Bug Fixes
-- Add support for Python 3.6
-- Reduce Dependency
+# Imports
+import swtloc as swt
+# Image Path
+imgpath = 'examples/images/test_image_5/test_img5.jpg'
+# Result Path
+respath = 'examples/images/test_image_5/usage_results/'
+# Initializing the SWTLocalizer class with the image path
+swtl = swt.SWTLocalizer(image_paths=imgpath)
+# Accessing the SWTImage Object which is housing this image
+swtImgObj = swtl.swtimages[0]
+# Performing Stroke Width Transformation
+swt_mat = swtImgObj.transformImage(text_mode='db_lf')
+```
+<img style="float: right;" src="examples/images/test_img5/usage_results/test_img5_01_02_03_04.jpg" align="centre" width="900px" height="675px">
 
-<u>v1.0.0.2 : Few bug fixes and addendums</u>
-- Add parameter to govern the width of BubbleBBox 
-- Add Examples - StackOverflow Q/A
-- Add image resizing utility function to the utils.py
+### Localizing & Annotating Letters and Generating Crops of Letters
+```python
+# Installation
+# !pip install swtloc
 
-<u>v1.0.0.1 : Original Package</u>
-- Add SWTlocaliser to the package
-- Add the logic for Bubble Bounding Boxes
-- Add Examples
+# Imports
+import swtloc as swt
+from cv2 import cv2
+import numpy as np
+# Image Path
+imgpath = 'examples/images/test_image_1/test_img1.jpg'
+# Read the image
+img = cv2.imread(imgpath)
+# Result Path
+respath = 'examples/images/test_image_1/usage_results/'
+# Initializing the SWTLocalizer class with a pre loaded image
+swtl = swt.SWTLocalizer(images=img)
+swtImgObj = swtl.swtimages[0]
+# Perform Stroke Width Transformation
+swt_mat = swtImgObj.transformImage(text_mode='db_lf',
+                                   maximum_angle_deviation=np.pi/2,
+                                   gaussian_blurr_kernel=(11, 11),
+                                   minimum_stroke_width=5,
+                                   maximum_stroke_width=50,
+                                   display=False)  # NOTE: Set display=True 
+# Localizing Letters
+localized_letters = swtImgObj.localizeLetters(minimum_pixels_per_cc=950,
+                                              maximum_pixels_per_cc=5200)
+letter_labels = [int(k) for k in list(localized_letters.keys())]
+```
+<img style="float: right;" src="examples/images/test_img1/usage_results/SWTImage_982112_06_07_11_13.jpg" align="centre" width="900px" height="675px">
 
+```python
+# Some Other Helpful Letter related functions
+# # Query a single letter
+from swtloc.configs import (IMAGE_ORIGINAL,
+                            IMAGE_SWT_TRANSFORMED)
+loc_letter, swt_loc, orig_loc = swtImgObj.getLetter(key=letter_labels[5])
+
+# # Iterating over all the letters
+# # Specifically useful for jupyter notebooks - Iterate over all
+# # the letters, at the same time visualizing the localizations
+letter_gen = swtImgObj.letterIterator()
+loc_letter, swt_loc, orig_loc = next(letter_gen)
+
+# # Generating a crop of a single letter on any of the available
+# # image codes.
+# # Crop on SWT Image
+swtImgObj.saveCrop(save_path=respath,crop_of='letters',crop_key=6, crop_on=IMAGE_SWT_TRANSFORMED, crop_type='min_bbox')
+# # Crop on Original Image
+swtImgObj.saveCrop(save_path=respath,crop_of='letters',crop_key=6, crop_on=IMAGE_ORIGINAL, crop_type='min_bbox')
+```
+
+### Localizing & Annotating Words and Generating Crops of Words
+```python
+# Installation
+# !pip install swtloc
+# Imports
+import swtloc as swt
+# Image Path
+imgpath = 'images/test_img2/test_img2.jpg'
+# Result Path
+respath = 'images/test_img2/usage_results/'
+# Initializing the SWTLocalizer class with the image path
+swtl = swt.SWTLocalizer(image_paths=imgpath)
+swtImgObj = swtl.swtimages[0]
+# Perform Stroke Width Transformation
+swt_mat = swtImgObj.transformImage(maximum_angle_deviation=np.pi/2,
+                                   gaussian_blurr_kernel=(9, 9),
+                                   minimum_stroke_width=3,
+                                   maximum_stroke_width=50,
+                                   include_edges_in_swt=False,
+                                   display=False)  # NOTE: Set display=True 
+
+# Localizing Letters
+localized_letters = swtImgObj.localizeLetters(minimum_pixels_per_cc=400,
+                                              maximum_pixels_per_cc=6000,
+                                              display=False)  # NOTE: Set display=True 
+
+# Calculate and Draw Words Annotations
+localized_words = swtImgObj.localizeWords(display=True)  # NOTE: Set display=True 
+word_labels = [int(k) for k in list(localized_words.keys())]
+```
+<img style="float: right;" src="examples/images/test_img2/usage_results/test_img2_14_15_16.jpg" align="centre" width="900px" height="412px">
+
+```python
+# Some Other Helpful Words related functions
+# # Query a single word
+from swtloc.configs import (IMAGE_ORIGINAL,
+                            IMAGE_SWT_TRANSFORMED)
+loc_word, swt_loc, orig_loc = swtImgObj.getWord(key=word_labels[8])
+
+# # Iterating over all the words
+# # Specifically useful for jupyter notebooks - Iterate over all
+# # the words, at the same time visualizing the localizations
+word_gen = swtImgObj.wordIterator()
+loc_word, swt_loc, orig_loc = next(word_gen)
+
+# # Generating a crop of a single word on any of the available
+# # image codes
+# # Crop on SWT Image
+swtImgObj.saveCrop(save_path=respath, crop_of='words', crop_key=9, crop_on=IMAGE_SWT_TRANSFORMED, crop_type='bubble')
+# # Crop on Original Image
+swtImgObj.saveCrop(save_path=respath, crop_of='words', crop_key=9, crop_on=IMAGE_ORIGINAL, crop_type='bubble')
+```
+
+****
+### For Usage :
+- [Usage.md](../Usage.md)
+- [SWTloc-Usage-[v2.0.0-onwards].ipynb](../examples/SWTloc-Usage-[v2.0.0-onwards].ipynb) in ``examples/`` folder.
+
+****
+### For History Logs 
+- [History.md](../History.md)

@@ -40,3 +40,7 @@ dist/*
 build/*
 swtloc.egg-info/*
 
+
+# Docs
+docs/build/*
+docs/source/api_docs/_autosummary/*

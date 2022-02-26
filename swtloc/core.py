@@ -131,7 +131,15 @@ def swt_strokes(edged_image,
     return swt_matrix
 
 
-swt_strokes_jitted = nb.njit(cache=True)(swt_strokes)
+try:
+    swt_strokes_jitted = nb.njit(cache=True)(swt_strokes)
+except RuntimeError as e:
+    # HACK : This is specifically to facilitate the building of `readthedocs`
+    # TODO : documentations.
+    swt_strokes_jitted = nb.njit(cache=False)(swt_strokes)
+except:
+    raise
+
 
 # mask_arr = np.full(shape=(100, 100), fill_value=0, dtype=np.uint8)
 # proxyletters_spec = [('label', nb.typeof(99999)),
@@ -152,6 +160,7 @@ class ProxyLetter:
     onto the Fusion Class as the ``Letter`` class object wont be acceptable by Fusion class
     were it to be run on nopython-jit mode
     """
+
     def __init__(self,
                  label,
                  sw_median,
@@ -204,6 +213,7 @@ class Fusion:
         - Ratio of stroke widths from one to the other
         - Ratio of minimum bounding box height of one to the other
     """
+
     def __init__(self, letters: dict,
                  acceptable_stroke_width_ratio: float,
                  acceptable_color_deviation: List[int],
