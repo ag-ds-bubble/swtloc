@@ -42,4 +42,5 @@ swtloc.egg-info/*
 
 
 # Docs
-docs/_build
+docs/build/*
+docs/source/api_docs/_autosummary/*

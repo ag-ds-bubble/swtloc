@@ -35,7 +35,7 @@ pip install swtloc
 Below is the speed comparison between different versions of ``SWTLoc`` and their various engines. The time measured for
 each test image was calculated based on 10 iterations of 10 runs each. Test Images can be found in ``examples/images/``
 folder in this repository, and the code for generating the below table can be found in - 
-[Improvements-in-v2.0.0.ipynb](examples/Improvements-in-v2.0.0.ipynb) notebook in ``examples/`` folder.
+[Improvements-in-v2.0.0.ipynb](../examples/Improvements-in-v2.0.0.ipynb) notebook in ``examples/`` folder.
 
 Test Image | SWT v1.1.1 (Python) | SWT v1.1.1 (Python) [x] | SWT v2.0.0 (Python) | SWT v2.0.0 (Python) [x] | SWT v2.0.0 (numba) | SWT v2.0.0 (numba) [x]
 --- | --- | --- | --- |--- |--- |--- 
@@ -176,9 +176,9 @@ swtImgObj.saveCrop(save_path=respath, crop_of='words', crop_key=9, crop_on=IMAGE
 
 ****
 ### For Usage :
-- [Usage.md](Usage.md)
-- [SWTloc-Usage-[v2.0.0-onwards].ipynb](examples/SWTloc-Usage-[v2.0.0-onwards].ipynb) in ``examples/`` folder.
+- [Usage.md](../Usage.md)
+- [SWTloc-Usage-[v2.0.0-onwards].ipynb](../examples/SWTloc-Usage-[v2.0.0-onwards].ipynb) in ``examples/`` folder.
 
 ****
 ### For History Logs 
-- [History.md](History.md)
+- [History.md](../History.md)
