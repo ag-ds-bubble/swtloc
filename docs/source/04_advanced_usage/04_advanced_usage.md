@@ -1,5 +1,3 @@
-## Imports
-
 ```python
 import os
 import numpy as np
@@ -36,8 +34,6 @@ from swtloc.utils import show_N_images
 from swtloc.configs import get_code_descriptions
 from swtloc.configs import CODE_NAME_VAR_MAPPINGS
 ```
-
-## Path and Variable Initialisations
 
 ```python
 rawimage_path = 'images/'
