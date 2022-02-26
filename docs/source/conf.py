@@ -12,8 +12,9 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../'))
+from swtloc import __version__
 
+sys.path.insert(0, os.path.abspath('../../'))
 
 # -- Project information -----------------------------------------------------
 project = 'SWTLoc'
@@ -21,8 +22,7 @@ copyright = '2022, Achintya'
 author = 'Achintya Gupta'
 
 # The full version, including alpha/beta/rc tags
-release = 'v2.0.0'
-
+release = __version__
 
 # -- General configuration ---------------------------------------------------
 
@@ -37,7 +37,7 @@ extensions = [
 ]
 
 autosummary_generate = True
-autosummary_imported_members = False
+# autosummary_imported_members = False
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -71,4 +71,4 @@ html_theme_options = {
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = []

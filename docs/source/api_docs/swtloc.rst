@@ -11,7 +11,8 @@ This is API Documentation
     .. rubric:: Modules
 
     .. autosummary::
-        :toctree:
+        :toctree: _autosummary
+        :template: autosummary/module.rst
         :recursive:
 
         swtloc.swtlocalizer
