@@ -18,4 +18,5 @@ This is API Documentation
         swtloc.swtlocalizer
         swtloc.base
         swtloc.abstractions
+        swtloc.core
         swtloc.utils
