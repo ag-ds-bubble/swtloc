@@ -40,3 +40,6 @@ dist/*
 build/*
 swtloc.egg-info/*
 
+
+# Docs
+docs/_build
