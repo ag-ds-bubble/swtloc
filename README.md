@@ -25,10 +25,14 @@ The process flow of is depicted in the image below :
 <img style="float: right;" src= "swtloc/static/SWTLoc_Process_Flow.png" align="centre">
 
 ****
-### Installation 
+## Installation 
 ```py
 pip install swtloc
 ```
+
+****
+## Documentation
+Documentation for SWTLoc can be found at - [SWTLoc Documentation](http://swtloc.readthedocs.io/)
 
 ****
 ## Speed Benchmarking
@@ -173,12 +177,4 @@ swtImgObj.saveCrop(save_path=respath, crop_of='words', crop_key=9, crop_on=IMAGE
 # # Crop on Original Image
 swtImgObj.saveCrop(save_path=respath, crop_of='words', crop_key=9, crop_on=IMAGE_ORIGINAL, crop_type='bubble')
 ```
-
 ****
-### For Usage :
-- [Usage.md](../Usage.md)
-- [SWTloc-Usage-[v2.0.0-onwards].ipynb](../examples/SWTloc-Usage-[v2.0.0-onwards].ipynb) in ``examples/`` folder.
-
-****
-### For History Logs 
-- [History.md](../History.md)
