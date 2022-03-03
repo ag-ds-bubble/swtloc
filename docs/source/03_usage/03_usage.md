@@ -42,7 +42,7 @@ locletter = swtImgObj.getLetter(key=letter_label)
 ```
 <img style="float: right;" src="../_static/test_img4_17_18.jpg" align="centre" width="900px" height="406px">
 
-## Localizing Letters using ``SWTImage.localizeWords``
+## Localizing Words using ``SWTImage.localizeWords``
 ```py
 localized_words = swtImgObj.localizeWords()
 word_labels = list([int(k) for k in localized_words.keys()])

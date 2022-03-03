@@ -43,7 +43,7 @@ setuptools.setup(name="swtloc",
                  long_description=long_description,
                  long_description_content_type="text/markdown",
                  url="https://github.com/ag-ds-bubble/swtloc",
-                 packages=setuptools.find_packages(),
+                 packages=['swtloc'],
                  install_requires=REQS,
                  classifiers=CLASSIFIERS,
                  python_requires='>=3.6')

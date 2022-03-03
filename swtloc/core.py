@@ -131,14 +131,16 @@ def swt_strokes(edged_image,
     return swt_matrix
 
 
-try:
-    swt_strokes_jitted = nb.njit(cache=True)(swt_strokes)
-except RuntimeError as e:
-    # HACK : This is specifically to facilitate the building of `readthedocs`
-    # TODO : documentations.
-    swt_strokes_jitted = nb.njit(cache=False)(swt_strokes)
-except:
-    raise
+swt_strokes_jitted = nb.njit(cache=True)(swt_strokes)
+
+# try:
+#     swt_strokes_jitted = nb.njit(cache=True)(swt_strokes)
+# except RuntimeError as e:
+#     # HACK : This is specifically to facilitate the building of `readthedocs`
+#     # TODO : documentations.
+#     swt_strokes_jitted = nb.njit(cache=False)(swt_strokes)
+# except:
+#     raise
 
 
 # mask_arr = np.full(shape=(100, 100), fill_value=0, dtype=np.uint8)

@@ -1,3 +1,8 @@
+"""
+swtloc
+Stroke Width Transform Localization Library
+"""
+
 # Author : Achintya Gupta
 # Purpose : Imports
 try:
