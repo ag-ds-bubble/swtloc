@@ -1,9 +1,14 @@
 # SWTloc : Stroke Width Transform Text Localizer
 <img style="float: right;" src="swtloc/static/logo.png" height=139 width=418 align="right" >
 
-[![PyPI Latest Release](https://img.shields.io/pypi/v/swtloc)](https://pypi.org/project/swtloc/)
-[![PyPI Downloads](https://img.shields.io/pypi/dm/swtloc)](https://pypi.org/project/swtloc/)
-[![Python Versions](https://img.shields.io/pypi/pyversions/swtloc)](https://pypi.org/project/swtloc/)
+| Header | Status |
+|------------------------|---|
+|Latest Release|[![PyPI Latest Release](https://img.shields.io/pypi/v/swtloc?style=for-the-badge)](https://pypi.org/project/swtloc/?style=for-the-badge)|
+|Downloads|[![PyPI Downloads](https://img.shields.io/pypi/dm/swtloc?style=for-the-badge)](https://pypi.org/project/swtloc/?style=for-the-badge)|
+|Supported Python |[![Python Versions](https://img.shields.io/pypi/pyversions/swtloc?style=for-the-badge)](https://pypi.org/project/swtloc/?style=for-the-badge)|
+|Documentation|[![Documentation Status](https://img.shields.io/readthedocs/swtloc?style=for-the-badge)](https://img.shields.io/readthedocs/swtloc?style=for-the-badge)|
+|Open Issues|[![Open Issues](https://img.shields.io/github/issues/ag-ds-bubble/swtloc?style=for-the-badge)](https://img.shields.io/github/issues/ag-ds-bubble/swtloc?style=for-the-badge)|
+|License|[![License](https://img.shields.io/pypi/l/swtloc?style=for-the-badge)](https://img.shields.io/pypi/l/swtloc?style=for-the-badge)|
 
 ## Description
 
@@ -25,10 +30,14 @@ The process flow of is depicted in the image below :
 <img style="float: right;" src= "swtloc/static/SWTLoc_Process_Flow.png" align="centre">
 
 ****
-### Installation 
+## Installation 
 ```py
 pip install swtloc
 ```
+
+****
+## Documentation
+Documentation for SWTLoc can be found at - [SWTLoc Documentation](http://swtloc.readthedocs.io/)
 
 ****
 ## Speed Benchmarking
@@ -173,12 +182,4 @@ swtImgObj.saveCrop(save_path=respath, crop_of='words', crop_key=9, crop_on=IMAGE
 # # Crop on Original Image
 swtImgObj.saveCrop(save_path=respath, crop_of='words', crop_key=9, crop_on=IMAGE_ORIGINAL, crop_type='bubble')
 ```
-
 ****
-### For Usage :
-- [Usage.md](../Usage.md)
-- [SWTloc-Usage-[v2.0.0-onwards].ipynb](../examples/SWTloc-Usage-[v2.0.0-onwards].ipynb) in ``examples/`` folder.
-
-****
-### For History Logs 
-- [History.md](../History.md)

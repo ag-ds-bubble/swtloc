@@ -1,12 +1,8 @@
 swtloc
 ========
-This is API Documentation
-
-.. rubric:: Description
+API Documentation for SWTLoc
 
 .. automodule:: swtloc
-
-
 
     .. rubric:: Modules
 

@@ -1,5 +1,13 @@
 ## Version Logs
 ****
+<u>v2.1.0 : Minor Release - Refactoring, Add Docs, Add Tests</u>
+- ReadTheDocs integration.
+- Removal of deprecated code.
+- Add ``tests/`` to house tests.
+- Update *setup.py* & *setup_dev.py* files for `packages` parameter.
+- Update Release Logs.
+
+****
 <u>v2.0.0 : Major Release - Refactoring, New Engines, Abstraction Addition (Py36, Py37, Py38, Py39 & Py310 Compatible)</u>
 - Following refactoring Additions/Changes were made: 
   - Core algorithms moved to [core.py](swtloc/core.py)
