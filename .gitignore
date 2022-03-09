@@ -50,5 +50,4 @@ tests/__test_data__
 tests/testall.py
 tests/pyv/
 tests/createvenvs.sh
-tests/variables.sh
 logs/

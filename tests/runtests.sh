@@ -44,12 +44,13 @@ do
     python setup_dev.py sdist
     python setup_dev.py bdist_wheel
     } >> "$upload_log_file" 2>&1
+    sleep 5  # Precautionary
 
   echo -e '\t\tUploading ...'
   {
     echo '-----------------------------------------------UPLOADING-----------------------------------------------'
     # shellcheck disable=SC2154
-    python -m twine upload --verbose -u="$uname" -p="$psw" -r testpypi "$dist_path"
+    twine upload --repository testpypi "$dist_path"
     conda deactivate
     sleep 5  # So that the fresh pull is made
     } >> "$upload_log_file" 2>&1
