@@ -10,4 +10,5 @@ autopep8
 twine
 sphinx==4.4.0
 sphinx_rtd_theme==1.0.0
-myst-parser==0.17.0
+myst-parser
+pickle5

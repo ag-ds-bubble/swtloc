@@ -9,8 +9,7 @@ versioning : x[Major Update].x[Minor Update].x[Fixes]
 """
 
 
-# Command to upload to testpypi : cls & rmdir build dist swtloc.egg-info /s /q & python setup_dev.py sdist & python setup_dev.py bdist_wheel & twine upload -r testpypi dist/*
-# Installation :- pip install --extra-index-url https://test.pypi.org/simple/ swtloc
+# Command to upload to testpypi : runtests.sh
 
 
 def _next_dev_version(pkg_name):

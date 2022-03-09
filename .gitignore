@@ -36,9 +36,9 @@ examples/images/*
 SWTlocResults/
 
 # Build's
-dist/*
-build/*
-swtloc.egg-info/*
+dist/
+build/
+swtloc.egg-info/
 
 
 # Docs
@@ -47,3 +47,8 @@ docs/source/api_docs/_autosummary/*
 
 # Tests
 tests/__test_data__
+tests/testall.py
+tests/pyv/
+tests/createvenvs.sh
+tests/variables.sh
+logs/
