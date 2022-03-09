@@ -1,5 +1,5 @@
 # SWTloc : Stroke Width Transform Text Localizer
-<img style="float: right;" src="swtloc/static/logo.png" height=139 width=418 align="right" >
+<img style="float: right;" src="docs/source/_static/logo.png" height=139 width=418 align="right" >
 
 | Header | Status |
 |------------------------|---|
@@ -18,7 +18,7 @@ This repo contains a python implementation structured as a python package pertai
 Boris Epshtein, Eyal Ofek & Yonatan Wexler
 (June, 2010)](https://www.microsoft.com/en-us/research/publication/detecting-text-in-natural-scenes-with-stroke-width-transform/)
 
-<p style="text-align:center"><img style="float: center;" src="swtloc/static/logo.gif" align="centre"></p>
+<p style="text-align:center"><img style="float: center;" src="docs/source/_static/logo.gif" align="centre"></p>
 
 This library extends the transformation stage of the image for textual content by giving the ability to :
 
@@ -27,7 +27,7 @@ This library extends the transformation stage of the image for textual content b
 
 The process flow of is depicted in the image below : 
 
-<img style="float: right;" src= "swtloc/static/SWTLoc_Process_Flow.png" align="centre">
+<img style="float: right;" src= "docs/source/_static/SWTLoc_Process_Flow.png" align="centre">
 
 ****
 ## Installation 
@@ -49,7 +49,7 @@ folder in this repository, and the code for generating the below table can be fo
 Test Image | SWT v1.1.1 (Python) | SWT v1.1.1 (Python) [x] | SWT v2.0.0 (Python) | SWT v2.0.0 (Python) [x] | SWT v2.0.0 (numba) | SWT v2.0.0 (numba) [x]
 --- | --- | --- | --- |--- |--- |--- 
 test_img1.jpg | 16.929 seconds| 1.0x| 8.145 seconds| 2.078x| 0.33 seconds| 51.315x
-test_img2.jpg | 10.107 seconds| 1.0x| 4.205 seconds| 2.404x| 0.678 seconds| 50.904x
+test_img2.jpg | 10.107 seconds| 1.0x| 4.205 seconds| 2.404x| 0.178 seconds| 50.904x
 test_img3.jpg | 4.545 seconds| 1.0x| 2.701 seconds| 1.683x| 0.082 seconds| 55.625x
 test_img4.jpeg | 7.626 seconds| 1.0x| 3.992 seconds| 1.91x| 0.142 seconds| 53.859x
 test_img5.jpg | 17.071 seconds| 1.0x| 7.554 seconds| 2.26x| 0.302 seconds| 56.62x

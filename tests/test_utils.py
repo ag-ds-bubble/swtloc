@@ -1,5 +1,9 @@
 import time
-import pickle
+import sys
+if any([k in sys.version[:4] for k in ['3.6', '3.7']]):
+    import pickle5 as pickle
+else:
+    import pickle
 import unittest
 
 from . import TEST_DATA_PATH

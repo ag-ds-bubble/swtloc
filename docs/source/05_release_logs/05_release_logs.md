@@ -2,7 +2,9 @@
 ****
 <u>v2.1.0 : Minor Release - Refactoring, Add Docs, Add Tests</u>
 - ReadTheDocs integration.
-- Removal of deprecated code.
+- Removal of deprecated codebase.
+- Removal of `README_old.md`
+- Removal of deprecated files.
 - Add ``tests/`` to house tests.
 - Update *setup.py* & *setup_dev.py* files for `packages` parameter.
 - Update Release Logs.
