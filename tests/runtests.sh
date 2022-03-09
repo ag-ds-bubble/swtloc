@@ -27,6 +27,10 @@ cd "$project_rootpath"
 echo -e 'Uploading to TestPyPI & Download to Venv + Rerun of the tests:'
 for i in "${pyversions[@]}"
 do
+  # Remove the build files
+  rm -r build
+  rm -r dist
+  rm -r swtloc.egg-info
   echo -e '\t For Python =' "$i"
 
   echo -e '\t\tBuilding ...'
@@ -49,19 +53,15 @@ do
   {
     echo '-----------------------------------------------UPLOADING-----------------------------------------------'
     # shellcheck disable=SC2154
-    python -m twine upload --verbose -u="$uname" -p="$psw" -r testpypi "$dist_path"
+    python -m twine upload --verbose --skip-existing -u="$uname" -p="$psw" -r testpypi "$dist_path"
+#    twine upload --repository testpypi "$dist_path"
     conda deactivate
-    sleep 5  # So that the fresh pull is made
     } >> "$upload_log_file" 2>&1
 
   echo -e '\t\tDownloading ...'
   {
     echo '-----------------------------------------------DOWNLOADING-----------------------------------------------'
     # Build the wheel file & Test for the Dev Environment
-    # Remove the build files
-    rm -r build
-    rm -r dist
-    rm -r swtloc.egg-info
     # Activate the Venv
     pdv="${venvs_path}py${i//.}Venv"
     conda activate "$pdv"
@@ -79,6 +79,6 @@ do
     echo '-----------------------------------------------=============-----------------------------------------------'
     } >> "$test_log_file" 2>&1
   echo -e '\t Done!'
-  sleep 5  # Precautionary
+  sleep 100 # Precautionary
 
 done
