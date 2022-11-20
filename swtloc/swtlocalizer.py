@@ -16,7 +16,11 @@ from .configs import CONFIG__SWTLOCALIZER__TRANSFORM_IMAGE_PATHS
 
 import os
 import numpy as np
-from cv2 import cv2
+
+try:
+    from cv2 import cv2
+except:
+    import cv2
 from typing import List
 from typing import Union
 from copy import deepcopy

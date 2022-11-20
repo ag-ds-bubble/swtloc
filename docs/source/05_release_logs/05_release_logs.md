@@ -1,5 +1,9 @@
 ## Version Logs
 ****
+<u>v2.1.1 : Minor Release - Fixing cv2 import issue</u>
+- Fixing OpenCV import issue in all files (Addresses Issue 22;23)
+
+****
 <u>v2.1.0 : Minor Release - Refactoring, Add Docs, Add Tests</u>
 - ReadTheDocs integration.
 - Removal of deprecated codebase.

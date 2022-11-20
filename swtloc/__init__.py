@@ -10,5 +10,5 @@ try:
 except ImportError:
     from swtlocalizer import SWTLocalizer
 
-__version__ = "2.1.0"
+__version__ = "2.1.1"
 
