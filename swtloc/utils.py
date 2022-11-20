@@ -3,7 +3,11 @@
 
 import functools
 import numpy as np
-from cv2 import cv2
+
+try:
+    from cv2 import cv2
+except:
+    import cv2
 from typing import Dict
 from typing import List
 from typing import Tuple

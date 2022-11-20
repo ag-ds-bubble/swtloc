@@ -2,7 +2,7 @@
 . ../../variables.sh
 
 # All the supported python versions
-declare -a pyversions=("3.6" "3.7" "3.8" "3.9" "3.10")
+declare -a pyversions=("3.6" "3.7" "3.8" "3.9" "3.10" "3.11")
 
 # shellcheck disable=SC2154
 venvs_path="${root_path}venvs/"

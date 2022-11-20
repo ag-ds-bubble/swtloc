@@ -15,7 +15,11 @@ from typing import Union
 
 import matplotlib.pyplot as plt
 import numpy as np
-from cv2 import cv2
+
+try:
+    from cv2 import cv2
+except:
+    import cv2
 
 from .base import GroupedComponentsBase
 from .base import IndividualComponentBase
