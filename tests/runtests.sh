@@ -1,8 +1,9 @@
 #!/bin/bash
-. ../../variables.sh
+. "${PWD}/variables.sh"
+
 
 # All the supported python versions
-declare -a pyversions=("3.6" "3.7" "3.8" "3.9" "3.10" "3.11")
+declare -a pyversions=("3.6")
 
 # shellcheck disable=SC2154
 venvs_path="${root_path}venvs/"
@@ -32,19 +33,26 @@ do
   rm -r dist
   rm -r swtloc.egg-info
   echo -e '\t For Python =' "$i"
+  pydv="${venvs_path}py${i//.}TestVenv"
+  rm -r "$pydv"
 
-  echo -e '\t\tBuilding ...'
+  echo -e '\t\tBuilding Venv & distributions...'
   {
     echo '=============================================Python = v' "$i"'============================================='
+    source "$conda_sh"
+    echo '---------------------------------------------VENV-CREATE----------------------------------------------'
+    conda create -p="$pydv" python="$i" -y
+    conda activate "$pydv"
+
     echo '-----------------------------------------------BUILDING-----------------------------------------------'
-    # Upload to TestPyPi, download and then test again for the
-    pydv="${venvs_path}py${i//.}DevVenv"
     # shellcheck disable=SC1090
     # shellcheck disable=SC2154
-    source "$conda_sh"
+#    source "D:/softs/anaconda3/etc/profile.d/conda.sh"
     conda activate "$pydv"
-    echo -e '\t\tDevelopment Venv : ' "$(which python)"
-    # Upload to TestPyPI
+    echo -e '\t\tTesting Venv : ' "$(which python)"
+    conda install twine -y
+    conda install pickle5 -y
+
     python setup_dev.py sdist
     python setup_dev.py bdist_wheel
     } >> "$upload_log_file" 2>&1
@@ -53,27 +61,26 @@ do
   {
     echo '-----------------------------------------------UPLOADING-----------------------------------------------'
     # shellcheck disable=SC2154
+    # Upload to TestPyPi, download and then test again for the
     python -m twine upload --verbose --skip-existing -u="$uname" -p="$psw" -r testpypi "$dist_path"
-#    twine upload --repository testpypi "$dist_path"
     conda deactivate
     } >> "$upload_log_file" 2>&1
 
   echo -e '\t\tDownloading ...'
   {
+    sleep 10 # Precautionary
     echo '-----------------------------------------------DOWNLOADING-----------------------------------------------'
-    # Build the wheel file & Test for the Dev Environment
-    # Activate the Venv
-    pdv="${venvs_path}py${i//.}Venv"
-    conda activate "$pdv"
-    echo -e '\t\tVenv : ' "$(which python)"
+    conda activate "$pydv"
+    echo -e '\t\tTestVenv : ' "$(which python)"
     pip install --no-cache-dir -I --extra-index-url https://test.pypi.org/simple/ swtloc
-    pip install pickle5
+#    conda install 'numpy=1.21' -y
     } >> "$upload_log_file" 2>&1
 
   echo -e '\t\tRunning Tests ...'
   {
     echo '=============================================Python = v' "$i"'============================================='
     echo '-----------------------------------------------RUNNING TESTS-----------------------------------------------'
+    pip list
     python -m unittest
     conda deactivate
     echo '-----------------------------------------------=============-----------------------------------------------'

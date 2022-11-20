@@ -22,7 +22,7 @@ def _next_dev_version(pkg_name):
         next_release = ".".join(next_release)
         return next_release
     except:
-        return '1.1.100'
+        return '2.1.50'
 
 
 def parse_requirements(filename):

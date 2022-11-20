@@ -10,7 +10,10 @@ else:
 import unittest
 
 import numpy as np
-from cv2 import cv2
+try:
+    from cv2 import cv2
+except:
+    import cv2
 
 from . import TEST_DATA_PATH
 
