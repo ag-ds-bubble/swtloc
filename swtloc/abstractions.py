@@ -371,7 +371,7 @@ class SWTImage(TextTransformBase):
         else:
             self.image_edged = edge_function(self.image_gaussian_blurred)
 
-        self.image_edged = (self.image_edged != 0).astype(int)
+        self.image_edged = (self.image_edged != 0).astype(np.int32)
 
     def _gradientImage(self):
         """
